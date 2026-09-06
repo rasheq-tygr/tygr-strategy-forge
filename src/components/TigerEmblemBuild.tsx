@@ -64,21 +64,26 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     const WATERMARK = 0.16;
     const PEAK = 1;
 
-    // The emblem only reads well over dark sections. Sample the section
-    // background directly behind the mark and hide it over light backgrounds
-    // (cream/cool) so it never muddies light content.
+    // The emblem only reads well over dark backgrounds. Walk up from the point
+    // behind the mark to the first element with an opaque background colour and
+    // judge by its luminance; hide over light backgrounds so it never muddies
+    // light content. Default to hidden when nothing opaque is found.
     const isDarkBehind = () => {
       const px = Math.min(window.innerWidth - 40, window.innerWidth * 0.8);
       const py = window.innerHeight * 0.5;
       let node = document.elementFromPoint(px, py) as HTMLElement | null;
-      while (node && node.tagName !== "SECTION" && node.tagName !== "FOOTER") {
+      while (node) {
+        const nums = getComputedStyle(node).backgroundColor.match(/[\d.]+/g);
+        if (nums && nums.length >= 3) {
+          const alpha = nums.length >= 4 ? Number(nums[3]) : 1;
+          if (alpha > 0.5) {
+            const [r, g, b] = nums.map(Number);
+            return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.4;
+          }
+        }
         node = node.parentElement;
       }
-      if (!node) return true;
-      const nums = getComputedStyle(node).backgroundColor.match(/\d+(?:\.\d+)?/g);
-      if (!nums || nums.length < 3) return true;
-      const [r, g, b] = nums.map(Number);
-      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.4;
+      return false;
     };
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
