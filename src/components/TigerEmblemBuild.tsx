@@ -60,9 +60,26 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       if (fill.current) fill.current.style.width = `${clamp(p) * 100}%`;
     };
 
-    // Assembled emblem stays as a faint watermark that travels with the page.
-    const WATERMARK = 0.06;
+    // Peak while assembling, settle to a faint watermark once "done".
+    const WATERMARK = 0.16;
     const PEAK = 1;
+
+    // The emblem only reads well over dark sections. Sample the section
+    // background directly behind the mark and hide it over light backgrounds
+    // (cream/cool) so it never muddies light content.
+    const isDarkBehind = () => {
+      const px = Math.min(window.innerWidth - 40, window.innerWidth * 0.8);
+      const py = window.innerHeight * 0.5;
+      let node = document.elementFromPoint(px, py) as HTMLElement | null;
+      while (node && node.tagName !== "SECTION" && node.tagName !== "FOOTER") {
+        node = node.parentElement;
+      }
+      if (!node) return true;
+      const nums = getComputedStyle(node).backgroundColor.match(/\d+(?:\.\d+)?/g);
+      if (!nums || nums.length < 3) return true;
+      const [r, g, b] = nums.map(Number);
+      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.4;
+    };
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
@@ -71,39 +88,48 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         p.style.opacity = "1";
       });
       setStage(1);
-      if (canvas.current) canvas.current.style.opacity = String(WATERMARK);
       if (stepper.current) stepper.current.style.opacity = "0";
-      return;
     }
 
     let raf = 0;
+    let frame = 0;
+    let overDark = true;
+    let cur = 0;
     const render = () => {
       const vh = window.innerHeight || 800;
       const p = clamp(window.scrollY / (vh * 0.7));
-      paths.forEach((path, i) => {
-        const m = meta[i];
-        const local = clamp((p - m.start) / SPAN);
-        const e = easeOut(local);
-        const off = (1 - e) * DIST;
-        const rot = (1 - e) * m.angle;
-        path.setAttribute(
-          "transform",
-          `translate(${(m.dx * off).toFixed(2)} ${(m.dy * off).toFixed(2)}) rotate(${rot.toFixed(2)} ${m.cx.toFixed(2)} ${m.cy.toFixed(2)})`,
-        );
-        // Blocks are already visible while scattered (the raw "idea"), then
-        // firm up to full opacity as they lock into place ("done").
-        path.style.opacity = String(clamp(0.42 + local * 0.58));
-      });
-      setStage(p);
-      // Once assembled ("done"), recede to a faint watermark that keeps
-      // travelling with the viewport as the reader continues down the page.
-      const fade = clamp((window.scrollY / vh - 0.72) / 0.5);
-      if (canvas.current) {
-        canvas.current.style.opacity = String(PEAK - fade * (PEAK - WATERMARK));
+      if (!reduce) {
+        paths.forEach((path, i) => {
+          const m = meta[i];
+          const local = clamp((p - m.start) / SPAN);
+          const e = easeOut(local);
+          const off = (1 - e) * DIST;
+          const rot = (1 - e) * m.angle;
+          path.setAttribute(
+            "transform",
+            `translate(${(m.dx * off).toFixed(2)} ${(m.dy * off).toFixed(2)}) rotate(${rot.toFixed(2)} ${m.cx.toFixed(2)} ${m.cy.toFixed(2)})`,
+          );
+          // Blocks are already visible while scattered (the raw "idea"), then
+          // firm up to full opacity as they lock into place ("done").
+          path.style.opacity = String(clamp(0.42 + local * 0.58));
+        });
+        setStage(p);
+        if (stepper.current) {
+          stepper.current.style.opacity = String(1 - clamp((window.scrollY / vh - 0.66) / 0.25));
+        }
       }
-      if (stepper.current) {
-        stepper.current.style.opacity = String(1 - clamp((window.scrollY / vh - 0.66) / 0.25));
+
+      if (frame % 6 === 0) overDark = isDarkBehind();
+      frame += 1;
+      // Target opacity: 0 over light sections; peak-while-building then a faint
+      // watermark over dark sections. Lerp to avoid flicker at section edges.
+      let target = 0;
+      if (overDark) {
+        const fade = clamp((window.scrollY / vh - 0.72) / 0.5);
+        target = PEAK - fade * (PEAK - WATERMARK);
       }
+      cur += (target - cur) * 0.18;
+      if (canvas.current) canvas.current.style.opacity = cur.toFixed(3);
       raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);
