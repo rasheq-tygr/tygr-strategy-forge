@@ -44,6 +44,8 @@ export function Editable({ path, as: Tag = "span", className, multiline = false 
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       data-edit-path={path}
-    />
+    >
+      {value}
+    </Tag>
   );
 }
