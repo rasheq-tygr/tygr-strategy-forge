@@ -28,7 +28,25 @@ Open the printed local URL. Default edit password is `change-me` (from `EDIT_PAS
 - Media: local upload to `/uploads` or Unsplash search (optional `VITE_UNSPLASH_ACCESS_KEY`)
 - Logo: geometric tiger placeholder SVG — replace when the SoftRiver lockup is ready
 
-## Edit password (do not hardcode a production secret)
+## Editor sign-in
+
+The editor accepts **Google Sign-In** (preferred) with an **edit password** as a backup. Both are verified server-side by the PHP `/api/*.php` endpoints (and by the dev mock during `npm run dev`).
+
+### Google Sign-In (recommended)
+
+1. In [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials), create an **OAuth 2.0 Client ID** of type **Web application**.
+2. Add **Authorized JavaScript origins**: `http://localhost:5173` (dev) and `https://tygrventures.com` (prod).
+3. Copy the **Client ID** into:
+   - `.env`: `VITE_GOOGLE_CLIENT_ID` (frontend) and `GOOGLE_CLIENT_ID` (dev mock)
+   - Hostinger `api/config.php`: `google_client_id`
+4. Set the allowlist of editor accounts:
+   - `.env`: `VITE_GOOGLE_ALLOWED_EMAILS` / `GOOGLE_ALLOWED_EMAILS`
+   - Hostinger `api/config.php`: `google_allowed_emails`
+   - Defaults to `rasheq@tygrventures.com`.
+
+The frontend only unlocks after the ID token is verified against Google's `tokeninfo` endpoint and matched to the allowlist. Leaving `VITE_GOOGLE_CLIENT_ID` blank hides the Google button and falls back to the password login.
+
+### Edit password (backup / static preview)
 
 | Where | What to set |
 | --- | --- |

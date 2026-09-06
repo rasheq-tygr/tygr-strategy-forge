@@ -254,7 +254,7 @@
   },
   "admin": {
     "loginTitle": "Editor access",
-    "loginBody": "Password-gated editing for copy, work, insights, and capabilities. Same password as the Hostinger save endpoint.",
+    "loginBody": "Sign in with your tygrventures.com Google account to edit copy, work, insights, and capabilities. An edit password remains available as a backup.",
     "passwordLabel": "Edit password",
     "submit": "Enter editor",
     "save": "Save to host",

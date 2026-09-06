@@ -89,6 +89,65 @@ async function tidyCalReal(
   }
 }
 
+function readGoogleConfig(mode: string) {
+  const env = loadEnv(mode, root, "");
+  const clientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID || "";
+  const allowed = (env.GOOGLE_ALLOWED_EMAILS || env.VITE_GOOGLE_ALLOWED_EMAILS || "rasheq@tygrventures.com")
+    .split(/[\s,]+/)
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return { clientId, allowed };
+}
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const json = Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
+    const parsed = JSON.parse(json) as Record<string, unknown>;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Verify a Google ID token during local dev. When a client ID is configured we
+ * validate against Google's tokeninfo endpoint (mirroring the PHP host). With no
+ * client ID we decode-and-allowlist so a token can be simulated offline.
+ */
+async function verifyGoogleTokenDev(
+  token: string,
+  cfg: { clientId: string; allowed: string[] },
+): Promise<boolean> {
+  if (!token) return false;
+
+  const emailAllowed = (email: unknown) => {
+    if (typeof email !== "string") return false;
+    return cfg.allowed.length === 0 || cfg.allowed.includes(email.toLowerCase());
+  };
+
+  if (cfg.clientId) {
+    try {
+      const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+      if (!res.ok) return false;
+      const claims = (await res.json()) as Record<string, unknown>;
+      const verified = claims.email_verified === true || claims.email_verified === "true";
+      const audOk = !cfg.clientId || claims.aud === cfg.clientId;
+      const notExpired = typeof claims.exp !== "number" || claims.exp * 1000 > Date.now();
+      return verified && audOk && notExpired && emailAllowed(claims.email);
+    } catch {
+      return false;
+    }
+  }
+
+  const claims = decodeJwtPayload(token);
+  if (!claims) return false;
+  const verified = claims.email_verified === true || claims.email_verified === "true";
+  const notExpired = typeof claims.exp !== "number" || claims.exp * 1000 > Date.now();
+  return verified && notExpired && emailAllowed(claims.email);
+}
+
 function readJsonBody(req: import("http").IncomingMessage) {
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -119,10 +178,13 @@ function parseMultipart(body: Buffer, boundary: string) {
 function hostingerDevApi(mode: string): Plugin {
   const password = readEnvPassword(mode);
   const tidycal = readTidyCalConfig(mode);
+  const google = readGoogleConfig(mode);
   const contentFile = path.join(root, "public", "content.json");
   const uploadDir = path.join(root, "public", "uploads");
 
-  const authorize = (req: import("http").IncomingMessage) => {
+  const authorize = async (req: import("http").IncomingMessage) => {
+    const googleToken = String(req.headers["x-google-token"] || "");
+    if (googleToken && (await verifyGoogleTokenDev(googleToken, google))) return true;
     const header = String(req.headers["x-edit-password"] || "");
     return header === password;
   };
@@ -218,11 +280,11 @@ function hostingerDevApi(mode: string): Plugin {
         }
 
         if (req.method === "POST" && url === "/api/auth.php") {
-          if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
+          if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           return json(res, 200, { ok: true });
         }
         if (req.method === "POST" && url === "/api/save.php") {
-          if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
+          if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           try {
             const raw = await readJsonBody(req);
             const parsed = JSON.parse(raw) as { content?: unknown };
@@ -234,7 +296,7 @@ function hostingerDevApi(mode: string): Plugin {
           }
         }
         if (req.method === "POST" && url === "/api/upload.php") {
-          if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
+          if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           try {
             const chunks: Buffer[] = [];
             await new Promise<void>((resolve, reject) => {
