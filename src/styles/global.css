@@ -951,6 +951,10 @@ h3,
   cursor: text;
 }
 
+.editable-multiline {
+  white-space: pre-wrap;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(30px);
