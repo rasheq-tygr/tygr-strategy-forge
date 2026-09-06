@@ -64,13 +64,10 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     const WATERMARK = 0.16;
     const PEAK = 1;
 
-    // The emblem only reads well over dark backgrounds. Walk up from the point
-    // behind the mark to the first element with an opaque background colour and
-    // judge by its luminance; hide over light backgrounds so it never muddies
-    // light content. Default to hidden when nothing opaque is found.
-    const isDarkBehind = () => {
-      const px = Math.min(window.innerWidth - 40, window.innerWidth * 0.8);
-      const py = window.innerHeight * 0.5;
+    // Luminance of the first opaque background behind a screen point, walking up
+    // the DOM. Returns 1 (treat as light) when nothing opaque is found, so the
+    // emblem hides rather than muddies transparent/light content.
+    const luminanceBehind = (px: number, py: number) => {
       let node = document.elementFromPoint(px, py) as HTMLElement | null;
       while (node) {
         const nums = getComputedStyle(node).backgroundColor.match(/[\d.]+/g);
@@ -78,12 +75,33 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           const alpha = nums.length >= 4 ? Number(nums[3]) : 1;
           if (alpha > 0.5) {
             const [r, g, b] = nums.map(Number);
-            return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.4;
+            return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
           }
         }
         node = node.parentElement;
       }
-      return false;
+      return 1;
+    };
+
+    // The emblem only reads well over dark backgrounds. Sample several points
+    // spanning the mark's actual bounding box (not one fixed point) and treat it
+    // as dark only when *every* covered point is dark. This kills bleed in
+    // dark↔light transition zones where the tall mark straddles two sections.
+    const isDarkBehind = () => {
+      const el = canvas.current;
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return false;
+      const px = Math.max(2, Math.min(window.innerWidth - 2, rect.left + rect.width / 2));
+      const fracs = [0.12, 0.32, 0.5, 0.68, 0.88];
+      let checked = 0;
+      for (const f of fracs) {
+        const py = rect.top + rect.height * f;
+        if (py < 2 || py > window.innerHeight - 2) continue;
+        checked += 1;
+        if (luminanceBehind(px, py) >= 0.4) return false;
+      }
+      return checked > 0;
     };
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
