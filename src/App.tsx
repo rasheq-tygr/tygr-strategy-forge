@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { EditChrome } from "./components/EditChrome";
 import { Footer } from "./components/Footer";
+import { HashScroll } from "./components/HashScroll";
 import { Header } from "./components/Header";
 import { TigerEmblemBuild } from "./components/TigerEmblemBuild";
 import { SiteProvider } from "./context/SiteContext";
@@ -22,6 +23,7 @@ function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="site-shell">
       <TigerEmblemBuild className="page-emblem" />
+      <HashScroll />
       <Header />
       <main>{children}</main>
       <Footer />

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
+import { toRouterLocation } from "../lib/navHref";
 import { Editable } from "./Editable";
 import { TigerMark } from "./TigerMark";
 
@@ -25,7 +26,7 @@ export function Header() {
       <nav className="header-nav">
         <div className="nav-links" style={{ display: "flex", gap: "1.4rem" }}>
           {content.nav.links.map((link, i) => (
-            <NavLink key={link.href} to={link.href}>
+            <NavLink key={link.href} to={toRouterLocation(link.href)}>
               <Editable path={`nav.links.${i}.label`} />
             </NavLink>
           ))}
