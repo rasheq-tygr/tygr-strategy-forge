@@ -11,6 +11,7 @@ export function EcosystemOrbit() {
   const nodes = content.ecosystem.nodes;
   const progress = useRef(0);
   const mouse = useRef({ x: 0, y: 0 });
+  const links = useRef<(SVGLineElement | null)[]>([]);
 
   const positions = useMemo(() => {
     return nodes.map((_, i) => {
@@ -54,6 +55,11 @@ export function EcosystemOrbit() {
         const y = 48 + Math.sin(a) * ry;
         node.style.left = `${x}%`;
         node.style.top = `${y}%`;
+        const ln = links.current[i];
+        if (ln) {
+          ln.setAttribute("x2", String(x));
+          ln.setAttribute("y2", String(y));
+        }
       });
       raf = requestAnimationFrame(tick);
     };
@@ -90,6 +96,22 @@ export function EcosystemOrbit() {
           <div className="iso-floor" />
           <div className="orbit-ring" style={{ width: "72%", height: "46%" }} />
           <div className="orbit-ring" style={{ width: "48%", height: "30%" }} />
+          <svg className="orbit-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {nodes.map((node, i) => (
+              <line
+                key={node.id}
+                ref={(el) => {
+                  links.current[i] = el;
+                }}
+                className={`orbit-link ${active === node.id ? "is-active" : ""}`}
+                x1="50"
+                y1="48"
+                x2="50"
+                y2="48"
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+          </svg>
           <div className="orbit-world" ref={world} />
           <button type="button" className="hub" onClick={() => setActive("hub")}>
             <div>

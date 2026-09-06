@@ -1,20 +1,23 @@
-type Props = { size?: number; className?: string };
+import { EMBLEM_PATH, EMBLEM_RATIO, EMBLEM_VIEWBOX } from "../lib/emblem";
 
-/** Placeholder mark — swap when the SoftRiver lockup arrives. */
-export function TigerMark({ size = 28, className }: Props) {
+type Props = { size?: number; className?: string; title?: string };
+
+/** TYGR Ventures geometric tiger-head emblem. Defaults to the brand orange. */
+export function TigerMark({ size = 30, className, title }: Props) {
   return (
     <svg
       className={className}
       width={size}
-      height={size}
-      viewBox="0 0 64 64"
+      height={Math.round(size * EMBLEM_RATIO)}
+      viewBox={EMBLEM_VIEWBOX}
       fill="none"
-      aria-hidden="true"
+      style={{ color: "var(--tygr-orange)" }}
+      role={title ? "img" : undefined}
+      aria-label={title}
+      aria-hidden={title ? undefined : true}
     >
-      <path d="M10 46h12l4-8 6 14 6-14 4 8h12" stroke="#f5f3ef" strokeWidth="2" />
-      <path d="M18 40 32 12l14 28" stroke="#f97316" strokeWidth="3.2" />
-      <path d="M24 40 32 24l8 16" stroke="#f5f3ef" strokeWidth="2" />
-      <rect x="28" y="28" width="8" height="8" fill="#f97316" transform="rotate(45 32 32)" />
+      {title ? <title>{title}</title> : null}
+      <path fill="currentColor" fillRule="evenodd" d={EMBLEM_PATH} />
     </svg>
   );
 }
