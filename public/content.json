@@ -19,8 +19,8 @@
   },
   "hero": {
     "eyebrow": "Strategy · Technology · Delivery",
-    "titleLead": "Actionable strategy.",
-    "titleAccent": "Shipped systems.",
+    "titleLead": "From idea",
+    "titleAccent": "to done.",
     "body": "TYGR Ventures is a studio, not a brochure. We design the operating system around a venture — then build, partner, and ship until the system holds.",
     "primaryCta": "Book a call",
     "secondaryCta": "See the ecosystem",
@@ -222,7 +222,8 @@
     "phoneLabel": "Phone",
     "email": "rasheq@tygrventures.com",
     "phone": "+1 (202) 932-9662",
-    "bookingUrl": ""
+    "bookingUrl": "",
+    "tidycalPath": "rasheqrahman/discovery-call"
   },
   "founder": {
     "name": "Rasheq Rahman",
@@ -232,7 +233,7 @@
   "footer": {
     "blurb": "A studio for actionable strategy and shipped systems. Washington, DC and wherever the orbit needs us.",
     "copyright": "© TYGR Ventures",
-    "editHint": "Edit site"
+    "editHint": "Editor login"
   },
   "social": {
     "linkedin": "https://www.linkedin.com/in/rasheqrahman",

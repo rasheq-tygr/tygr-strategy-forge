@@ -60,6 +60,25 @@ export async function uploadImage(file: File, password = getStoredPassword()) {
   return data.url;
 }
 
-export function bookingHref(bookingUrl: string, email: string) {
-  return bookingUrl || import.meta.env.VITE_BOOKING_URL || `mailto:${email}`;
+type BookingContact = {
+  bookingUrl?: string;
+  tidycalPath?: string;
+  email: string;
+};
+
+/** Full TidyCal hosted booking URL for a `username/booking-type` path. */
+export function tidycalUrl(path?: string) {
+  if (!path) return "";
+  return `https://tidycal.com/${path.replace(/^\/+/, "")}`;
+}
+
+/**
+ * Resolve the "Book a call" destination. Priority: explicit bookingUrl override,
+ * then the TidyCal hosted page, then a build-time fallback, then email.
+ */
+export function bookingHref(contact: BookingContact) {
+  if (contact.bookingUrl) return contact.bookingUrl;
+  const tidycal = tidycalUrl(contact.tidycalPath);
+  if (tidycal) return tidycal;
+  return (import.meta.env.VITE_BOOKING_URL as string) || `mailto:${contact.email}`;
 }

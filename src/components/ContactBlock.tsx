@@ -2,6 +2,7 @@ import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
+import { TidyCalEmbed } from "./TidyCalEmbed";
 
 export function ContactBlock() {
   const { content } = useSite();
@@ -21,9 +22,17 @@ export function ContactBlock() {
           <p>
             <Editable path="founder.blurb" multiline />
           </p>
-          <a className="btn btn-primary" href={bookingHref(content.contact.bookingUrl, content.contact.email)}>
+          <a
+            className="btn btn-primary"
+            href={bookingHref(content.contact)}
+            target="_blank"
+            rel="noreferrer"
+          >
             <Editable path="contact.cta" />
           </a>
+          {content.contact.tidycalPath ? (
+            <TidyCalEmbed path={content.contact.tidycalPath} className="contact-tidycal" />
+          ) : null}
         </Reveal>
         <Reveal>
           <div className="contact-meta">

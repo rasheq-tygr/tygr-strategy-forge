@@ -99,6 +99,7 @@ export type SiteContent = {
     email: string;
     phone: string;
     bookingUrl: string;
+    tidycalPath?: string;
   };
   founder: { name: string; role: string; blurb: string };
   footer: { blurb: string; copyright: string; editHint: string };

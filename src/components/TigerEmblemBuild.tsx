@@ -48,7 +48,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     });
 
     const SPAN = 0.55;
-    const DIST = 78;
+    const DIST = 96;
 
     const setStage = (p: number) => {
       const idx = p < 0.3 ? 0 : p < 0.6 ? 1 : p < 0.9 ? 2 : 3;
@@ -62,7 +62,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
     // Assembled emblem stays as a faint watermark that travels with the page.
     const WATERMARK = 0.06;
-    const PEAK = 0.9;
+    const PEAK = 1;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
@@ -90,7 +90,9 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           "transform",
           `translate(${(m.dx * off).toFixed(2)} ${(m.dy * off).toFixed(2)}) rotate(${rot.toFixed(2)} ${m.cx.toFixed(2)} ${m.cy.toFixed(2)})`,
         );
-        path.style.opacity = String(clamp(local * 1.25));
+        // Blocks are already visible while scattered (the raw "idea"), then
+        // firm up to full opacity as they lock into place ("done").
+        path.style.opacity = String(clamp(0.42 + local * 0.58));
       });
       setStage(p);
       // Once assembled ("done"), recede to a faint watermark that keeps
