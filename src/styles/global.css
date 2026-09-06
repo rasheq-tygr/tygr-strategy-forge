@@ -441,6 +441,7 @@ h3,
 }
 
 .card {
+  display: block;
   border: var(--hairline-light);
   background: #fff;
   padding: 1.5rem;
