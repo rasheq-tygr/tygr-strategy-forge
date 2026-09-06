@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSite } from "../../context/SiteContext";
 import { AdminLogin } from "./AdminLogin";
@@ -6,19 +5,18 @@ import { AdminLogin } from "./AdminLogin";
 export function AdminLayout() {
   const { unlocked, dirty, status, save, lock, content, error } = useSite();
   const location = useLocation();
-  const [ready, setReady] = useState(unlocked);
 
-  if (!unlocked && !ready) {
+  if (!unlocked) {
     return (
       <div className="admin">
         <div className="wrap">
-          <AdminLogin onUnlocked={() => setReady(true)} />
+          <AdminLogin />
         </div>
       </div>
     );
   }
 
-  if (unlocked && location.pathname === "/admin/login") {
+  if (location.pathname === "/admin/login") {
     return <Navigate to="/admin" replace />;
   }
 
