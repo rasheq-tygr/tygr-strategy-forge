@@ -43,8 +43,8 @@
       {
         "id": "tygrlabs",
         "name": "TygrLabs",
-        "role": "Build studio",
-        "summary": "The lab where ideas become working systems — prototypes, platforms, and internal tools that feed the rest of the orbit.",
+        "role": "Client · tech arm",
+        "summary": "RideCentric's back-office technology arm and a TYGR client — we work alongside them to turn product ideas into systems that ship.",
         "url": ""
       },
       {
@@ -58,7 +58,7 @@
         "id": "ridecentric",
         "name": "RideCentric",
         "role": "Product venture",
-        "summary": "A product company in the orbit — proof that TYGR ships operating businesses, not just advisory decks.",
+        "summary": "A product company in the orbit whose back-office technology is built and run by its tech arm, TygrLabs — proof the studio works with operating businesses, not just advisory decks.",
         "url": ""
       },
       {
