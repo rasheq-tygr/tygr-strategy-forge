@@ -619,10 +619,23 @@ h3,
   cursor: pointer;
 }
 
+.hub-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.hub-mark {
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(235, 132, 0, 0.4));
+}
+
 .hub strong {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+  color: var(--tygr-cream);
 }
 
 .sat {
