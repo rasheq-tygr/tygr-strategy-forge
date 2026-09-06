@@ -926,6 +926,40 @@ h3,
   border: var(--hairline-light);
 }
 
+.google-signin {
+  margin: 1.2rem 0 0.4rem;
+}
+
+.google-signin-button {
+  display: flex;
+  justify-content: flex-start;
+  min-height: 44px;
+}
+
+.google-signin-error {
+  margin: 0.5rem 0 0;
+  color: #b45309;
+  font-size: 0.85rem;
+}
+
+.login-alt {
+  margin: 0.9rem 0 0.2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tygr-orange);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.login-alt:hover {
+  color: var(--tygr-orange-glow);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
