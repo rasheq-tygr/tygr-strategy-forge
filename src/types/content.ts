@@ -100,6 +100,7 @@ export type SiteContent = {
     phone: string;
     bookingUrl: string;
     tidycalPath?: string;
+    tidycalBookingTypeId?: number;
   };
   founder: { name: string; role: string; blurb: string };
   footer: { blurb: string; copyright: string; editHint: string };

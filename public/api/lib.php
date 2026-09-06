@@ -12,7 +12,74 @@ function tygr_config(): array
     }
     return [
         'edit_password' => getenv('EDIT_PASSWORD') ?: 'change-me',
+        'tidycal_token' => getenv('TIDYCAL_TOKEN') ?: '',
+        'tidycal_booking_type_id' => getenv('TIDYCAL_BOOKING_TYPE_ID') ?: '',
     ];
+}
+
+/**
+ * Perform an authenticated JSON request against the TidyCal REST API.
+ * Returns [httpStatus, decodedBodyArray]. Status 0 signals a transport error
+ * or a missing token, so the secret never leaves the server.
+ */
+function tygr_tidycal_request(string $method, string $path, ?array $body = null): array
+{
+    $token = (string) (tygr_config()['tidycal_token'] ?? '');
+    if ($token === '') {
+        return [0, ['error' => 'TidyCal token not configured']];
+    }
+    $url = 'https://tidycal.com/api' . $path;
+    $payload = $body === null ? null : json_encode($body, JSON_UNESCAPED_SLASHES);
+    $headers = [
+        'Authorization: Bearer ' . $token,
+        'Accept: application/json',
+    ];
+    if ($payload !== null) {
+        $headers[] = 'Content-Type: application/json';
+    }
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        $opts = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ];
+        if ($payload !== null) {
+            $opts[CURLOPT_POSTFIELDS] = $payload;
+        }
+        curl_setopt_array($ch, $opts);
+        $res = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($res === false) {
+            return [0, ['error' => 'TidyCal request failed']];
+        }
+        $decoded = json_decode((string) $res, true);
+        return [$code, is_array($decoded) ? $decoded : []];
+    }
+
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => $method,
+            'header' => implode("\r\n", $headers),
+            'content' => $payload ?? '',
+            'timeout' => 15,
+            'ignore_errors' => true,
+        ],
+    ]);
+    $res = @file_get_contents($url, false, $ctx);
+    if ($res === false) {
+        return [0, ['error' => 'TidyCal request failed']];
+    }
+    $code = 0;
+    if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) {
+        $code = (int) $m[1];
+    }
+    $decoded = json_decode((string) $res, true);
+    return [$code, is_array($decoded) ? $decoded : []];
 }
 
 function tygr_json_input(): array

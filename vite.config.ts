@@ -12,6 +12,83 @@ function readEnvPassword(mode: string) {
   return env.EDIT_PASSWORD || env.VITE_EDIT_PASSWORD || "change-me";
 }
 
+function readTidyCalConfig(mode: string) {
+  const env = loadEnv(mode, root, "");
+  return {
+    token: env.TIDYCAL_TOKEN || "",
+    bookingTypeId: env.TIDYCAL_BOOKING_TYPE_ID || "",
+  };
+}
+
+const isoZulu = (d: Date) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
+
+/** Synthetic timeslots so the booking UI is testable locally without a token. */
+function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
+  const out: { starts_at: string; ends_at: string; available_bookings: number }[] = [];
+  const end = new Date(endsAt);
+  const now = Date.now();
+  const cursor = new Date(Math.max(new Date(startsAt).getTime(), now));
+  cursor.setUTCHours(0, 0, 0, 0);
+  for (let d = new Date(cursor); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const dow = d.getUTCDay();
+    if (dow === 0 || dow === 6) continue;
+    for (const h of [15, 16, 17, 18, 19, 20]) {
+      const s = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), h, 0, 0));
+      if (s.getTime() < now + 2 * 3600 * 1000 || s > end) continue;
+      out.push({
+        starts_at: isoZulu(s),
+        ends_at: isoZulu(new Date(s.getTime() + durationMin * 60000)),
+        available_bookings: 1,
+      });
+    }
+  }
+  return out;
+}
+
+const MOCK_BOOKING_TYPE = {
+  id: 999001,
+  title: "Discovery call",
+  duration_minutes: 30,
+  padding_minutes: 0,
+  url_slug: "discovery-call",
+  description: "A 30-minute intro call to talk through your constraint and whether the studio fits.",
+  price: 0,
+  currency_code: "USD",
+  private: false,
+  url: "https://tidycal.com/rasheqrahman/discovery-call",
+};
+
+/** Call the real TidyCal API from the dev server (token stays server-side). */
+async function tidyCalReal(
+  token: string,
+  method: string,
+  apiPath: string,
+  body?: unknown,
+): Promise<{ status: number; data: Record<string, unknown> }> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/json",
+  };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  try {
+    const res = await fetch(`https://tidycal.com/api${apiPath}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const text = await res.text();
+    let data: Record<string, unknown> = {};
+    try {
+      data = text ? (JSON.parse(text) as Record<string, unknown>) : {};
+    } catch {
+      data = {};
+    }
+    return { status: res.status, data };
+  } catch {
+    return { status: 502, data: { error: "TidyCal request failed" } };
+  }
+}
+
 function readJsonBody(req: import("http").IncomingMessage) {
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -41,6 +118,7 @@ function parseMultipart(body: Buffer, boundary: string) {
 
 function hostingerDevApi(mode: string): Plugin {
   const password = readEnvPassword(mode);
+  const tidycal = readTidyCalConfig(mode);
   const contentFile = path.join(root, "public", "content.json");
   const uploadDir = path.join(root, "public", "uploads");
 
@@ -60,6 +138,85 @@ function hostingerDevApi(mode: string): Plugin {
     configureServer(server: ViteDevServer) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0] || "";
+        const query = new URLSearchParams(req.url?.split("?")[1] || "");
+
+        if (url === "/api/tidycal.php") {
+          const configuredType = tidycal.bookingTypeId;
+          const resolveType = (requested: string) => (configuredType ? configuredType : requested);
+
+          if (req.method === "GET" && query.get("action") === "booking-types") {
+            if (tidycal.token) {
+              const r = await tidyCalReal(tidycal.token, "GET", "/booking-types");
+              let items = Array.isArray((r.data as { data?: unknown }).data)
+                ? ((r.data as { data: Record<string, unknown>[] }).data)
+                : [];
+              if (configuredType) items = items.filter((b) => String(b.id) === configuredType);
+              return json(res, r.status || 502, { ok: r.status === 200, data: items });
+            }
+            return json(res, 200, { ok: true, mock: true, data: [MOCK_BOOKING_TYPE] });
+          }
+
+          if (req.method === "GET" && query.get("action") === "timeslots") {
+            const typeId = resolveType(query.get("booking_type_id") || "");
+            const startsAt = query.get("starts_at") || "";
+            const endsAt = query.get("ends_at") || "";
+            if (!typeId || !startsAt || !endsAt) {
+              return json(res, 400, { ok: false, error: "Missing booking_type_id, starts_at or ends_at" });
+            }
+            if (tidycal.token) {
+              const qs = new URLSearchParams({ starts_at: startsAt, ends_at: endsAt }).toString();
+              const r = await tidyCalReal(tidycal.token, "GET", `/booking-types/${typeId}/timeslots?${qs}`);
+              return json(res, r.status || 502, { ok: r.status === 200, data: (r.data as { data?: unknown }).data ?? [] });
+            }
+            return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+          }
+
+          if (req.method === "POST") {
+            let input: Record<string, unknown> = {};
+            try {
+              input = JSON.parse((await readJsonBody(req)) || "{}") as Record<string, unknown>;
+            } catch {
+              return json(res, 400, { ok: false, error: "Invalid JSON" });
+            }
+            if (input.action !== "book") return json(res, 400, { ok: false, error: "Unsupported action" });
+            const typeId = resolveType(String(input.booking_type_id ?? ""));
+            const startsAt = String(input.starts_at ?? "");
+            const name = String(input.name ?? "").trim();
+            const email = String(input.email ?? "").trim();
+            const timezone = String(input.timezone ?? "UTC");
+            if (!typeId || !startsAt || !name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+              return json(res, 422, { ok: false, error: "Name, a valid email and a time slot are required." });
+            }
+            if (tidycal.token) {
+              const r = await tidyCalReal(tidycal.token, "POST", `/booking-types/${typeId}/bookings`, {
+                starts_at: startsAt,
+                name: name.slice(0, 191),
+                email: email.slice(0, 191),
+                timezone: timezone.slice(0, 191),
+              });
+              if (r.status === 201) return json(res, 201, { ok: true, data: (r.data as { data?: unknown }).data ?? null });
+              if (r.status === 409) return json(res, 409, { ok: false, error: "That time was just taken. Please pick another slot." });
+              return json(res, r.status || 502, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
+            }
+            const start = new Date(startsAt);
+            return json(res, 201, {
+              ok: true,
+              mock: true,
+              data: {
+                id: Math.floor(Math.random() * 1e6),
+                booking_type_id: Number(typeId) || typeId,
+                starts_at: isoZulu(start),
+                ends_at: isoZulu(new Date(start.getTime() + MOCK_BOOKING_TYPE.duration_minutes * 60000)),
+                timezone,
+                meeting_url: "https://meet.tidycal.example/mock-room",
+                contact: { name, email, timezone },
+              },
+            });
+          }
+
+          return json(res, 400, { ok: false, error: "Unsupported request" });
+        }
+
         if (req.method === "POST" && url === "/api/auth.php") {
           if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
           return json(res, 200, { ok: true });
