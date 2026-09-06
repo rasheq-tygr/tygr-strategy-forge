@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const SCRIPT_SRC = "https://asset-tidycal.b-cdn.net/js/embed.js";
+const SCRIPT_SRC = "https://tidycal.com/js/embed.js";
 
 /**
  * Inline TidyCal scheduler. `path` is the `username/booking-type` slug from the
