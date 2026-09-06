@@ -18,6 +18,8 @@ type BlockMeta = { dx: number; dy: number; cx: number; cy: number; angle: number
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
+  const canvas = useRef<SVGSVGElement>(null);
+  const stepper = useRef<HTMLDivElement>(null);
   const blocks = useRef<(SVGPathElement | null)[]>([]);
   const steps = useRef<(HTMLSpanElement | null)[]>([]);
   const fill = useRef<HTMLSpanElement>(null);
@@ -58,6 +60,10 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       if (fill.current) fill.current.style.width = `${clamp(p) * 100}%`;
     };
 
+    // Assembled emblem stays as a faint watermark that travels with the page.
+    const WATERMARK = 0.06;
+    const PEAK = 0.9;
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       paths.forEach((p) => {
@@ -65,6 +71,8 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         p.style.opacity = "1";
       });
       setStage(1);
+      if (canvas.current) canvas.current.style.opacity = String(WATERMARK);
+      if (stepper.current) stepper.current.style.opacity = "0";
       return;
     }
 
@@ -85,9 +93,15 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         path.style.opacity = String(clamp(local * 1.25));
       });
       setStage(p);
-      // Once assembled ("done"), recede into the background while reading on.
-      const fade = clamp((window.scrollY / vh - 0.72) / 0.4);
-      if (wrap.current) wrap.current.style.opacity = String(0.92 - fade * 0.8);
+      // Once assembled ("done"), recede to a faint watermark that keeps
+      // travelling with the viewport as the reader continues down the page.
+      const fade = clamp((window.scrollY / vh - 0.72) / 0.5);
+      if (canvas.current) {
+        canvas.current.style.opacity = String(PEAK - fade * (PEAK - WATERMARK));
+      }
+      if (stepper.current) {
+        stepper.current.style.opacity = String(1 - clamp((window.scrollY / vh - 0.66) / 0.25));
+      }
       raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);
@@ -96,7 +110,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
   return (
     <div className={`emblem-build ${className ?? ""}`} ref={wrap}>
-      <svg className="emblem-canvas" viewBox={EMBLEM_VIEWBOX} fill="none" aria-hidden="true">
+      <svg className="emblem-canvas" viewBox={EMBLEM_VIEWBOX} fill="none" aria-hidden="true" ref={canvas}>
         {EMBLEM_BLOCKS.map((d, i) => (
           <path
             key={i}
@@ -110,7 +124,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           />
         ))}
       </svg>
-      <div className="emblem-stepper" aria-hidden="true">
+      <div className="emblem-stepper" aria-hidden="true" ref={stepper}>
         <span className="emblem-stepper-eyebrow">From idea to done</span>
         <div className="emblem-stepper-track">
           <span className="emblem-stepper-fill" ref={fill} />

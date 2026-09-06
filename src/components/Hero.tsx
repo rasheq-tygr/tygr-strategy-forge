@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
 import { Editable } from "./Editable";
-import { TigerEmblemBuild } from "./TigerEmblemBuild";
 
 export function Hero() {
   const { content } = useSite();
@@ -43,7 +42,6 @@ export function Hero() {
   return (
     <section className="hero" ref={root}>
       <div className="hero-layers" ref={layers}>
-        <TigerEmblemBuild className="hero-emblem" />
         <div className="hero-grid" />
         <div className="block-wave" aria-hidden="true">
           {Array.from({ length: 14 }, (_, i) => (
