@@ -162,6 +162,18 @@
     "cta": "All insights",
     "items": [
       {
+        "id": "tygr-ventures-launch",
+        "slug": "tygr-ventures-launch",
+        "title": "TYGR Ventures is live.",
+        "excerpt": "We threw a launch party and turned the lights on the orbit. Here is what we built, who showed up, and where the studio goes from here.",
+        "body": "TYGR Ventures is officially live — and we launched it the way we intend to work: in a room full of the people who make the system real.\n\nThe idea was never a brochure. It was an ecosystem with a hub. TYGR Ventures sits at the center; TygrLabs turns ideas into systems; Punch makes engineering a partner instead of an afterthought; Rebl and RideCentric keep us accountable to real products; Casper Academy / BrainWrk trains people into the work. On launch night, for the first time, every node was in the same room.\n\nThank you to the founders, operators, and partners who came out. Some of you have trusted us with the messy middle of your business; some of you are about to. Either way, you are the reason this studio exists — the brand is the founder, and the founder stays close to the work.\n\nThe promise is simple and it is the whole company: from idea to done. Not a slide. Not a phase two. A system you can staff on Monday.\n\nWhat's next: we're opening a small number of venture-design engagements this quarter, continuing to build inside TygrLabs, and bringing the academy loop to more teams. If you were in the room — or wish you had been — book a call and bring the real constraint.",
+        "date": "2026-09-06",
+        "author": "Rasheq Rahman",
+        "tags": ["Launch", "Studio"],
+        "image": "/brand/launch-cover.png",
+        "imageCredit": "TYGR Ventures"
+      },
+      {
         "id": "ecosystems-not-brochures",
         "slug": "ecosystems-not-brochures",
         "title": "Stop selling the brochure. Build the orbit.",
