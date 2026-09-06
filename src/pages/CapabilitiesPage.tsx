@@ -17,7 +17,7 @@ export function CapabilitiesPage() {
           </p>
         </div>
       </section>
-      <Capabilities />
+      <Capabilities heading={false} />
     </>
   );
 }

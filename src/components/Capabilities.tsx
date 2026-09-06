@@ -3,13 +3,14 @@ import { useSite } from "../context/SiteContext";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
 
-export function Capabilities({ limit }: { limit?: number }) {
+export function Capabilities({ limit, heading = true }: { limit?: number; heading?: boolean }) {
   const { content } = useSite();
   const items = limit ? content.capabilities.items.slice(0, limit) : content.capabilities.items;
 
   return (
     <section className="section cream" id="capabilities">
       <div className="wrap">
+        {heading ? (
         <Reveal>
           <div className="section-head">
             <p className="eyebrow">
@@ -23,6 +24,7 @@ export function Capabilities({ limit }: { limit?: number }) {
             </p>
           </div>
         </Reveal>
+        ) : null}
         <div className="cap-grid">
           {items.map((item, i) => (
             <Reveal key={item.id}>

@@ -237,16 +237,12 @@ h3,
 }
 
 .hero-chevrons {
-  background:
-    repeating-linear-gradient(
-      180deg,
-      transparent 0 46px,
-      rgba(249, 115, 22, 0.92) 46px 92px,
-      var(--tygr-navy) 92px 138px
-    );
-  clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 100%, 0 100%);
-  mask-image: linear-gradient(#000 40%, transparent 92%);
-  transform: skewY(-8deg) scale(1.15);
+  width: 140%;
+  height: 140%;
+  left: -20%;
+  top: -8%;
+  opacity: 0.92;
+  mask-image: linear-gradient(#000 38%, transparent 90%);
 }
 
 .hero-grid {
@@ -785,8 +781,18 @@ h3,
 }
 
 @media (max-width: 900px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .header-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
   .header-nav .nav-links {
-    display: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
   }
   .cap-grid,
   .work-grid,
