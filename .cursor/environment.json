@@ -1,6 +1,6 @@
 {
   "name": "TYGR Ventures",
-  "install": "cp -n .env.example .env || true; npm ci",
+  "install": "[ -f .env ] || cp .env.example .env\nnpm ci",
   "terminals": [
     {
       "name": "dev",
