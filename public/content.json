@@ -1,0 +1,252 @@
+{
+  "meta": {
+    "title": "TYGR Ventures",
+    "description": "Actionable strategy. Shipped systems. An ecosystem studio for strategy, technology, and delivery."
+  },
+  "brand": {
+    "name": "TYGR Ventures",
+    "shortName": "TYGR",
+    "domain": "tygrventures.com"
+  },
+  "nav": {
+    "links": [
+      { "label": "Ecosystem", "href": "/#ecosystem" },
+      { "label": "Capabilities", "href": "/#capabilities" },
+      { "label": "Work", "href": "/work" },
+      { "label": "Insights", "href": "/insights" }
+    ],
+    "cta": "Book a call"
+  },
+  "hero": {
+    "eyebrow": "Strategy · Technology · Delivery",
+    "titleLead": "Actionable strategy.",
+    "titleAccent": "Shipped systems.",
+    "body": "TYGR Ventures is a studio, not a brochure. We design the operating system around a venture — then build, partner, and ship until the system holds.",
+    "primaryCta": "Book a call",
+    "secondaryCta": "See the ecosystem",
+    "scrollHint": "Scroll to build"
+  },
+  "stats": {
+    "items": [
+      { "value": "1 hub", "label": "TYGR Ventures at the center" },
+      { "value": "5 orbits", "label": "Labs, academy, products, partners" },
+      { "value": "3 notes", "label": "Strategy, technology, delivery" }
+    ]
+  },
+  "ecosystem": {
+    "eyebrow": "The orbit",
+    "title": "One hub. A living ecosystem.",
+    "body": "Most firms sell a slide. We run a system. Ventures, labs, academies, and delivery partners orbit the same center of gravity — so strategy has somewhere to land.",
+    "hubLabel": "TYGR Ventures",
+    "hubBody": "The studio at the center. Venture design, capital of attention, and the operating cadence that keeps every node honest.",
+    "nodes": [
+      {
+        "id": "tygrlabs",
+        "name": "TygrLabs",
+        "role": "Build studio",
+        "summary": "The lab where ideas become working systems — prototypes, platforms, and internal tools that feed the rest of the orbit.",
+        "url": ""
+      },
+      {
+        "id": "casper",
+        "name": "Casper Academy / BrainWrk",
+        "role": "Learning system",
+        "summary": "Capability-building for operators and coaches. Curriculum, practice, and the rituals that turn strategy into habit.",
+        "url": ""
+      },
+      {
+        "id": "ridecentric",
+        "name": "RideCentric",
+        "role": "Product venture",
+        "summary": "A product company in the orbit — proof that TYGR ships operating businesses, not just advisory decks.",
+        "url": ""
+      },
+      {
+        "id": "rebl",
+        "name": "Rebl",
+        "role": "Product venture",
+        "summary": "A second product node in the system. Distinct brand, shared discipline: ship, measure, compound.",
+        "url": ""
+      },
+      {
+        "id": "punch",
+        "name": "Punch",
+        "role": "AI / software partner",
+        "summary": "AI and software engineering partner (punch.cool). The delivery muscle when a system needs to be built, not just described.",
+        "url": "https://punch.cool"
+      }
+    ]
+  },
+  "capabilities": {
+    "eyebrow": "Capabilities",
+    "title": "What the system actually does.",
+    "body": "Three motions, one studio. We do not separate the strategy conversation from the build, or the build from the people who have to run it.",
+    "items": [
+      {
+        "id": "strategy",
+        "number": "01",
+        "title": "Venture strategy",
+        "body": "Positioning, operating models, and the few decisions that actually compound. Written so a team can execute on Monday — not admire on Friday."
+      },
+      {
+        "id": "technology",
+        "number": "02",
+        "title": "Product & platforms",
+        "body": "From TygrLabs to Punch: architecture, AI systems, and software that survive contact with real users. Build the thing the strategy assumed existed."
+      },
+      {
+        "id": "delivery",
+        "number": "03",
+        "title": "Delivery systems",
+        "body": "Cadence, partners, and enablement. Academies, playbooks, and the operating rhythm that keeps a venture from becoming a graveyard of good ideas."
+      },
+      {
+        "id": "ecosystems",
+        "number": "04",
+        "title": "Ecosystem design",
+        "body": "Map the nodes, the incentives, and the handoffs. Then stand up the orbit — ventures, labs, and partners that make each other more valuable."
+      }
+    ]
+  },
+  "work": {
+    "eyebrow": "Selected work",
+    "title": "Systems we have stood up.",
+    "body": "Named partners where we can. Anonymous where the client has not cleared a public mention.",
+    "cta": "All work",
+    "items": [
+      {
+        "id": "coaching-federation",
+        "slug": "global-coaching-federation",
+        "client": "Global coaching federation",
+        "title": "Operating system for a credentialing body",
+        "summary": "A worldwide coaching credentialing organization needed its digital, education, and membership motions to behave like one system — not three departments.",
+        "body": "We treated the organization as an ecosystem: credentialing, education, and member experience as orbiting nodes with a shared operating cadence. The work was strategy that could be staffed, plus the delivery path to make it real. Client name withheld pending clearance.",
+        "outcome": "A single narrative and build sequence across digital experience, education, and membership operations.",
+        "year": "2024",
+        "tags": ["Strategy", "Delivery", "Enablement"],
+        "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
+        "id": "equifinality",
+        "slug": "equifinality-solutions",
+        "client": "Equifinality Solutions",
+        "title": "Partnered delivery, one operating picture",
+        "summary": "A strategy partnership with Equifinality Solutions — aligning advisory work to systems that can actually be implemented.",
+        "body": "Equifinality Solutions and TYGR met at the seam between diagnosis and build. We paired their advisory depth with TYGR’s studio cadence so recommendations arrived with an owner, a sequence, and a path into software and enablement.",
+        "outcome": "Shared delivery language and a repeatable handoff from insight to shipped system.",
+        "year": "2025",
+        "tags": ["Partnership", "Strategy"],
+        "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
+        "id": "clybor",
+        "slug": "clybor-consulting",
+        "client": "Clybor Consulting",
+        "title": "Consulting that lands in the orbit",
+        "summary": "Work with Clybor Consulting on the messy middle — where a client has a point of view and still needs a system around it.",
+        "body": "Clybor Consulting brings operator judgment. TYGR brings the studio: product, partners, and the academy motion when the constraint is capability, not slides. Together the engagement stays human and still ships.",
+        "outcome": "A partner model that keeps advisory work connected to build and enablement.",
+        "year": "2025",
+        "tags": ["Partnership", "Delivery"],
+        "image": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      }
+    ]
+  },
+  "insights": {
+    "eyebrow": "Insights",
+    "title": "Notes from the studio.",
+    "body": "Short essays on ecosystems, shipping, and the work of holding a venture together.",
+    "cta": "All insights",
+    "items": [
+      {
+        "id": "ecosystems-not-brochures",
+        "slug": "ecosystems-not-brochures",
+        "title": "Stop selling the brochure. Build the orbit.",
+        "excerpt": "A website is not a strategy. An ecosystem is a set of nodes that make each other more valuable — and a hub that refuses to let them drift.",
+        "body": "Most professional firms still ship a brochure and call it a brand. The brochure describes services as a list. An ecosystem describes gravity.\n\nTYGR Ventures sits at the center because someone has to hold the cadence. TygrLabs exists so ideas have a place to become systems. Casper Academy / BrainWrk exists so people can be trained into the work. RideCentric and Rebl exist so the studio is accountable to real products. Punch exists so software engineering is a partner, not a vendor afterthought.\n\nIf a node cannot explain how it makes another node stronger, it is decoration. Cut it or reconnect it.",
+        "date": "2026-03-12",
+        "author": "Rasheq Rahman",
+        "tags": ["Ecosystem", "Strategy"],
+        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
+        "id": "strategy-that-ships",
+        "slug": "strategy-that-ships",
+        "title": "Strategy that can survive a Monday.",
+        "excerpt": "If the recommendation cannot be staffed, sequenced, and shipped, it is still a wish. We write for operators.",
+        "body": "The test is rude and useful: can a sharp operator take the strategy into a Monday standup without translating it first?\n\nThat is why TYGR keeps delivery in the same room as strategy. Punch and TygrLabs are not ‘phase two.’ They are how we find out whether the model is true. Casper Academy / BrainWrk is how we find out whether humans can actually run it.\n\nActionable strategy is not louder strategy. It is strategy with a surface area — product, cadence, partners — where it can fail in public and get better.",
+        "date": "2026-05-02",
+        "author": "Rasheq Rahman",
+        "tags": ["Delivery", "Operating models"],
+        "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
+        "id": "academy-to-product",
+        "slug": "academy-to-product-loop",
+        "title": "The academy-to-product loop",
+        "excerpt": "Enablement that never touches a product is theater. Product that never teaches the operator is abandoned software.",
+        "body": "Casper Academy / BrainWrk is in the orbit for a reason. Ventures fail in the gap between the system we built and the people asked to live in it.\n\nThe loop is simple: ship a thin system, teach the motion, watch where operators stall, then change the product — not the slide. Repeat until the system holds without the founder in the room.\n\nThat is the personal part of this brand. I will not sell a transformation I would not sit in.",
+        "date": "2026-07-18",
+        "author": "Rasheq Rahman",
+        "tags": ["Academy", "Product"],
+        "image": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      }
+    ]
+  },
+  "partners": {
+    "eyebrow": "In orbit",
+    "title": "Partners and nodes",
+    "items": [
+      { "name": "TygrLabs", "href": "" },
+      { "name": "Casper Academy", "href": "" },
+      { "name": "BrainWrk", "href": "" },
+      { "name": "RideCentric", "href": "" },
+      { "name": "Rebl", "href": "" },
+      { "name": "Punch", "href": "https://punch.cool" },
+      { "name": "Equifinality Solutions", "href": "" },
+      { "name": "Clybor Consulting", "href": "" }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Start a conversation",
+    "title": "Book the call. Bring the real constraint.",
+    "body": "I work with founders, operators, and institutions who already know the brochure is not enough. Tell me the system you are trying to hold together.",
+    "cta": "Book a call",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "email": "rasheq@tygrventures.com",
+    "phone": "+1 (202) 932-9662",
+    "bookingUrl": ""
+  },
+  "founder": {
+    "name": "Rasheq Rahman",
+    "role": "Founder",
+    "blurb": "The brand is the founder. I stay close to the work — strategy, systems, and the people who have to run them."
+  },
+  "footer": {
+    "blurb": "A studio for actionable strategy and shipped systems. Washington, DC and wherever the orbit needs us.",
+    "copyright": "© TYGR Ventures",
+    "editHint": "Edit site"
+  },
+  "social": {
+    "linkedin": "https://www.linkedin.com/in/rasheqrahman",
+    "x": "https://x.com/rasheqrahman",
+    "instagram": "https://www.instagram.com/rasheqrahman"
+  },
+  "admin": {
+    "loginTitle": "Editor access",
+    "loginBody": "Password-gated editing for copy, work, insights, and capabilities. Same password as the Hostinger save endpoint.",
+    "passwordLabel": "Edit password",
+    "submit": "Enter editor",
+    "save": "Save to host",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "unsaved": "Unsaved changes"
+  }
+}
