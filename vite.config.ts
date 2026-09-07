@@ -245,15 +245,21 @@ function hostingerDevApi(mode: string): Plugin {
             const startsAt = String(input.starts_at ?? "");
             const name = String(input.name ?? "").trim();
             const email = String(input.email ?? "").trim();
+            const phone = String(input.phone ?? "").trim();
             const timezone = String(input.timezone ?? "UTC");
-            if (!typeId || !startsAt || !name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-              return json(res, 422, { ok: false, error: "Name, a valid email and a time slot are required." });
+            if (!typeId || !startsAt || !name || !phone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+              return json(res, 422, { ok: false, error: "Name, a valid email, a phone number and a time slot are required." });
             }
             if (tidycal.token) {
+              // TidyCal's public API has no field for a booker phone on video booking
+              // types, so append it to the name — the one free-text channel it stores
+              // and shows on the booking, calendar event, and host notification.
+              const bookedName = phone ? `${name} (${phone})`.slice(0, 191) : name.slice(0, 191);
               const r = await tidyCalReal(tidycal.token, "POST", `/booking-types/${typeId}/bookings`, {
                 starts_at: startsAt,
-                name: name.slice(0, 191),
+                name: bookedName,
                 email: email.slice(0, 191),
+                phone_number: phone.slice(0, 40),
                 timezone: timezone.slice(0, 191),
               });
               if (r.status === 201) return json(res, 201, { ok: true, data: (r.data as { data?: unknown }).data ?? null });
@@ -271,7 +277,7 @@ function hostingerDevApi(mode: string): Plugin {
                 ends_at: isoZulu(new Date(start.getTime() + MOCK_BOOKING_TYPE.duration_minutes * 60000)),
                 timezone,
                 meeting_url: "https://meet.tidycal.example/mock-room",
-                contact: { name, email, timezone },
+                contact: { name, email, phone_number: phone, timezone },
               },
             });
           }

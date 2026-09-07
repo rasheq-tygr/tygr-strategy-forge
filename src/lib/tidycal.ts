@@ -1,3 +1,8 @@
+export type TidyCalLocation = {
+  location_link_source?: string;
+  location_option?: string;
+};
+
 export type TidyCalBookingType = {
   id: number;
   title: string;
@@ -7,6 +12,8 @@ export type TidyCalBookingType = {
   currency_code?: string;
   url?: string;
   url_slug?: string;
+  booking_page_url?: string;
+  locations?: TidyCalLocation[];
 };
 
 export type TidyCalSlot = {
@@ -21,7 +28,8 @@ export type TidyCalBooking = {
   ends_at: string;
   timezone?: string;
   meeting_url?: string;
-  contact?: { name?: string; email?: string };
+  location?: string;
+  contact?: { name?: string; email?: string; phone_number?: string };
 };
 
 type ApiResult<T> = { ok: boolean; data: T; mock?: boolean; error?: string; status: number };
@@ -73,6 +81,7 @@ export function createBooking(input: {
   startsAt: string;
   name: string;
   email: string;
+  phone: string;
   timezone: string;
 }) {
   return call<TidyCalBooking | null>(ENDPOINT, {
@@ -84,9 +93,25 @@ export function createBooking(input: {
       starts_at: input.startsAt,
       name: input.name,
       email: input.email,
+      phone: input.phone,
       timezone: input.timezone,
     }),
   });
+}
+
+/** Describe the meeting method from the booking type's configured locations. */
+export function meetingLabel(type: TidyCalBookingType | null): string {
+  const src = type?.locations?.find((l) => l.location_link_source)?.location_link_source;
+  switch (src) {
+    case "google_meet":
+      return "Google Meet";
+    case "zoom":
+      return "Zoom";
+    case "ms_teams":
+      return "Microsoft Teams";
+    default:
+      return "Video call";
+  }
 }
 
 /** Resolve which booking type to use: explicit id, then slug, then the first. */
@@ -134,6 +159,38 @@ export function formatDayLabel(iso: string): string {
 export function formatTimeLabel(iso: string): string {
   return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 }
+
+/** Full, human date heading for the selected day, e.g. "Wednesday, September 9". */
+export function formatLongDayLabel(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+export type CalendarCell = { key: string; date: Date; inMonth: boolean; iso: string };
+
+/** Build a Monday-first month grid (6 weeks) for a Calendly-style date picker. */
+export function monthMatrix(year: number, month: number): CalendarCell[] {
+  const first = new Date(year, month, 1);
+  const startOffset = (first.getDay() + 6) % 7; // Monday = 0
+  const start = new Date(year, month, 1 - startOffset);
+  const cells: CalendarCell[] = [];
+  for (let i = 0; i < 42; i += 1) {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    cells.push({ key, date: d, inMonth: d.getMonth() === month, iso: d.toISOString() });
+  }
+  return cells;
+}
+
+export const MONTH_LABELS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+export const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function shortTimezone(): string {
   try {

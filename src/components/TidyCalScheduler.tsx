@@ -4,12 +4,16 @@ import {
   createBooking,
   fetchBookingTypes,
   fetchTimeslots,
-  formatDayLabel,
+  formatLongDayLabel,
   formatTimeLabel,
   localDayKey,
+  meetingLabel,
+  monthMatrix,
   resolveBookingType,
   shortTimezone,
   timeslotWindow,
+  MONTH_LABELS,
+  WEEKDAY_LABELS,
   type TidyCalBooking,
   type TidyCalBookingType,
   type TidyCalSlot,
@@ -24,10 +28,28 @@ type Props = {
   className?: string;
 };
 
+const VIDEO_ICON = (
+  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path
+      fill="currentColor"
+      d="M4 5h11a2 2 0 0 1 2 2v2.2l4.3-2.6a.6.6 0 0 1 .9.5v9.8a.6.6 0 0 1-.9.5L17 14.8V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
+    />
+  </svg>
+);
+
+function plainText(html?: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /**
  * Custom booking widget backed by the TidyCal REST API (via the /api/tidycal.php
- * proxy) — not an iframe. Loads availability, lets the visitor pick a slot, and
- * creates the booking through the API.
+ * proxy) — not an iframe. Calendly-style: event info on the left, a month
+ * calendar and the selected day's times on the right, then a details form.
  */
 export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   const [status, setStatus] = useState<Status>("loading");
@@ -36,15 +58,20 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   const [slots, setSlots] = useState<TidyCalSlot[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [view, setView] = useState<{ year: number; month: number }>(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [confirmation, setConfirmation] = useState<TidyCalBooking | null>(null);
   const tz = useRef(bookerTimezone());
 
   const loadSlots = async (typeId: number) => {
-    const { startsAt, endsAt } = timeslotWindow(35);
+    const { startsAt, endsAt } = timeslotWindow(60);
     const res = await fetchTimeslots(typeId, startsAt, endsAt);
     const list = Array.isArray(res.data) ? res.data.filter((s) => s.available_bookings > 0) : [];
     setSlots(list);
@@ -64,8 +91,12 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
         setBookingType(type);
         const list = await loadSlots(type.id);
         if (cancelled) return;
-        const firstDay = list.length ? localDayKey(list[0].starts_at) : null;
-        setSelectedDay(firstDay);
+        if (list.length) {
+          const firstIso = list[0].starts_at;
+          const first = new Date(firstIso);
+          setView({ year: first.getFullYear(), month: first.getMonth() });
+          setSelectedDay(localDayKey(firstIso));
+        }
         setStatus("ready");
       } catch (err) {
         if (!cancelled) {
@@ -80,7 +111,7 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingTypeId, path]);
 
-  const days = useMemo(() => {
+  const dayMap = useMemo(() => {
     const map = new Map<string, TidyCalSlot[]>();
     for (const s of slots) {
       const key = localDayKey(s.starts_at);
@@ -88,13 +119,30 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
       if (bucket) bucket.push(s);
       else map.set(key, [s]);
     }
-    return Array.from(map.entries()).sort(([a], [b]) => (a < b ? -1 : 1));
+    return map;
   }, [slots]);
 
   const daySlots = useMemo(
-    () => days.find(([key]) => key === selectedDay)?.[1] ?? [],
-    [days, selectedDay],
+    () => (selectedDay ? dayMap.get(selectedDay) ?? [] : []),
+    [dayMap, selectedDay],
   );
+
+  // Group a day's slots into Morning / Afternoon / Evening for a cleaner read.
+  const periods = useMemo(() => {
+    const buckets: { label: string; slots: TidyCalSlot[] }[] = [
+      { label: "Morning", slots: [] },
+      { label: "Afternoon", slots: [] },
+      { label: "Evening", slots: [] },
+    ];
+    for (const s of daySlots) {
+      const h = new Date(s.starts_at).getHours();
+      const idx = h < 12 ? 0 : h < 17 ? 1 : 2;
+      buckets[idx].slots.push(s);
+    }
+    return buckets.filter((b) => b.slots.length > 0);
+  }, [daySlots]);
+
+  const cells = useMemo(() => monthMatrix(view.year, view.month), [view]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -106,6 +154,7 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
       startsAt: selectedSlot,
       name: name.trim(),
       email: email.trim(),
+      phone: phone.trim(),
       timezone: tz.current,
     });
     setSubmitting(false);
@@ -125,7 +174,8 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
     setError(res.error || "Could not create the booking.");
   };
 
-  const hostedUrl = tidycalUrl(path) || bookingType?.url || "";
+  const hostedUrl = tidycalUrl(path) || bookingType?.booking_page_url || bookingType?.url || "";
+  const meeting = meetingLabel(bookingType);
 
   if (status === "loading") {
     return (
@@ -151,113 +201,192 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   if (confirmation) {
     return (
       <div className={`tc tc-confirmed ${className ?? ""}`.trim()}>
+        <div className="tc-check" aria-hidden="true">✓</div>
         <p className="tc-kicker">Booked</p>
         <h3 className="tc-title">You’re on the calendar.</h3>
-        <p className="tc-when">
-          {formatDayLabel(confirmation.starts_at)} · {formatTimeLabel(confirmation.starts_at)} ({shortTimezone()})
+        <p className="tc-when-line">
+          {formatLongDayLabel(confirmation.starts_at)} · {formatTimeLabel(confirmation.starts_at)} ({shortTimezone()})
         </p>
         <p className="tc-muted">
-          {bookingType?.title} — a confirmation is on its way to {email || confirmation.contact?.email}.
+          {bookingType?.title}{confirmation.location ? ` · ${confirmation.location}` : ` · ${meeting}`}. A confirmation is on its way to {email || confirmation.contact?.email}.
         </p>
         {confirmation.meeting_url ? (
           <a className="btn btn-primary" href={confirmation.meeting_url} target="_blank" rel="noreferrer">
-            Join link
+            {VIDEO_ICON} Join link
           </a>
         ) : null}
       </div>
     );
   }
 
+  const description = plainText(bookingType?.description);
+
   return (
-    <div className={`tc ${className ?? ""}`.trim()}>
-      <div className="tc-head">
-        <div>
-          <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
-          <p className="tc-muted">
-            {bookingType?.duration_minutes ? `${bookingType.duration_minutes} min` : "Pick a time"} · times in {shortTimezone()}
-          </p>
-        </div>
+    <div className={`tc tc-cal-layout ${className ?? ""}`.trim()}>
+      <aside className="tc-info">
+        <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
+        <ul className="tc-meta">
+          <li>
+            <span aria-hidden="true">🕑</span>
+            {bookingType?.duration_minutes ? `${bookingType.duration_minutes} min` : "Pick a time"}
+          </li>
+          <li>
+            <span className="tc-video">{VIDEO_ICON}</span>
+            {meeting}
+          </li>
+          <li>
+            <span aria-hidden="true">🌐</span>
+            {shortTimezone()}
+          </li>
+        </ul>
+        {description ? <p className="tc-desc">{description}</p> : null}
         {mock ? <span className="tc-badge" title="Add your TidyCal token to go live">Preview times</span> : null}
-      </div>
+      </aside>
 
-      {days.length === 0 ? (
-        <p className="tc-muted">No open times in the next few weeks.{hostedUrl ? " " : ""}
-          {hostedUrl ? (
-            <a href={hostedUrl} target="_blank" rel="noreferrer">See the full calendar →</a>
-          ) : null}
-        </p>
+      {selectedSlot ? (
+        <form className="tc-form" onSubmit={(e) => void onSubmit(e)}>
+          <button type="button" className="tc-back" onClick={() => setSelectedSlot(null)}>
+            ← Back to times
+          </button>
+          <p className="tc-selected">
+            <strong>{formatLongDayLabel(selectedSlot)}</strong>
+            <br />
+            {formatTimeLabel(selectedSlot)} ({shortTimezone()}) · {meeting}
+          </p>
+          <label>
+            <span className="tc-label">Name</span>
+            <input
+              type="text"
+              placeholder="Your name"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
+          <label>
+            <span className="tc-label">Email</span>
+            <input
+              type="email"
+              placeholder="you@company.com"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </label>
+          <label>
+            <span className="tc-label">Phone</span>
+            <input
+              type="tel"
+              placeholder="+1 (202) 555-0142"
+              autoComplete="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </label>
+          {error ? <p className="tc-error">{error}</p> : null}
+          <button className="btn btn-primary" type="submit" disabled={submitting}>
+            {submitting ? "Booking…" : "Confirm booking"}
+          </button>
+        </form>
       ) : (
-        <>
-          <div className="tc-days" role="tablist" aria-label="Available days">
-            {days.map(([key, list]) => (
+        <div className="tc-when">
+          <div className="tc-cal">
+            <div className="tc-cal-head">
               <button
-                key={key}
                 type="button"
-                role="tab"
-                aria-selected={key === selectedDay}
-                className={`tc-day ${key === selectedDay ? "is-active" : ""}`}
-                onClick={() => {
-                  setSelectedDay(key);
-                  setSelectedSlot(null);
-                }}
+                className="tc-nav"
+                aria-label="Previous month"
+                onClick={() =>
+                  setView((v) => (v.month === 0 ? { year: v.year - 1, month: 11 } : { year: v.year, month: v.month - 1 }))
+                }
               >
-                {formatDayLabel(list[0].starts_at)}
+                ‹
               </button>
-            ))}
+              <span className="tc-cal-title">
+                {MONTH_LABELS[view.month]} {view.year}
+              </span>
+              <button
+                type="button"
+                className="tc-nav"
+                aria-label="Next month"
+                onClick={() =>
+                  setView((v) => (v.month === 11 ? { year: v.year + 1, month: 0 } : { year: v.year, month: v.month + 1 }))
+                }
+              >
+                ›
+              </button>
+            </div>
+            <div className="tc-weekdays">
+              {WEEKDAY_LABELS.map((w) => (
+                <span key={w}>{w}</span>
+              ))}
+            </div>
+            <div className="tc-grid">
+              {cells.map((cell) => {
+                const has = dayMap.has(cell.key);
+                const isSelected = cell.key === selectedDay;
+                return (
+                  <button
+                    key={cell.key}
+                    type="button"
+                    className={`tc-cell ${cell.inMonth ? "" : "is-out"} ${has ? "has-slots" : ""} ${isSelected ? "is-active" : ""}`.trim()}
+                    disabled={!has}
+                    aria-pressed={isSelected}
+                    onClick={() => {
+                      setSelectedDay(cell.key);
+                      setError("");
+                    }}
+                  >
+                    {cell.date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="tc-times">
-            {daySlots.map((s) => (
-              <button
-                key={s.starts_at}
-                type="button"
-                className={`tc-time ${selectedSlot === s.starts_at ? "is-active" : ""}`}
-                onClick={() => {
-                  setSelectedSlot(s.starts_at);
-                  setError("");
-                }}
-              >
-                {formatTimeLabel(s.starts_at)}
-              </button>
-            ))}
-          </div>
-
-          {selectedSlot ? (
-            <form className="tc-form" onSubmit={(e) => void onSubmit(e)}>
-              <p className="tc-selected">
-                {formatDayLabel(selectedSlot)} · {formatTimeLabel(selectedSlot)} ({shortTimezone()})
+          <div className="tc-slots">
+            {selectedDay ? (
+              <>
+                <p className="tc-slots-head">{formatLongDayLabel(`${selectedDay}T12:00:00`)}</p>
+                {periods.map((p) => (
+                  <div key={p.label} className="tc-period">
+                    <p className="tc-period-label">{p.label}</p>
+                    <div className="tc-times">
+                      {p.slots.map((s) => (
+                        <button
+                          key={s.starts_at}
+                          type="button"
+                          className="tc-time"
+                          onClick={() => {
+                            setSelectedSlot(s.starts_at);
+                            setError("");
+                          }}
+                        >
+                          {formatTimeLabel(s.starts_at)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p className="tc-muted tc-slots-hint">Select a highlighted day to see open times.</p>
+            )}
+            {dayMap.size === 0 ? (
+              <p className="tc-muted">
+                No open times in the next few weeks.{" "}
+                {hostedUrl ? (
+                  <a href={hostedUrl} target="_blank" rel="noreferrer">
+                    See the full calendar →
+                  </a>
+                ) : null}
               </p>
-              <label>
-                <span className="sr-only">Your name</span>
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  autoComplete="name"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </label>
-              <label>
-                <span className="sr-only">Email</span>
-                <input
-                  type="email"
-                  placeholder="you@company.com"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </label>
-              {error ? <p className="tc-error">{error}</p> : null}
-              <button className="btn btn-primary" type="submit" disabled={submitting}>
-                {submitting ? "Booking…" : "Confirm booking"}
-              </button>
-            </form>
-          ) : (
-            error && <p className="tc-error">{error}</p>
-          )}
-        </>
+            ) : null}
+          </div>
+        </div>
       )}
     </div>
   );
