@@ -14,6 +14,8 @@
   "egressMode": "parent_plus_network_settings",
   "egressAllowlist": [
     "tidycal.com",
-    "www.tidycal.com"
+    "www.tidycal.com",
+    "registry.npmjs.org",
+    "registry.yarnpkg.com"
   ]
 }
