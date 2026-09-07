@@ -18,6 +18,9 @@ $json = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_
 if ($json === false) {
     tygr_json_out(400, ['ok' => false, 'error' => 'Could not encode JSON']);
 }
+if (strlen($json) > 512000) {
+    tygr_json_out(413, ['ok' => false, 'error' => 'Payload too large']);
+}
 
 $path = tygr_content_path();
 if (file_put_contents($path, $json . "\n", LOCK_EX) === false) {

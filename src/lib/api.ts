@@ -1,4 +1,4 @@
-import { decodeIdToken, isAllowedEditor } from "./google";
+import { safeHref, tidycalHostedPath } from "./security";
 
 const PASS_KEY = "tygr.edit.password";
 const GOOGLE_KEY = "tygr.edit.google";
@@ -48,43 +48,34 @@ export async function verifyPassword(password: string): Promise<boolean> {
     const res = await fetch("/api/auth.php", {
       method: "POST",
       headers: { "X-Edit-Password": password, "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
     });
-    if (res.ok) return true;
-    if (res.status !== 404 && res.status !== 405) return false;
+    return res.ok;
   } catch {
-    // Fall through to local preview fallback.
+    return false;
   }
-  const local = import.meta.env.VITE_EDIT_PASSWORD;
-  return Boolean(local) && password === local;
 }
 
 /**
  * Verify a Google ID token as an editor credential. The server (PHP tokeninfo /
- * dev mock) is the source of truth; when it is unavailable we fall back to a
- * client-side allowlist check so a static preview can still be edited.
+ * dev mock) is the source of truth — the client never accepts an unsigned JWT.
  */
 export async function verifyGoogleToken(token: string): Promise<boolean> {
   try {
     const res = await fetch("/api/auth.php", {
       method: "POST",
       headers: { "X-Google-Token": token, "Content-Type": "application/json" },
-      body: JSON.stringify({ credential: token }),
     });
-    if (res.ok) return true;
-    if (res.status !== 404 && res.status !== 405) return false;
+    return res.ok;
   } catch {
-    // Fall through to local preview fallback.
+    return false;
   }
-  const identity = decodeIdToken(token);
-  return Boolean(identity && identity.emailVerified && isAllowedEditor(identity.email));
 }
 
 export async function saveContent(content: unknown, password = getStoredPassword()) {
   const res = await fetch("/api/save.php", {
     method: "POST",
     headers: { ...authHeaders(password), "Content-Type": "application/json" },
-    body: JSON.stringify({ content, password }),
+    body: JSON.stringify({ content }),
   });
   if (!res.ok) {
     const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -95,7 +86,6 @@ export async function saveContent(content: unknown, password = getStoredPassword
 export async function uploadImage(file: File, password = getStoredPassword()) {
   const body = new FormData();
   body.append("file", file);
-  body.append("password", password);
   const res = await fetch("/api/upload.php", {
     method: "POST",
     headers: authHeaders(password),
@@ -116,8 +106,7 @@ type BookingContact = {
 
 /** Full TidyCal hosted booking URL for a `username/booking-type` path. */
 export function tidycalUrl(path?: string) {
-  if (!path) return "";
-  return `https://tidycal.com/${path.replace(/^\/+/, "")}`;
+  return tidycalHostedPath(path);
 }
 
 /**
@@ -125,8 +114,11 @@ export function tidycalUrl(path?: string) {
  * then the TidyCal hosted page, then a build-time fallback, then email.
  */
 export function bookingHref(contact: BookingContact) {
-  if (contact.bookingUrl) return contact.bookingUrl;
+  const override = safeHref(contact.bookingUrl);
+  if (override) return override;
   const tidycal = tidycalUrl(contact.tidycalPath);
   if (tidycal) return tidycal;
-  return (import.meta.env.VITE_BOOKING_URL as string) || `mailto:${contact.email}`;
+  const fallback = safeHref((import.meta.env.VITE_BOOKING_URL as string) || "");
+  if (fallback) return fallback;
+  return `mailto:${contact.email}`;
 }

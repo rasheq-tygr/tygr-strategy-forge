@@ -19,6 +19,7 @@ import {
   type TidyCalSlot,
 } from "../lib/tidycal";
 import { tidycalUrl } from "../lib/api";
+import { safeHref } from "../lib/security";
 
 type Status = "loading" | "ready" | "error";
 
@@ -195,8 +196,8 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
         <p className="tc-muted">
           {bookingType?.title}{confirmation.location ? ` · ${confirmation.location}` : ` · ${meeting}`}. A confirmation is on its way to {email || confirmation.contact?.email}.
         </p>
-        {confirmation.meeting_url ? (
-          <a className="btn btn-primary" href={confirmation.meeting_url} target="_blank" rel="noreferrer">
+        {safeHref(confirmation.meeting_url) ? (
+          <a className="btn btn-primary" href={safeHref(confirmation.meeting_url)} target="_blank" rel="noreferrer">
             {VIDEO_ICON} Join link
           </a>
         ) : null}

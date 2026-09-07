@@ -16,6 +16,7 @@
     "tidycal.com",
     "www.tidycal.com",
     "registry.npmjs.org",
-    "registry.yarnpkg.com"
+    "registry.yarnpkg.com",
+    "oauth2.googleapis.com"
   ]
 }
