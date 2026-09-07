@@ -8,7 +8,7 @@ require __DIR__ . '/lib.php';
  * Supported:
  *   GET  ?action=booking-types
  *   GET  ?action=timeslots&booking_type_id=ID&starts_at=..&ends_at=..
- *   POST {action:"book", booking_type_id, starts_at, name, email, timezone}
+ *   POST {action:"book", booking_type_id, starts_at, name, email, phone, timezone}
  */
 
 $config = tygr_config();
@@ -60,14 +60,20 @@ if ($method === 'POST') {
     $startsAt = (string) ($input['starts_at'] ?? '');
     $name = trim((string) ($input['name'] ?? ''));
     $email = trim((string) ($input['email'] ?? ''));
+    $phone = trim((string) ($input['phone'] ?? ''));
     $timezone = (string) ($input['timezone'] ?? 'UTC');
-    if ($typeId === '' || $startsAt === '' || $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        tygr_json_out(422, ['ok' => false, 'error' => 'Name, a valid email and a time slot are required.']);
+    if ($typeId === '' || $startsAt === '' || $name === '' || $phone === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        tygr_json_out(422, ['ok' => false, 'error' => 'Name, a valid email, a phone number and a time slot are required.']);
     }
+    // TidyCal's public API has no field for a booker phone on video booking types,
+    // so append it to the name — the one free-text channel it stores and shows on
+    // the booking, calendar event, and host notification.
+    $bookedName = $phone !== '' ? "{$name} ({$phone})" : $name;
     $body = [
         'starts_at' => $startsAt,
-        'name' => mb_substr($name, 0, 191),
+        'name' => mb_substr($bookedName, 0, 191),
         'email' => mb_substr($email, 0, 191),
+        'phone_number' => mb_substr($phone, 0, 40),
         'timezone' => mb_substr($timezone, 0, 191),
     ];
     if (isset($input['booking_questions']) && is_array($input['booking_questions'])) {
@@ -75,7 +81,17 @@ if ($method === 'POST') {
     }
     [$code, $data] = tygr_tidycal_request('POST', "/booking-types/{$typeId}/bookings", $body);
     if ($code === 201) {
-        tygr_json_out(201, ['ok' => true, 'data' => $data['data'] ?? null]);
+        $booking = is_array($data['data'] ?? null) ? $data['data'] : null;
+        // Google Meet links are attached a moment after create; poll once so
+        // the confirmation screen can show the join URL.
+        if (is_array($booking) && empty($booking['meeting_url']) && !empty($booking['id'])) {
+            usleep(1500000);
+            [, $follow] = tygr_tidycal_request('GET', '/bookings/' . $booking['id']);
+            if (is_array($follow['data'] ?? null) && !empty($follow['data']['meeting_url'])) {
+                $booking = $follow['data'];
+            }
+        }
+        tygr_json_out(201, ['ok' => true, 'data' => $booking]);
     }
     if ($code === 409) {
         tygr_json_out(409, ['ok' => false, 'error' => 'That time was just taken. Please pick another slot.']);

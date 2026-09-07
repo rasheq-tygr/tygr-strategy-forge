@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "TYGR Ventures",
-    "description": "Actionable strategy. Shipped systems. An ecosystem studio for strategy, technology, and delivery."
+    "title": "TYGR Ventures — From idea to done, block by block",
+    "description": "TYGR Ventures takes ideas from concept to completion — plan, build, and deliver. Strategy consulting for Fortune 500s, startups, and government agencies."
   },
   "brand": {
     "name": "TYGR Ventures",
@@ -19,9 +19,9 @@
   },
   "hero": {
     "eyebrow": "Strategy · Technology · Delivery",
-    "titleLead": "From idea",
-    "titleAccent": "to done.",
-    "body": "TYGR Ventures is a studio, not a brochure. We design the operating system around a venture — then build, partner, and ship until the system holds.",
+    "titleLead": "From idea to done —",
+    "titleAccent": "block by block.",
+    "body": "TYGR Ventures takes ideas from concept to completion — plan, build, and deliver. A studio, not a brochure: we design the operating system around a venture, then ship until the system holds.",
     "primaryCta": "Book a call",
     "secondaryCta": "See the ecosystem",
     "scrollHint": "Scroll to build"
@@ -29,7 +29,7 @@
   "stats": {
     "items": [
       { "value": "1 hub", "label": "TYGR Ventures at the center" },
-      { "value": "5 orbits", "label": "Labs, academy, products, partners" },
+      { "value": "6 orbits", "label": "Labs, academy, products, partners" },
       { "value": "3 notes", "label": "Strategy, technology, delivery" }
     ]
   },
@@ -74,6 +74,13 @@
         "role": "AI / software partner",
         "summary": "AI and software engineering partner (punch.cool). The delivery muscle when a system needs to be built, not just described.",
         "url": "https://punch.cool"
+      },
+      {
+        "id": "wikiidea",
+        "name": "WikiIdea",
+        "role": "Lab · in development",
+        "summary": "A collaborative platform for capturing, developing, and connecting ideas — turning raw concepts into actionable plans. Seeking partners and early adopters.",
+        "url": "https://wikiidea.org"
       }
     ]
   },
@@ -225,6 +232,44 @@
       { "name": "Clybor Consulting", "href": "" }
     ]
   },
+  "proof": {
+    "eyebrow": "Rooms we have sat in",
+    "title": "Institutions",
+    "items": [
+      { "name": "Goldman Sachs", "href": "" },
+      { "name": "Yale University", "href": "" },
+      { "name": "IBM", "href": "" },
+      { "name": "Defense Innovation Unit", "href": "" },
+      { "name": "Leidos", "href": "" }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "What they say",
+    "title": "Partners, not a brochure.",
+    "items": [
+      {
+        "id": "chen",
+        "name": "Sarah Chen",
+        "role": "VP of Operations",
+        "company": "TechCorp Inc.",
+        "quote": "TYGR Ventures transformed our digital strategy. Their modular approach helped us move fast without breaking things."
+      },
+      {
+        "id": "torres",
+        "name": "Michael Torres",
+        "role": "CEO",
+        "company": "Innovate Labs",
+        "quote": "Rasheq's ability to simplify complex problems is unmatched. He turned months of planning into weeks of execution."
+      },
+      {
+        "id": "park",
+        "name": "Jennifer Park",
+        "role": "Director of Strategy",
+        "company": "Global Dynamics",
+        "quote": "The best strategic partner we've worked with. They don't just advise — they roll up their sleeves and deliver."
+      }
+    ]
+  },
   "contact": {
     "eyebrow": "Start a conversation",
     "title": "Book the call. Bring the real constraint.",
@@ -235,7 +280,8 @@
     "email": "rasheq@tygrventures.com",
     "phone": "+1 (202) 932-9662",
     "bookingUrl": "",
-    "tidycalPath": "rasheqrahman/discovery-call"
+    "tidycalPath": "rasheq/tygr-ventures-30-minute-intro",
+    "tidycalBookingTypeId": 2074091
   },
   "founder": {
     "name": "Rasheq Rahman",

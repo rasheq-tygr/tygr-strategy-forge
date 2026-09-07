@@ -48,7 +48,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     });
 
     const SPAN = 0.55;
-    const DIST = 96;
+    const DIST = 220;
 
     const setStage = (p: number) => {
       const idx = p < 0.3 ? 0 : p < 0.6 ? 1 : p < 0.9 ? 2 : 3;
