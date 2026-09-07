@@ -4,7 +4,7 @@ import { Editable } from "../../components/Editable";
 import { GoogleSignIn } from "../../components/GoogleSignIn";
 import { googleClientId } from "../../lib/google";
 
-export function AdminLogin({ onUnlocked }: { onUnlocked: () => void }) {
+export function AdminLogin({ onUnlocked }: { onUnlocked?: () => void } = {}) {
   const { unlock, unlockWithGoogle, content } = useSite();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,14 +14,14 @@ export function AdminLogin({ onUnlocked }: { onUnlocked: () => void }) {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const ok = await unlock(password);
-    if (ok) onUnlocked();
+    if (ok) onUnlocked?.();
     else setError("Invalid password");
   };
 
   const onGoogleCredential = async (token: string) => {
     setError("");
     const ok = await unlockWithGoogle(token);
-    if (ok) onUnlocked();
+    if (ok) onUnlocked?.();
     else setError("That Google account is not an approved editor.");
   };
 

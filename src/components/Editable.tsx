@@ -1,5 +1,6 @@
-import { useEffect, useRef, type ElementType, type KeyboardEvent } from "react";
+import { useEffect, useRef, type ElementType, type KeyboardEvent, type MouseEvent } from "react";
 import { useSite } from "../context/SiteContext";
+import { readEditableText, writeEditableText } from "../lib/editableText";
 
 type Props = {
   path: string;
@@ -12,19 +13,20 @@ export function Editable({ path, as: Tag = "span", className, multiline = false 
   const { get, set, editMode } = useSite();
   const value = get(path);
   const ref = useRef<HTMLElement>(null);
+  const classes = [multiline ? "editable-multiline" : "", className].filter(Boolean).join(" ");
 
   useEffect(() => {
-    if (ref.current && ref.current.textContent !== value) {
-      ref.current.textContent = value;
-    }
-  }, [value]);
+    const el = ref.current;
+    if (!el || document.activeElement === el) return;
+    writeEditableText(el, value, multiline);
+  }, [value, multiline]);
 
   if (!editMode) {
-    return <Tag className={className}>{value}</Tag>;
+    return <Tag className={classes || undefined}>{value}</Tag>;
   }
 
   const onBlur = () => {
-    const next = ref.current?.textContent ?? "";
+    const next = ref.current ? readEditableText(ref.current, multiline) : "";
     if (next !== value) set(path, next);
   };
 
@@ -35,14 +37,20 @@ export function Editable({ path, as: Tag = "span", className, multiline = false 
     }
   };
 
+  const onClick = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return (
     <Tag
       ref={ref}
-      className={`is-editable ${className || ""}`.trim()}
+      className={`is-editable ${classes}`.trim()}
       contentEditable
       suppressContentEditableWarning
       onBlur={onBlur}
       onKeyDown={onKeyDown}
+      onClick={onClick}
       data-edit-path={path}
     >
       {value}

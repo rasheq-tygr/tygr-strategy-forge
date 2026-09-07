@@ -38,8 +38,16 @@ export function CaseStudyEditor() {
         {items.map((item, i) => (
           <article className="editor-card" key={item.id}>
             <input value={item.client} onChange={(e) => update(i, { client: e.target.value })} />
-            <input value={item.title} onChange={(e) => update(i, { title: e.target.value, slug: slugify(e.target.value) })} />
-            <input value={item.slug} onChange={(e) => update(i, { slug: slugify(e.target.value) })} />
+            <input
+              value={item.title}
+              placeholder="Title"
+              onChange={(e) => update(i, { title: e.target.value })}
+            />
+            <input
+              value={item.slug}
+              placeholder="Slug"
+              onChange={(e) => update(i, { slug: slugify(e.target.value) })}
+            />
             <input value={item.year} onChange={(e) => update(i, { year: e.target.value })} />
             <input
               value={item.tags.join(", ")}

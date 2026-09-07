@@ -88,6 +88,7 @@ h3,
 
 .section {
   padding: 7rem 0;
+  scroll-margin-top: 5rem;
 }
 
 .section.dark {
@@ -1247,6 +1248,10 @@ h3,
   outline: 1px dashed rgba(235, 132, 0, 0.55);
   outline-offset: 3px;
   cursor: text;
+}
+
+.editable-multiline {
+  white-space: pre-wrap;
 }
 
 .reveal {

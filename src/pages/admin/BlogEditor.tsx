@@ -47,8 +47,16 @@ export function BlogEditor() {
       <div className="editor-list">
         {items.map((item, i) => (
           <article className="editor-card" key={item.id}>
-            <input value={item.title} onChange={(e) => update(i, { title: e.target.value, slug: slugify(e.target.value) })} />
-            <input value={item.slug} onChange={(e) => update(i, { slug: slugify(e.target.value) })} />
+            <input
+              value={item.title}
+              placeholder="Title"
+              onChange={(e) => update(i, { title: e.target.value })}
+            />
+            <input
+              value={item.slug}
+              placeholder="Slug"
+              onChange={(e) => update(i, { slug: slugify(e.target.value) })}
+            />
             <input value={item.date} onChange={(e) => update(i, { date: e.target.value })} />
             <input value={item.author} onChange={(e) => update(i, { author: e.target.value })} />
             <input
