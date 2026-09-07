@@ -1040,6 +1040,22 @@ h3,
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr));
   gap: 0.4rem;
+  /* Match the calendar's height and scroll the rest, so the card stays
+     balanced instead of sprawling down one very long column of times. */
+  max-height: 13.5rem;
+  overflow-y: auto;
+  padding-right: 0.3rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(235, 132, 0, 0.5) transparent;
+}
+
+.tc-times::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tc-times::-webkit-scrollbar-thumb {
+  background: rgba(235, 132, 0, 0.45);
+  border-radius: 999px;
 }
 
 .tc-time {
