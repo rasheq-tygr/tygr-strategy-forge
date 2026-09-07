@@ -209,6 +209,12 @@ function hostingerDevApi(mode: string): Plugin {
           if (req.method === "GET" && query.get("action") === "booking-types") {
             if (tidycal.token) {
               const r = await tidyCalReal(tidycal.token, "GET", "/booking-types");
+              // When TidyCal is unreachable from this environment (e.g. the Cloud
+              // VM egress can't establish TLS to tidycal.com) fall back to labeled
+              // preview data so the widget still renders. Production PHP is unchanged.
+              if (r.status === 502) {
+                return json(res, 200, { ok: true, mock: true, data: [MOCK_BOOKING_TYPE] });
+              }
               let items = Array.isArray((r.data as { data?: unknown }).data)
                 ? ((r.data as { data: Record<string, unknown>[] }).data)
                 : [];
@@ -228,6 +234,9 @@ function hostingerDevApi(mode: string): Plugin {
             if (tidycal.token) {
               const qs = new URLSearchParams({ starts_at: startsAt, ends_at: endsAt }).toString();
               const r = await tidyCalReal(tidycal.token, "GET", `/booking-types/${typeId}/timeslots?${qs}`);
+              if (r.status === 502) {
+                return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+              }
               return json(res, r.status || 502, { ok: r.status === 200, data: (r.data as { data?: unknown }).data ?? [] });
             }
             return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
@@ -275,7 +284,11 @@ function hostingerDevApi(mode: string): Plugin {
                 return json(res, 201, { ok: true, data: booking });
               }
               if (r.status === 409) return json(res, 409, { ok: false, error: "That time was just taken. Please pick another slot." });
-              return json(res, r.status || 502, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
+              // Only fall through to the preview confirmation when TidyCal is
+              // unreachable from this environment; surface real API errors otherwise.
+              if (r.status !== 502) {
+                return json(res, r.status, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
+              }
             }
             const start = new Date(startsAt);
             return json(res, 201, {
