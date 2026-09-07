@@ -815,7 +815,7 @@ h3,
   backdrop-filter: blur(16px);
 }
 
-/* Event info | calendar with times stacked underneath. */
+/* Event info | compact month calendar + times beside it. */
 .tc-cal-layout {
   display: grid;
   grid-template-columns: minmax(200px, 0.85fr) minmax(280px, 1.2fr);
@@ -891,35 +891,37 @@ h3,
 }
 
 .tc-when {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
+  display: grid;
+  grid-template-columns: 16.25rem minmax(0, 1fr);
+  gap: 0.4rem 1.4rem;
+  align-items: start;
   min-width: 0;
 }
 
 .tc-cal {
-  min-width: 0;
+  width: 16.25rem;
+  max-width: 100%;
 }
 
 .tc-cal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.45rem;
 }
 
 .tc-cal-title {
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .tc-nav {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.04);
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   color: var(--tygr-cream);
@@ -932,9 +934,10 @@ h3,
 
 .tc-weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.2rem;
-  margin-bottom: 0.3rem;
+  grid-template-columns: repeat(7, 2.05rem);
+  justify-content: space-between;
+  gap: 0.12rem;
+  margin-bottom: 0.2rem;
 }
 
 .tc-weekdays span {
@@ -948,17 +951,20 @@ h3,
 
 .tc-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.2rem;
+  grid-template-columns: repeat(7, 2.05rem);
+  justify-content: space-between;
+  gap: 0.12rem;
 }
 
 .tc-cell {
-  aspect-ratio: 1 / 1;
+  width: 2.05rem;
+  height: 2.05rem;
+  padding: 0;
   border: none;
   background: transparent;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--tygr-cream);
   cursor: pointer;
 }
@@ -989,10 +995,10 @@ h3,
 
 .tc-slots {
   min-width: 0;
-  max-height: 280px;
+  max-height: 22rem;
   overflow-y: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 1.15rem;
 }
 
 .tc-slots-head {
@@ -1135,6 +1141,24 @@ h3,
   margin-top: 0.8rem;
 }
 
+@media (max-width: 980px) {
+  .tc-when {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .tc-cal {
+    width: 16.25rem;
+    margin-inline: auto;
+  }
+  .tc-slots {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0;
+    padding-top: 1rem;
+    max-height: none;
+  }
+}
+
 @media (max-width: 780px) {
   .tc-cal-layout {
     grid-template-columns: 1fr;
@@ -1147,9 +1171,6 @@ h3,
   }
   .tc-times {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .tc-slots {
-    max-height: none;
   }
 }
 
