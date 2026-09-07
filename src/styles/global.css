@@ -727,6 +727,51 @@ h3,
   color: var(--tygr-navy);
 }
 
+.quotes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+
+.quote-card {
+  margin: 0;
+  padding: 1.6rem 1.5rem 1.4rem;
+  background: #fff;
+  border-radius: 14px;
+  border: var(--hairline-light);
+  box-shadow: 0 10px 28px rgba(10, 15, 26, 0.04);
+}
+
+.quote-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.45;
+  margin: 0 0 1.2rem;
+  color: var(--tygr-ink);
+}
+
+.quote-card footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.82rem;
+}
+
+.quote-card cite {
+  font-style: normal;
+  font-weight: 800;
+}
+
+.quote-card footer span {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 860px) {
+  .quotes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @keyframes ticker {
   from {
     transform: translateX(0);
