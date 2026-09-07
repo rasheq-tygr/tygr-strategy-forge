@@ -19,14 +19,14 @@ function scrollMetrics() {
   let assemble = travel;
   if (dest) {
     const destY = dest.getBoundingClientRect().top + window.scrollY;
-    assemble = clamp(window.scrollY / Math.max(1, destY - window.innerHeight * 0.35));
+    assemble = clamp(window.scrollY / Math.max(1, destY - window.innerHeight * 0.32));
   }
-  return { travel, assemble };
+  return { travel, assemble, dest };
 }
 
 /**
- * Shards scatter in the hero, fuse into the solid brand mark by The Orbit,
- * then the finished emblem keeps traveling down to the footer.
+ * Scatter in the hero (right), fuse while dropping toward The Orbit, then
+ * dock into the navbar lockup — bright and small — which is his home.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -58,27 +58,26 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       el.style.opacity = String((0.4 + local * 0.6) * shardFade);
     };
 
+    const brand = () => document.querySelector<SVGElement>(".header .brand-mark");
+
     if (reduce) {
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
         if (el) applyShard(el, shard, 1, 0);
       });
       if (solid.current) solid.current.style.opacity = "1";
+      brand()?.classList.add("is-home");
+      if (wrap.current) wrap.current.style.opacity = "0";
     }
 
     let raf = 0;
     const render = () => {
-      const { travel, assemble } = scrollMetrics();
+      const { assemble, dest } = scrollMetrics();
       const p = reduce ? 1 : assemble;
-      const fuse = reduce ? 1 : clamp((p - 0.62) / 0.28);
+      const fuse = reduce ? 1 : clamp((p - 0.45) / 0.28);
+      const down = reduce ? 1 : easeOut(clamp(p / 0.5));
+      const dock = reduce ? 1 : easeOut(clamp((p - 0.42) / 0.58));
       const shardFade = 1 - fuse;
-
-      const shell = wrap.current?.parentElement;
-      const shellH = shell?.scrollHeight ?? document.documentElement.scrollHeight;
-      const wrapH = wrap.current?.offsetHeight ?? 0;
-      if (wrap.current) {
-        wrap.current.style.top = `${(reduce ? 1 : travel) * Math.max(0, shellH - wrapH)}px`;
-      }
 
       if (!reduce) {
         shards.forEach((shard, i) => {
@@ -87,15 +86,46 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         });
       }
       if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
-      if (canvas.current) {
-        // Bright while building in the hero; a quiet watermark from Orbit through footer.
-        const rest = 0.2 - travel * 0.04;
-        const vis = 0.92 - fuse * (0.92 - rest);
-        canvas.current.style.opacity = vis.toFixed(3);
-        const glow = (1 - fuse) * 22;
-        const glowA = (1 - fuse) * 0.26;
-        canvas.current.style.filter = `drop-shadow(0 0 ${glow.toFixed(1)}px rgba(235, 132, 0, ${glowA.toFixed(3)}))`;
+
+      const mark = brand();
+      const el = wrap.current;
+      if (el && mark) {
+        const b = mark.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const max = 1180;
+        const inset = Math.max(24, (vw - max) / 2 + 12);
+        const startW = Math.min(380, vw * 0.32);
+        const startX = Math.max(inset, vw - inset - startW);
+        const startY = window.scrollY + window.innerHeight * 0.16;
+        const orbitY = dest
+          ? dest.getBoundingClientRect().top + window.scrollY + 56
+          : startY + window.innerHeight;
+        const midX = startX;
+        const midY = startY + (orbitY - startY) * down;
+        const destX = b.left;
+        const destY = b.top + window.scrollY;
+        const destW = Math.max(28, b.width);
+        const x = midX + (destX - midX) * dock;
+        const y = midY + (destY - midY) * dock;
+        const w = startW + (destW - startW) * dock;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.right = "auto";
+        el.style.width = `${w}px`;
+        el.style.transform = "none";
       }
+
+      if (canvas.current) {
+        // Quiet while crossing The Orbit, then bright once he lives in the nav.
+        const vis = dock < 0.55 ? 0.95 - dock * 1.1 : 0.35 + (dock - 0.55) * 1.45;
+        canvas.current.style.opacity = clamp(vis).toFixed(3);
+        const glow = dock < 0.7 ? (1 - fuse) * 20 : 6 + dock * 6;
+        const glowA = dock < 0.7 ? (1 - fuse) * 0.24 : 0.15 + dock * 0.4;
+        canvas.current.style.filter = `drop-shadow(0 0 ${glow.toFixed(1)}px rgba(235, 132, 0, ${clamp(glowA).toFixed(3)}))`;
+      }
+
+      mark?.classList.toggle("is-home", dock > 0.92);
+      if (wrap.current) wrap.current.style.opacity = dock > 0.97 ? "0" : "1";
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
       if (hint) hint.classList.toggle("is-away", window.scrollY > 48);
@@ -103,7 +133,10 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      brand()?.classList.remove("is-home");
+    };
   }, [shards]);
 
   return (

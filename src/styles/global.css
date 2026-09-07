@@ -202,6 +202,16 @@ h3,
   font-size: 0.78rem;
 }
 
+.brand-mark {
+  opacity: 0;
+  filter: drop-shadow(0 0 8px rgba(235, 132, 0, 0.7));
+  transition: opacity 0.3s ease;
+}
+
+.brand-mark.is-home {
+  opacity: 1;
+}
+
 .header-nav {
   display: flex;
   align-items: center;
@@ -263,13 +273,14 @@ h3,
 .page-emblem {
   position: absolute;
   top: 0;
+  left: auto;
   right: max(1.5rem, calc((100vw - var(--max)) / 2 + 0.75rem));
   width: min(380px, 32vw);
   max-width: calc(100vw - 3rem);
   color: var(--tygr-orange);
-  z-index: 1;
+  z-index: 45;
   pointer-events: none;
-  will-change: top;
+  will-change: top, left, width;
 }
 
 .emblem-canvas {

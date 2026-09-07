@@ -19,7 +19,7 @@ export function Header() {
   return (
     <header className={`header ${scrolled ? "scrolled" : ""}`}>
       <Link to="/" className="brand">
-        <TigerMark />
+        <TigerMark className="brand-mark" />
         <Editable path="brand.name" />
       </Link>
       <nav className="header-nav">
