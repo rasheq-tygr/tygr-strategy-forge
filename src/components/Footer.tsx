@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 import { Editable } from "./Editable";
 import { TigerMark } from "./TigerMark";
 
@@ -32,15 +33,15 @@ export function Footer() {
         </div>
         <div>
           <p className="eyebrow">Elsewhere</p>
-          <a href={content.social.linkedin} target="_blank" rel="noreferrer">
+          <a href={safeHref(content.social.linkedin) || undefined} target="_blank" rel="noreferrer">
             LinkedIn
           </a>
           <br />
-          <a href={content.social.x} target="_blank" rel="noreferrer">
+          <a href={safeHref(content.social.x) || undefined} target="_blank" rel="noreferrer">
             X
           </a>
           <br />
-          <a href={content.social.instagram} target="_blank" rel="noreferrer">
+          <a href={safeHref(content.social.instagram) || undefined} target="_blank" rel="noreferrer">
             Instagram
           </a>
           <p style={{ marginTop: "1.2rem" }}>

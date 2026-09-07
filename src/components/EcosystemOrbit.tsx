@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
 import { TigerMark } from "./TigerMark";
@@ -148,8 +149,8 @@ export function EcosystemOrbit() {
                   multiline
                 />
               </p>
-              {activeNode.url ? (
-                <a className="arrow-link" href={activeNode.url} target="_blank" rel="noreferrer">
+              {safeHref(activeNode.url) ? (
+                <a className="arrow-link" href={safeHref(activeNode.url)} target="_blank" rel="noreferrer">
                   Visit {activeNode.name} →
                 </a>
               ) : null}

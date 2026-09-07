@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  allowedEditorEmails,
   decodeIdToken,
   googleClientId,
   isAllowedEditor,
@@ -40,9 +39,7 @@ export function GoogleSignIn({ onCredential, onError }: Props) {
         return;
       }
       if (!isAllowedEditor(identity.email)) {
-        onError?.(
-          `${identity.email} is not an approved editor. Sign in with ${allowedEditorEmails()[0]}.`,
-        );
+        onError?.(`${identity.email} is not an approved editor.`);
         return;
       }
       void onCredential(token);

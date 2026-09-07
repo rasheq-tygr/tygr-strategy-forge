@@ -106,9 +106,9 @@ export function decodeIdToken(token: string): GoogleIdentity | null {
   }
 }
 
-/** Comma/space separated allowlist from Vite env, lowercased. Defaults to the founder. */
+/** Comma/space separated allowlist from Vite env, lowercased. Empty means deny all. */
 export function allowedEditorEmails(): string[] {
-  const raw = (import.meta.env.VITE_GOOGLE_ALLOWED_EMAILS as string) || "rasheq@tygrventures.com";
+  const raw = (import.meta.env.VITE_GOOGLE_ALLOWED_EMAILS as string) || "";
   return raw
     .split(/[\s,]+/)
     .map((e) => e.trim().toLowerCase())

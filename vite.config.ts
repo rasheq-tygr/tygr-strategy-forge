@@ -4,12 +4,28 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
+import {
+  BOOK_RATE_MAX,
+  BOOK_RATE_WINDOW_MS,
+  MAX_CONTENT_BYTES,
+  MAX_UPLOAD_BYTES,
+  createRateLimiter,
+  googleClaimsValid,
+  imageExtFromMagic,
+  isIsoZulu,
+  parseAllowedEmails,
+  resolveBookingTypeId,
+  sanitizeBooking,
+  sanitizeBookingType,
+  sanitizeTimeslot,
+  secretEquals,
+} from "./src/lib/security";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 
 function readEnvPassword(mode: string) {
   const env = loadEnv(mode, root, "");
-  return env.EDIT_PASSWORD || env.VITE_EDIT_PASSWORD || "change-me";
+  return env.EDIT_PASSWORD || "";
 }
 
 function readTidyCalConfig(mode: string) {
@@ -108,66 +124,46 @@ async function tidyCalReal(
 function readGoogleConfig(mode: string) {
   const env = loadEnv(mode, root, "");
   const clientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID || "";
-  const allowed = (env.GOOGLE_ALLOWED_EMAILS || env.VITE_GOOGLE_ALLOWED_EMAILS || "rasheq@tygrventures.com")
-    .split(/[\s,]+/)
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
+  const allowed = parseAllowedEmails(env.GOOGLE_ALLOWED_EMAILS || env.VITE_GOOGLE_ALLOWED_EMAILS || "");
   return { clientId, allowed };
 }
 
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
-  try {
-    const json = Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
-    const parsed = JSON.parse(json) as Record<string, unknown>;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
 /**
- * Verify a Google ID token during local dev. When a client ID is configured we
- * validate against Google's tokeninfo endpoint (mirroring the PHP host). With no
- * client ID we decode-and-allowlist so a token can be simulated offline.
+ * Verify a Google ID token during local dev. Always uses Google's tokeninfo
+ * endpoint (POST). Unsigned JWTs and missing client IDs fail closed.
  */
 async function verifyGoogleTokenDev(
   token: string,
   cfg: { clientId: string; allowed: string[] },
 ): Promise<boolean> {
-  if (!token) return false;
-
-  const emailAllowed = (email: unknown) => {
-    if (typeof email !== "string") return false;
-    return cfg.allowed.length === 0 || cfg.allowed.includes(email.toLowerCase());
-  };
-
-  if (cfg.clientId) {
-    try {
-      const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
-      if (!res.ok) return false;
-      const claims = (await res.json()) as Record<string, unknown>;
-      const verified = claims.email_verified === true || claims.email_verified === "true";
-      const audOk = !cfg.clientId || claims.aud === cfg.clientId;
-      const notExpired = typeof claims.exp !== "number" || claims.exp * 1000 > Date.now();
-      return verified && audOk && notExpired && emailAllowed(claims.email);
-    } catch {
-      return false;
-    }
+  if (!token || !cfg.clientId || cfg.allowed.length === 0) return false;
+  try {
+    const res = await fetch("https://oauth2.googleapis.com/tokeninfo", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
+      body: new URLSearchParams({ id_token: token }).toString(),
+    });
+    if (!res.ok) return false;
+    const claims = (await res.json()) as Record<string, unknown>;
+    return googleClaimsValid(claims, cfg.clientId, cfg.allowed);
+  } catch {
+    return false;
   }
-
-  const claims = decodeJwtPayload(token);
-  if (!claims) return false;
-  const verified = claims.email_verified === true || claims.email_verified === "true";
-  const notExpired = typeof claims.exp !== "number" || claims.exp * 1000 > Date.now();
-  return verified && notExpired && emailAllowed(claims.email);
 }
 
 function readJsonBody(req: import("http").IncomingMessage) {
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
-    req.on("data", (c) => chunks.push(Buffer.from(c)));
+    let size = 0;
+    req.on("data", (c) => {
+      const buf = Buffer.from(c);
+      size += buf.length;
+      if (size > MAX_CONTENT_BYTES) {
+        reject(new Error("payload too large"));
+        return;
+      }
+      chunks.push(buf);
+    });
     req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     req.on("error", reject);
   });
@@ -197,12 +193,15 @@ function hostingerDevApi(mode: string): Plugin {
   const google = readGoogleConfig(mode);
   const contentFile = path.join(root, "public", "content.json");
   const uploadDir = path.join(root, "public", "uploads");
+  const allowBook = createRateLimiter(BOOK_RATE_MAX, BOOK_RATE_WINDOW_MS);
 
   const authorize = async (req: import("http").IncomingMessage) => {
-    const googleToken = String(req.headers["x-google-token"] || "");
-    if (googleToken && (await verifyGoogleTokenDev(googleToken, google))) return true;
+    if (google.clientId) {
+      const googleToken = String(req.headers["x-google-token"] || "");
+      return googleToken !== "" && (await verifyGoogleTokenDev(googleToken, google));
+    }
     const header = String(req.headers["x-edit-password"] || "");
-    return header === password;
+    return secretEquals(header, password);
   };
 
   const json = (res: import("http").ServerResponse, status: number, data: unknown) => {
@@ -220,48 +219,66 @@ function hostingerDevApi(mode: string): Plugin {
 
         if (url === "/api/tidycal.php") {
           const configuredType = tidycal.bookingTypeId;
-          const resolveType = (requested: string) => (configuredType ? configuredType : requested);
-          const previewBookingType = configuredType
+          const previewRaw = configuredType
             ? { ...MOCK_BOOKING_TYPE, id: Number(configuredType) || MOCK_BOOKING_TYPE.id }
             : MOCK_BOOKING_TYPE;
+          const previewBookingType = sanitizeBookingType(previewRaw);
 
           if (req.method === "GET" && query.get("action") === "booking-types") {
             if (tidycal.token) {
               const r = await tidyCalReal(tidycal.token, "GET", "/booking-types");
-              // When TidyCal is unreachable from this environment (e.g. the Cloud
-              // VM egress can't establish TLS to tidycal.com) fall back to labeled
-              // preview data so the widget still renders. Production PHP is unchanged.
               if (r.status === 502) {
-                return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
+                return json(res, 200, { ok: true, mock: true, data: previewBookingType ? [previewBookingType] : [] });
               }
-              let items = Array.isArray((r.data as { data?: unknown }).data)
+              const items = Array.isArray((r.data as { data?: unknown }).data)
                 ? ((r.data as { data: Record<string, unknown>[] }).data)
                 : [];
-              if (configuredType) items = items.filter((b) => String(b.id) === configuredType);
-              return json(res, r.status || 502, { ok: r.status === 200, data: items });
+              const clean = items
+                .map((item) => sanitizeBookingType(item))
+                .filter((item): item is NonNullable<typeof item> => item !== null)
+                .filter((item) => !configuredType || String(item.id) === configuredType);
+              return json(res, r.status || 502, { ok: r.status === 200, data: clean });
             }
-            return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
+            return json(res, 200, { ok: true, mock: true, data: previewBookingType ? [previewBookingType] : [] });
           }
 
           if (req.method === "GET" && query.get("action") === "timeslots") {
-            const typeId = resolveType(query.get("booking_type_id") || "");
+            const typeId = resolveBookingTypeId(query.get("booking_type_id") || "", configuredType);
             const startsAt = query.get("starts_at") || "";
             const endsAt = query.get("ends_at") || "";
-            if (!typeId || !startsAt || !endsAt) {
-              return json(res, 400, { ok: false, error: "Missing booking_type_id, starts_at or ends_at" });
+            if (!typeId || !isIsoZulu(startsAt) || !isIsoZulu(endsAt)) {
+              return json(res, 400, { ok: false, error: "Missing or invalid booking_type_id, starts_at or ends_at" });
             }
             if (tidycal.token) {
               const qs = new URLSearchParams({ starts_at: startsAt, ends_at: endsAt }).toString();
               const r = await tidyCalReal(tidycal.token, "GET", `/booking-types/${typeId}/timeslots?${qs}`);
               if (r.status === 502) {
-                return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+                return json(res, 200, {
+                  ok: true,
+                  mock: true,
+                  data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes),
+                });
               }
-              return json(res, r.status || 502, { ok: r.status === 200, data: (r.data as { data?: unknown }).data ?? [] });
+              const slots = Array.isArray((r.data as { data?: unknown }).data)
+                ? ((r.data as { data: Record<string, unknown>[] }).data)
+                : [];
+              const clean = slots
+                .map((slot) => sanitizeTimeslot(slot))
+                .filter((slot): slot is NonNullable<typeof slot> => slot !== null);
+              return json(res, r.status || 502, { ok: r.status === 200, data: clean });
             }
-            return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+            return json(res, 200, {
+              ok: true,
+              mock: true,
+              data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes),
+            });
           }
 
           if (req.method === "POST") {
+            const ip = req.socket.remoteAddress || "0.0.0.0";
+            if (!allowBook(ip)) {
+              return json(res, 429, { ok: false, error: "Too many booking attempts. Please wait and try again." });
+            }
             let input: Record<string, unknown> = {};
             try {
               input = JSON.parse((await readJsonBody(req)) || "{}") as Record<string, unknown>;
@@ -269,42 +286,35 @@ function hostingerDevApi(mode: string): Plugin {
               return json(res, 400, { ok: false, error: "Invalid JSON" });
             }
             if (input.action !== "book") return json(res, 400, { ok: false, error: "Unsupported action" });
-            const typeId = resolveType(String(input.booking_type_id ?? ""));
+            const typeId = resolveBookingTypeId(String(input.booking_type_id ?? ""), configuredType);
             const startsAt = String(input.starts_at ?? "");
             const name = String(input.name ?? "").trim();
             const email = String(input.email ?? "").trim();
             const phone = String(input.phone ?? "").trim();
             const timezone = String(input.timezone ?? "UTC");
-            if (!typeId || !startsAt || !name || !phone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+            if (!typeId || !isIsoZulu(startsAt) || !name || !phone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
               return json(res, 422, { ok: false, error: "Name, a valid email, a phone number and a time slot are required." });
             }
             if (tidycal.token) {
-              // TidyCal's public API has no field for a booker phone on video booking
-              // types, so append it to the name — the one free-text channel it stores
-              // and shows on the booking, calendar event, and host notification.
               const bookedName = phone ? `${name} (${phone})`.slice(0, 191) : name.slice(0, 191);
               const r = await tidyCalReal(tidycal.token, "POST", `/booking-types/${typeId}/bookings`, {
                 starts_at: startsAt,
                 name: bookedName,
                 email: email.slice(0, 191),
                 phone_number: phone.slice(0, 40),
-                timezone: timezone.slice(0, 191),
+                timezone: timezone.slice(0, 64),
               });
               if (r.status === 201) {
-                let booking = ((r.data as { data?: Record<string, unknown> }).data ?? null) as Record<string, unknown> | null;
-                // Google Meet links are attached a moment after create; poll once so
-                // the confirmation screen can show the join URL.
-                if (booking && !booking.meeting_url && booking.id) {
+                let booking = sanitizeBooking(((r.data as { data?: Record<string, unknown> }).data ?? null) as Record<string, unknown> | null);
+                if (booking && !booking.meeting_url) {
                   await new Promise((resolve) => setTimeout(resolve, 1500));
                   const follow = await tidyCalReal(tidycal.token, "GET", `/bookings/${booking.id}`);
-                  const fresh = (follow.data as { data?: Record<string, unknown> }).data;
+                  const fresh = sanitizeBooking((follow.data as { data?: Record<string, unknown> }).data ?? null);
                   if (fresh?.meeting_url) booking = fresh;
                 }
                 return json(res, 201, { ok: true, data: booking });
               }
               if (r.status === 409) return json(res, 409, { ok: false, error: "That time was just taken. Please pick another slot." });
-              // Only fall through to the preview confirmation when TidyCal is
-              // unreachable from this environment; surface real API errors otherwise.
               if (r.status !== 502) {
                 return json(res, r.status, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
               }
@@ -313,15 +323,14 @@ function hostingerDevApi(mode: string): Plugin {
             return json(res, 201, {
               ok: true,
               mock: true,
-              data: {
+              data: sanitizeBooking({
                 id: Math.floor(Math.random() * 1e6),
                 booking_type_id: Number(typeId) || typeId,
                 starts_at: isoZulu(start),
                 ends_at: isoZulu(new Date(start.getTime() + MOCK_BOOKING_TYPE.duration_minutes * 60000)),
                 timezone,
-                meeting_url: "https://meet.tidycal.example/mock-room",
-                contact: { name, email, phone_number: phone, timezone },
-              },
+                meeting_url: "https://meet.google.com/mock-preview",
+              }),
             });
           }
 
@@ -338,9 +347,16 @@ function hostingerDevApi(mode: string): Plugin {
             const raw = await readJsonBody(req);
             const parsed = JSON.parse(raw) as { content?: unknown };
             const content = parsed.content ?? parsed;
-            await writeFile(contentFile, `${JSON.stringify(content, null, 2)}\n`, "utf8");
+            const serialized = `${JSON.stringify(content, null, 2)}\n`;
+            if (Buffer.byteLength(serialized, "utf8") > MAX_CONTENT_BYTES) {
+              return json(res, 413, { ok: false, error: "Payload too large" });
+            }
+            await writeFile(contentFile, serialized, "utf8");
             return json(res, 200, { ok: true });
-          } catch {
+          } catch (err) {
+            if (err instanceof Error && err.message === "payload too large") {
+              return json(res, 413, { ok: false, error: "Payload too large" });
+            }
             return json(res, 400, { ok: false, error: "Invalid JSON" });
           }
         }
@@ -348,8 +364,17 @@ function hostingerDevApi(mode: string): Plugin {
           if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           try {
             const chunks: Buffer[] = [];
+            let size = 0;
             await new Promise<void>((resolve, reject) => {
-              req.on("data", (c) => chunks.push(Buffer.from(c)));
+              req.on("data", (c) => {
+                const buf = Buffer.from(c);
+                size += buf.length;
+                if (size > MAX_UPLOAD_BYTES) {
+                  reject(new Error("too large"));
+                  return;
+                }
+                chunks.push(buf);
+              });
               req.on("end", () => resolve());
               req.on("error", reject);
             });
@@ -359,14 +384,17 @@ function hostingerDevApi(mode: string): Plugin {
             const files = parseMultipart(Buffer.concat(chunks), boundary);
             const file = files[0];
             if (!file) return json(res, 400, { ok: false, error: "No file" });
-            const ext = path.extname(file.filename).toLowerCase();
-            const allowed = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".avif"]);
-            if (!allowed.has(ext)) return json(res, 400, { ok: false, error: "Unsupported file type" });
+            if (file.data.length > MAX_UPLOAD_BYTES) return json(res, 400, { ok: false, error: "File too large" });
+            const sniffed = imageExtFromMagic(file.data);
+            if (!sniffed) return json(res, 400, { ok: false, error: "Unsupported file type" });
             if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true });
-            const safe = `${Date.now()}-${file.filename.replace(/[^a-zA-Z0-9._-]/g, "")}`;
+            const safe = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}${sniffed}`;
             await writeFile(path.join(uploadDir, safe), file.data);
             return json(res, 200, { ok: true, url: `/uploads/${safe}` });
-          } catch {
+          } catch (err) {
+            if (err instanceof Error && err.message === "too large") {
+              return json(res, 400, { ok: false, error: "File too large" });
+            }
             return json(res, 500, { ok: false, error: "Upload failed" });
           }
         }
@@ -379,7 +407,6 @@ function hostingerDevApi(mode: string): Plugin {
 export default defineConfig(({ mode }) => ({
   plugins: [react(), hostingerDevApi(mode)],
   server: {
-    host: "0.0.0.0",
     port: 5173,
     strictPort: true,
   },

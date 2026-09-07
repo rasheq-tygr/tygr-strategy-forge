@@ -1,4 +1,5 @@
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 import { Editable } from "./Editable";
 
 export function LogoTicker({ source = "partners" }: { source?: "partners" | "proof" }) {
@@ -15,7 +16,7 @@ export function LogoTicker({ source = "partners" }: { source?: "partners" | "pro
               <Editable path={`${source}.items.${idx}.name`} />
             </span>
           );
-          const href = group.items[idx].href;
+          const href = safeHref(group.items[idx].href);
           return href ? (
             <a key={`${item.name}-${i}`} href={href} target="_blank" rel="noreferrer">
               {inner}
