@@ -1,10 +1,5 @@
 import { useEffect, useRef } from "react";
-import {
-  BUILD_STAGES,
-  EMBLEM_BLOCKS,
-  EMBLEM_CENTER,
-  EMBLEM_VIEWBOX,
-} from "../lib/emblem";
+import { EMBLEM_BLOCKS, EMBLEM_CENTER, EMBLEM_VIEWBOX } from "../lib/emblem";
 
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -12,17 +7,12 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 type BlockMeta = { dx: number; dy: number; cx: number; cy: number; angle: number; start: number };
 
 /**
- * "From idea to done": the emblem's geometric blocks start scattered (the raw
- * idea), snap together into the finished logo as the user scrolls, then the
- * whole mark recedes into the background as they continue down the page.
+ * The emblem's geometric blocks start scattered, snap together into the
+ * finished logo as the user scrolls, then the mark recedes into a watermark.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
-  const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<SVGSVGElement>(null);
-  const stepper = useRef<HTMLDivElement>(null);
   const blocks = useRef<(SVGPathElement | null)[]>([]);
-  const steps = useRef<(HTMLSpanElement | null)[]>([]);
-  const fill = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const paths = blocks.current.filter(Boolean) as SVGPathElement[];
@@ -50,17 +40,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     const SPAN = 0.55;
     const DIST = 220;
 
-    const setStage = (p: number) => {
-      const idx = p < 0.3 ? 0 : p < 0.6 ? 1 : p < 0.9 ? 2 : 3;
-      steps.current.forEach((el, i) => {
-        if (!el) return;
-        el.classList.toggle("is-active", i === idx);
-        el.classList.toggle("is-done", i < idx);
-      });
-      if (fill.current) fill.current.style.width = `${clamp(p) * 100}%`;
-    };
-
-    // Peak while assembling, settle to a faint watermark once "done".
+    // Peak while assembling, settle to a faint watermark once assembled.
     const WATERMARK = 0.16;
     const PEAK = 1;
 
@@ -110,8 +90,6 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         p.removeAttribute("transform");
         p.style.opacity = "1";
       });
-      setStage(1);
-      if (stepper.current) stepper.current.style.opacity = "0";
     }
 
     let raf = 0;
@@ -132,14 +110,8 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
             "transform",
             `translate(${(m.dx * off).toFixed(2)} ${(m.dy * off).toFixed(2)}) rotate(${rot.toFixed(2)} ${m.cx.toFixed(2)} ${m.cy.toFixed(2)})`,
           );
-          // Blocks are already visible while scattered (the raw "idea"), then
-          // firm up to full opacity as they lock into place ("done").
           path.style.opacity = String(clamp(0.42 + local * 0.58));
         });
-        setStage(p);
-        if (stepper.current) {
-          stepper.current.style.opacity = String(1 - clamp((window.scrollY / vh - 0.66) / 0.25));
-        }
       }
 
       if (frame % 6 === 0) overDark = isDarkBehind();
@@ -160,7 +132,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
   }, []);
 
   return (
-    <div className={`emblem-build ${className ?? ""}`} ref={wrap}>
+    <div className={`emblem-build ${className ?? ""}`}>
       <svg className="emblem-canvas" viewBox={EMBLEM_VIEWBOX} fill="none" aria-hidden="true" ref={canvas}>
         {EMBLEM_BLOCKS.map((d, i) => (
           <path
@@ -175,25 +147,6 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           />
         ))}
       </svg>
-      <div className="emblem-stepper" aria-hidden="true" ref={stepper}>
-        <span className="emblem-stepper-eyebrow">From idea to done</span>
-        <div className="emblem-stepper-track">
-          <span className="emblem-stepper-fill" ref={fill} />
-        </div>
-        <div className="emblem-stepper-steps">
-          {BUILD_STAGES.map((label, i) => (
-            <span
-              key={label}
-              className="emblem-step"
-              ref={(el) => {
-                steps.current[i] = el;
-              }}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

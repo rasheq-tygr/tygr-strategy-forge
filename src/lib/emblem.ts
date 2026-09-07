@@ -21,6 +21,3 @@ export const EMBLEM_BLOCKS = [
 
 /** Combined mark for single-path consumers (favicon, lockups). */
 export const EMBLEM_PATH = EMBLEM_BLOCKS.join(" ");
-
-/** Scroll-narrative stages shown while the emblem assembles. */
-export const BUILD_STAGES = ["Idea", "Blueprint", "Build", "Done"] as const;
