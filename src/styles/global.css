@@ -258,12 +258,13 @@ h3,
 .page-emblem {
   position: absolute;
   top: 0;
-  right: 2%;
-  width: clamp(280px, 42vw, 560px);
+  right: max(1.5rem, calc((100vw - var(--max)) / 2 + 0.75rem));
+  width: min(380px, 32vw);
+  max-width: calc(100vw - 3rem);
   color: var(--tygr-orange);
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
-  will-change: top, opacity;
+  will-change: top;
 }
 
 .emblem-canvas {
@@ -283,7 +284,8 @@ h3,
     right: auto;
     left: 50%;
     transform: translateX(-50%);
-    width: min(78vw, 440px);
+    width: min(68vw, 320px);
+    opacity: 0.55;
   }
 }
 
@@ -361,6 +363,9 @@ h3,
   background: var(--tygr-navy);
   color: var(--tygr-cream);
   border-top: 3px solid var(--tygr-orange);
+}
+
+.stat-bar-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
 }
@@ -1373,7 +1378,7 @@ h3,
   .insight-grid,
   .contact-lead,
   .footer-grid,
-  .stat-bar,
+  .stat-bar-grid,
   .media-grid {
     grid-template-columns: 1fr;
   }

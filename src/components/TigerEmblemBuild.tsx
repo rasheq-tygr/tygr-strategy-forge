@@ -11,16 +11,22 @@ import {
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-function buildTarget() {
+function scrollMetrics() {
   const dest = document.getElementById("ecosystem");
-  if (!dest) return null;
-  const destY = dest.getBoundingClientRect().top + window.scrollY;
-  return { destY, range: Math.max(1, destY - window.innerHeight * 0.28) };
+  const doc = document.documentElement;
+  const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+  const travel = clamp(window.scrollY / maxScroll);
+  let assemble = travel;
+  if (dest) {
+    const destY = dest.getBoundingClientRect().top + window.scrollY;
+    assemble = clamp(window.scrollY / Math.max(1, destY - window.innerHeight * 0.35));
+  }
+  return { travel, assemble };
 }
 
 /**
- * Shards scatter in the hero, then fuse into the solid brand mark by the
- * Orbit section (the second full section after the hero).
+ * Shards scatter in the hero, fuse into the solid brand mark by The Orbit,
+ * then the finished emblem keeps traveling down to the footer.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -37,39 +43,6 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     if (shards.length === 0) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const luminanceBehind = (px: number, py: number) => {
-      let node = document.elementFromPoint(px, py) as HTMLElement | null;
-      while (node) {
-        const nums = getComputedStyle(node).backgroundColor.match(/[\d.]+/g);
-        if (nums && nums.length >= 3) {
-          const alpha = nums.length >= 4 ? Number(nums[3]) : 1;
-          if (alpha > 0.5) {
-            const [r, g, b] = nums.map(Number);
-            return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-          }
-        }
-        node = node.parentElement;
-      }
-      return 1;
-    };
-
-    const isDarkBehind = () => {
-      const el = canvas.current;
-      if (!el) return false;
-      const rect = el.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return false;
-      const px = Math.max(2, Math.min(window.innerWidth - 2, rect.left + rect.width / 2));
-      const fracs = [0.18, 0.5, 0.82];
-      let checked = 0;
-      for (const f of fracs) {
-        const py = rect.top + rect.height * f;
-        if (py < 2 || py > window.innerHeight - 2) continue;
-        checked += 1;
-        if (luminanceBehind(px, py) >= 0.4) return false;
-      }
-      return checked > 0;
-    };
 
     const applyShard = (el: SVGPolygonElement, shard: EmblemShard, p: number, shardFade: number) => {
       const local = reduce ? 1 : easeOut(clamp((p - shard.start) / shard.span));
@@ -94,19 +67,17 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     }
 
     let raf = 0;
-    let frame = 0;
-    let overDark = true;
-    let cur = 0;
     const render = () => {
-      const target = buildTarget();
-      const p = reduce ? 1 : target ? clamp(window.scrollY / target.range) : 1;
-      const fuse = reduce ? 1 : clamp((p - 0.72) / 0.22);
+      const { travel, assemble } = scrollMetrics();
+      const p = reduce ? 1 : assemble;
+      const fuse = reduce ? 1 : clamp((p - 0.62) / 0.28);
       const shardFade = 1 - fuse;
 
+      const shell = wrap.current?.parentElement;
+      const shellH = shell?.scrollHeight ?? document.documentElement.scrollHeight;
       const wrapH = wrap.current?.offsetHeight ?? 0;
-      if (wrap.current && target) {
-        const endTop = Math.max(0, target.destY - wrapH * 0.12);
-        wrap.current.style.top = `${p * endTop}px`;
+      if (wrap.current) {
+        wrap.current.style.top = `${(reduce ? 1 : travel) * Math.max(0, shellH - wrapH)}px`;
       }
 
       if (!reduce) {
@@ -116,12 +87,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         });
       }
       if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
-
-      if (frame % 6 === 0) overDark = isDarkBehind();
-      frame += 1;
-      const vis = overDark ? 0.98 : 0.22;
-      cur += (vis - cur) * 0.18;
-      if (canvas.current) canvas.current.style.opacity = cur.toFixed(3);
+      if (canvas.current) canvas.current.style.opacity = "1";
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
       if (hint) hint.classList.toggle("is-away", window.scrollY > 48);

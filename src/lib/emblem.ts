@@ -78,7 +78,7 @@ export function sampleEmblemShards(target = 320): EmblemShard[] {
     const h3 = hash(n + 73);
     const h4 = hash(n + 101);
     const angle = h0 * Math.PI * 2;
-    const dist = 160 + h1 * 420;
+    const dist = 90 + h1 * 140;
     const size = 11 + h2 * 10;
     const half = size / 2;
     const skew = (h3 - 0.5) * 4;
@@ -86,8 +86,8 @@ export function sampleEmblemShards(target = 320): EmblemShard[] {
       x: hits[i].x,
       y: hits[i].y,
       size,
-      dx: Math.cos(angle) * dist,
-      dy: Math.sin(angle) * dist,
+      dx: -Math.abs(Math.cos(angle)) * dist,
+      dy: (h0 - 0.5) * dist * 1.4,
       rot0: (h2 - 0.5) * 220,
       rot1: (h3 - 0.5) * 14,
       start: h4 * 0.22,
