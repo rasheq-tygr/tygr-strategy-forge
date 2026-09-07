@@ -1,5 +1,4 @@
 import { useSite } from "../context/SiteContext";
-import { tidycalUrl } from "../lib/api";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
 import { TidyCalScheduler } from "./TidyCalScheduler";
@@ -47,9 +46,6 @@ export function ContactBlock() {
             path={content.contact.tidycalPath}
             className="contact-tidycal"
           />
-          <a className="tc-fallback" href={tidycalUrl(content.contact.tidycalPath) || `mailto:${content.contact.email}`} target="_blank" rel="noreferrer">
-            <Editable path="contact.cta" /> →
-          </a>
         </Reveal>
       </div>
     </section>
