@@ -58,6 +58,7 @@ img {
 }
 
 .site-shell {
+  position: relative;
   min-height: 100vh;
 }
 
@@ -254,6 +255,34 @@ h3,
   mask-image: radial-gradient(120% 90% at 72% 42%, #000 0%, transparent 70%);
 }
 
+.page-emblem {
+  position: absolute;
+  top: 0;
+  right: 2%;
+  width: clamp(280px, 42vw, 560px);
+  color: var(--tygr-orange);
+  z-index: 1;
+  pointer-events: none;
+  will-change: top, opacity;
+}
+
+.emblem-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 0 28px rgba(235, 132, 0, 0.28));
+}
+
+@media (max-width: 980px) {
+  .page-emblem {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(78vw, 440px);
+  }
+}
+
 .hero-content {
   position: relative;
   z-index: 2;
@@ -300,6 +329,11 @@ h3,
   font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  transition: opacity 0.45s ease;
+}
+
+.scroll-hint.is-away {
+  opacity: 0;
 }
 
 .scroll-hint span.arrow {

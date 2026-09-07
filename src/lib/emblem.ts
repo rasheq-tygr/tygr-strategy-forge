@@ -1,6 +1,10 @@
 /** Authentic TYGR Ventures tiger — the 8 geometric pieces from the brand mark. */
 export const EMBLEM_VIEWBOX = "0 0 549.75 499";
 export const EMBLEM_RATIO = 499 / 549.75;
+/** Approximate center of the emblem in viewBox units. */
+export const EMBLEM_CENTER = { x: 274.88, y: 249.5 };
+export const EMBLEM_WIDTH = 549.75;
+export const EMBLEM_HEIGHT = 499;
 
 /**
  * Discrete geometric blocks of the brand mark:
@@ -19,3 +23,77 @@ export const EMBLEM_BLOCKS = [
 
 /** Combined mark for single-path consumers (favicon, lockups). */
 export const EMBLEM_PATH = EMBLEM_BLOCKS.join(" ");
+
+export type EmblemShard = {
+  x: number;
+  y: number;
+  size: number;
+  dx: number;
+  dy: number;
+  rot0: number;
+  rot1: number;
+  start: number;
+  span: number;
+  points: string;
+};
+
+const fract = (n: number) => n - Math.floor(n);
+const hash = (n: number) => fract(Math.sin(n * 127.1 + 311.7) * 43758.5453);
+
+function emblemPath2D() {
+  const path = new Path2D();
+  for (const d of EMBLEM_BLOCKS) path.addPath(new Path2D(d));
+  return path;
+}
+
+/**
+ * Sample the filled tiger mark on a grid and turn each hit into a small
+ * scattered shard. Returns hundreds of blocks that lerp back into the silhouette.
+ */
+export function sampleEmblemShards(target = 320): EmblemShard[] {
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil(EMBLEM_WIDTH);
+  canvas.height = Math.ceil(EMBLEM_HEIGHT);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return [];
+
+  const path = emblemPath2D();
+  const hits: { x: number; y: number }[] = [];
+  const step = 16;
+  for (let y = step / 2; y < EMBLEM_HEIGHT; y += step) {
+    for (let x = step / 2; x < EMBLEM_WIDTH; x += step) {
+      if (ctx.isPointInPath(path, x, y, "evenodd")) hits.push({ x, y });
+    }
+  }
+
+  if (hits.length === 0) return [];
+
+  const stride = Math.max(1, Math.floor(hits.length / target));
+  const shards: EmblemShard[] = [];
+  for (let i = 0; i < hits.length; i += stride) {
+    const n = shards.length;
+    const h0 = hash(n + 1);
+    const h1 = hash(n + 19);
+    const h2 = hash(n + 47);
+    const h3 = hash(n + 73);
+    const h4 = hash(n + 101);
+    const angle = h0 * Math.PI * 2;
+    const dist = 160 + h1 * 420;
+    const size = 11 + h2 * 10;
+    const half = size / 2;
+    const skew = (h3 - 0.5) * 4;
+    shards.push({
+      x: hits[i].x,
+      y: hits[i].y,
+      size,
+      dx: Math.cos(angle) * dist,
+      dy: Math.sin(angle) * dist,
+      rot0: (h2 - 0.5) * 220,
+      rot1: (h3 - 0.5) * 14,
+      start: h4 * 0.42,
+      span: 0.38 + h1 * 0.28,
+      points: `${half + skew},0 ${size},${half - skew * 0.4} ${half - skew},${size} 0,${half + skew * 0.3}`,
+    });
+  }
+  return shards;
+}
