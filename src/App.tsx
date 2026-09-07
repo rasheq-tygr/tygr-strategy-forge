@@ -3,7 +3,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { EditChrome } from "./components/EditChrome";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
-import { TigerEmblemBuild } from "./components/TigerEmblemBuild";
 import { SiteProvider } from "./context/SiteContext";
 import { AdminHome } from "./pages/admin/AdminHome";
 import { AdminLayout } from "./pages/admin/AdminLayout";
@@ -21,7 +20,6 @@ import { WorkPage } from "./pages/WorkPage";
 function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="site-shell">
-      <TigerEmblemBuild className="page-emblem" />
       <Header />
       <main>{children}</main>
       <Footer />
