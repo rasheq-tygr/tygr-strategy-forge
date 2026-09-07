@@ -1,11 +1,9 @@
 /** Authentic TYGR Ventures tiger — the 8 geometric pieces from the brand mark. */
 export const EMBLEM_VIEWBOX = "0 0 549.75 499";
 export const EMBLEM_RATIO = 499 / 549.75;
-/** Approximate center of the emblem in viewBox units, used for radial assembly. */
-export const EMBLEM_CENTER = { x: 274.88, y: 249.5 };
 
 /**
- * Discrete geometric blocks, in the same order the old site assembled them:
+ * Discrete geometric blocks of the brand mark:
  * body, brow, forehead triangle, outer frame, then the four jaw/stripe shards.
  */
 export const EMBLEM_BLOCKS = [
@@ -21,6 +19,3 @@ export const EMBLEM_BLOCKS = [
 
 /** Combined mark for single-path consumers (favicon, lockups). */
 export const EMBLEM_PATH = EMBLEM_BLOCKS.join(" ");
-
-/** Scroll-narrative stages shown while the emblem assembles. */
-export const BUILD_STAGES = ["Idea", "Blueprint", "Build", "Done"] as const;
