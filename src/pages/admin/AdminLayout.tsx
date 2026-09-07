@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSite } from "../../context/SiteContext";
 import { googleClientId } from "../../lib/google";
@@ -7,7 +7,6 @@ import { AdminLogin } from "./AdminLogin";
 export function AdminLayout() {
   const { unlocked, dirty, status, save, lock, content, error } = useSite();
   const location = useLocation();
-  const [ready, setReady] = useState(unlocked);
 
   // GIS treats 127.0.0.1 and localhost as different origins. localhost is
   // already registered for this client; bounce so Sign in with Google works
@@ -20,17 +19,17 @@ export function AdminLayout() {
     window.location.replace(next.toString());
   }, []);
 
-  if (!unlocked && !ready) {
+  if (!unlocked) {
     return (
       <div className="admin">
         <div className="wrap">
-          <AdminLogin onUnlocked={() => setReady(true)} />
+          <AdminLogin />
         </div>
       </div>
     );
   }
 
-  if (unlocked && location.pathname === "/admin/login") {
+  if (location.pathname === "/admin/login") {
     return <Navigate to="/admin" replace />;
   }
 

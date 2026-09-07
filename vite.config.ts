@@ -22,18 +22,29 @@ function readTidyCalConfig(mode: string) {
 
 const isoZulu = (d: Date) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
 
-/** Synthetic timeslots so the booking UI is testable locally without a token. */
+// Business-day window for synthetic availability, in UTC. ~9:00 AM–5:00 PM ET.
+const MOCK_DAY_START_UTC_MIN = 13 * 60;
+const MOCK_DAY_END_UTC_MIN = 21 * 60;
+
+/**
+ * Synthetic timeslots so the booking UI is testable locally without a token.
+ * Emits slots at the booking type's real cadence (every `durationMin`) across a
+ * full business day so the preview looks like genuine availability rather than a
+ * handful of on-the-hour times.
+ */
 function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
   const out: { starts_at: string; ends_at: string; available_bookings: number }[] = [];
   const end = new Date(endsAt);
   const now = Date.now();
   const cursor = new Date(Math.max(new Date(startsAt).getTime(), now));
   cursor.setUTCHours(0, 0, 0, 0);
+  const step = Math.max(15, durationMin);
   for (let d = new Date(cursor); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
     const dow = d.getUTCDay();
     if (dow === 0 || dow === 6) continue;
-    for (const h of [15, 16, 17, 18, 19, 20]) {
-      const s = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), h, 0, 0));
+    const midnight = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0);
+    for (let mins = MOCK_DAY_START_UTC_MIN; mins + durationMin <= MOCK_DAY_END_UTC_MIN; mins += step) {
+      const s = new Date(midnight + mins * 60000);
       if (s.getTime() < now + 2 * 3600 * 1000 || s > end) continue;
       out.push({
         starts_at: isoZulu(s),
@@ -45,17 +56,22 @@ function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
   return out;
 }
 
+// Mirrors the real "TYGR Ventures 30 Minute Intro" booking type (id 2074091,
+// Google Meet) so the preview fallback shows the correct event when TidyCal is
+// unreachable. Booking type id is overridden with the configured id at runtime.
 const MOCK_BOOKING_TYPE = {
-  id: 999001,
-  title: "Discovery call",
+  id: 2074091,
+  title: "TYGR Ventures 30 Minute Intro",
   duration_minutes: 30,
   padding_minutes: 0,
-  url_slug: "discovery-call",
-  description: "A 30-minute intro call to talk through your constraint and whether the studio fits.",
+  url_slug: "tygr-ventures-30-minute-intro",
+  description: "A 30-minute intro over Google Meet to talk through your constraint and whether the studio is a fit.",
   price: 0,
   currency_code: "USD",
   private: false,
-  url: "https://tidycal.com/rasheqrahman/discovery-call",
+  url: "https://tidycal.com/rasheq/tygr-ventures-30-minute-intro",
+  booking_page_url: "https://tidycal.com/rasheq/tygr-ventures-30-minute-intro",
+  locations: [{ location_option: "Google Meet", location_link_source: "google_meet" }],
 };
 
 /** Call the real TidyCal API from the dev server (token stays server-side). */
@@ -205,17 +221,26 @@ function hostingerDevApi(mode: string): Plugin {
         if (url === "/api/tidycal.php") {
           const configuredType = tidycal.bookingTypeId;
           const resolveType = (requested: string) => (configuredType ? configuredType : requested);
+          const previewBookingType = configuredType
+            ? { ...MOCK_BOOKING_TYPE, id: Number(configuredType) || MOCK_BOOKING_TYPE.id }
+            : MOCK_BOOKING_TYPE;
 
           if (req.method === "GET" && query.get("action") === "booking-types") {
             if (tidycal.token) {
               const r = await tidyCalReal(tidycal.token, "GET", "/booking-types");
+              // When TidyCal is unreachable from this environment (e.g. the Cloud
+              // VM egress can't establish TLS to tidycal.com) fall back to labeled
+              // preview data so the widget still renders. Production PHP is unchanged.
+              if (r.status === 502) {
+                return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
+              }
               let items = Array.isArray((r.data as { data?: unknown }).data)
                 ? ((r.data as { data: Record<string, unknown>[] }).data)
                 : [];
               if (configuredType) items = items.filter((b) => String(b.id) === configuredType);
               return json(res, r.status || 502, { ok: r.status === 200, data: items });
             }
-            return json(res, 200, { ok: true, mock: true, data: [MOCK_BOOKING_TYPE] });
+            return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
           }
 
           if (req.method === "GET" && query.get("action") === "timeslots") {
@@ -228,6 +253,9 @@ function hostingerDevApi(mode: string): Plugin {
             if (tidycal.token) {
               const qs = new URLSearchParams({ starts_at: startsAt, ends_at: endsAt }).toString();
               const r = await tidyCalReal(tidycal.token, "GET", `/booking-types/${typeId}/timeslots?${qs}`);
+              if (r.status === 502) {
+                return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+              }
               return json(res, r.status || 502, { ok: r.status === 200, data: (r.data as { data?: unknown }).data ?? [] });
             }
             return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
@@ -275,7 +303,11 @@ function hostingerDevApi(mode: string): Plugin {
                 return json(res, 201, { ok: true, data: booking });
               }
               if (r.status === 409) return json(res, 409, { ok: false, error: "That time was just taken. Please pick another slot." });
-              return json(res, r.status || 502, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
+              // Only fall through to the preview confirmation when TidyCal is
+              // unreachable from this environment; surface real API errors otherwise.
+              if (r.status !== 502) {
+                return json(res, r.status, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
+              }
             }
             const start = new Date(startsAt);
             return json(res, 201, {
