@@ -1,6 +1,6 @@
 {
   "name": "TYGR Ventures",
-  "install": "[ -f .env ] || cp .env.example .env\nnpm ci",
+  "install": "if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi\nnpm ci",
   "terminals": [
     {
       "name": "dev",
