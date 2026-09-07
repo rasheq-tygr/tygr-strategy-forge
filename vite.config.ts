@@ -22,18 +22,29 @@ function readTidyCalConfig(mode: string) {
 
 const isoZulu = (d: Date) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
 
-/** Synthetic timeslots so the booking UI is testable locally without a token. */
+// Business-day window for synthetic availability, in UTC. ~9:00 AM–5:00 PM ET.
+const MOCK_DAY_START_UTC_MIN = 13 * 60;
+const MOCK_DAY_END_UTC_MIN = 21 * 60;
+
+/**
+ * Synthetic timeslots so the booking UI is testable locally without a token.
+ * Emits slots at the booking type's real cadence (every `durationMin`) across a
+ * full business day so the preview looks like genuine availability rather than a
+ * handful of on-the-hour times.
+ */
 function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
   const out: { starts_at: string; ends_at: string; available_bookings: number }[] = [];
   const end = new Date(endsAt);
   const now = Date.now();
   const cursor = new Date(Math.max(new Date(startsAt).getTime(), now));
   cursor.setUTCHours(0, 0, 0, 0);
+  const step = Math.max(15, durationMin);
   for (let d = new Date(cursor); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
     const dow = d.getUTCDay();
     if (dow === 0 || dow === 6) continue;
-    for (const h of [15, 16, 17, 18, 19, 20]) {
-      const s = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), h, 0, 0));
+    const midnight = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0);
+    for (let mins = MOCK_DAY_START_UTC_MIN; mins + durationMin <= MOCK_DAY_END_UTC_MIN; mins += step) {
+      const s = new Date(midnight + mins * 60000);
       if (s.getTime() < now + 2 * 3600 * 1000 || s > end) continue;
       out.push({
         starts_at: isoZulu(s),
