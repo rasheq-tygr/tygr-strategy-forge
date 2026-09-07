@@ -1,4 +1,4 @@
-import { EMBLEM_PATH, EMBLEM_RATIO, EMBLEM_VIEWBOX } from "../lib/emblem";
+import { EMBLEM_BLOCKS, EMBLEM_RATIO, EMBLEM_VIEWBOX } from "../lib/emblem";
 
 type Props = { size?: number; className?: string; title?: string };
 
@@ -17,7 +17,9 @@ export function TigerMark({ size = 30, className, title }: Props) {
       aria-hidden={title ? undefined : true}
     >
       {title ? <title>{title}</title> : null}
-      <path fill="currentColor" fillRule="evenodd" d={EMBLEM_PATH} />
+      {EMBLEM_BLOCKS.map((d) => (
+        <path key={d.slice(0, 24)} fill="currentColor" d={d} />
+      ))}
     </svg>
   );
 }

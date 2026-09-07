@@ -46,6 +46,14 @@ export type InsightItem = {
 
 export type PartnerItem = { name: string; href: string };
 
+export type TestimonialItem = {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  quote: string;
+};
+
 export type SiteContent = {
   meta: { title: string; description: string };
   brand: { name: string; shortName: string; domain: string };
@@ -89,6 +97,8 @@ export type SiteContent = {
     items: InsightItem[];
   };
   partners: { eyebrow: string; title: string; items: PartnerItem[] };
+  proof: { eyebrow: string; title: string; items: PartnerItem[] };
+  testimonials: { eyebrow: string; title: string; items: TestimonialItem[] };
   contact: {
     eyebrow: string;
     title: string;
@@ -100,6 +110,7 @@ export type SiteContent = {
     phone: string;
     bookingUrl: string;
     tidycalPath?: string;
+    tidycalBookingTypeId?: number;
   };
   founder: { name: string; role: string; blurb: string };
   footer: { blurb: string; copyright: string; editHint: string };
