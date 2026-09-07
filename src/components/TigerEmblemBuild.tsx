@@ -87,7 +87,15 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         });
       }
       if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
-      if (canvas.current) canvas.current.style.opacity = "1";
+      if (canvas.current) {
+        // Bright while building in the hero; a quiet watermark from Orbit through footer.
+        const rest = 0.2 - travel * 0.04;
+        const vis = 0.92 - fuse * (0.92 - rest);
+        canvas.current.style.opacity = vis.toFixed(3);
+        const glow = (1 - fuse) * 22;
+        const glowA = (1 - fuse) * 0.26;
+        canvas.current.style.filter = `drop-shadow(0 0 ${glow.toFixed(1)}px rgba(235, 132, 0, ${glowA.toFixed(3)}))`;
+      }
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
       if (hint) hint.classList.toggle("is-away", window.scrollY > 48);
