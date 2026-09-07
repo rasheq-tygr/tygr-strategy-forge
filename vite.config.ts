@@ -45,17 +45,22 @@ function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
   return out;
 }
 
+// Mirrors the real "TYGR Ventures 30 Minute Intro" booking type (id 2074091,
+// Google Meet) so the preview fallback shows the correct event when TidyCal is
+// unreachable. Booking type id is overridden with the configured id at runtime.
 const MOCK_BOOKING_TYPE = {
-  id: 999001,
-  title: "Discovery call",
+  id: 2074091,
+  title: "TYGR Ventures 30 Minute Intro",
   duration_minutes: 30,
   padding_minutes: 0,
-  url_slug: "discovery-call",
-  description: "A 30-minute intro call to talk through your constraint and whether the studio fits.",
+  url_slug: "tygr-ventures-30-minute-intro",
+  description: "A 30-minute intro over Google Meet to talk through your constraint and whether the studio is a fit.",
   price: 0,
   currency_code: "USD",
   private: false,
-  url: "https://tidycal.com/rasheqrahman/discovery-call",
+  url: "https://tidycal.com/rasheq/tygr-ventures-30-minute-intro",
+  booking_page_url: "https://tidycal.com/rasheq/tygr-ventures-30-minute-intro",
+  locations: [{ location_option: "Google Meet", location_link_source: "google_meet" }],
 };
 
 /** Call the real TidyCal API from the dev server (token stays server-side). */
@@ -205,6 +210,9 @@ function hostingerDevApi(mode: string): Plugin {
         if (url === "/api/tidycal.php") {
           const configuredType = tidycal.bookingTypeId;
           const resolveType = (requested: string) => (configuredType ? configuredType : requested);
+          const previewBookingType = configuredType
+            ? { ...MOCK_BOOKING_TYPE, id: Number(configuredType) || MOCK_BOOKING_TYPE.id }
+            : MOCK_BOOKING_TYPE;
 
           if (req.method === "GET" && query.get("action") === "booking-types") {
             if (tidycal.token) {
@@ -213,7 +221,7 @@ function hostingerDevApi(mode: string): Plugin {
               // VM egress can't establish TLS to tidycal.com) fall back to labeled
               // preview data so the widget still renders. Production PHP is unchanged.
               if (r.status === 502) {
-                return json(res, 200, { ok: true, mock: true, data: [MOCK_BOOKING_TYPE] });
+                return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
               }
               let items = Array.isArray((r.data as { data?: unknown }).data)
                 ? ((r.data as { data: Record<string, unknown>[] }).data)
@@ -221,7 +229,7 @@ function hostingerDevApi(mode: string): Plugin {
               if (configuredType) items = items.filter((b) => String(b.id) === configuredType);
               return json(res, r.status || 502, { ok: r.status === 200, data: items });
             }
-            return json(res, 200, { ok: true, mock: true, data: [MOCK_BOOKING_TYPE] });
+            return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
           }
 
           if (req.method === "GET" && query.get("action") === "timeslots") {
