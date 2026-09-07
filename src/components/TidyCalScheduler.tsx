@@ -209,21 +209,23 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   return (
     <div className={`tc tc-cal-layout ${className ?? ""}`.trim()}>
       <aside className="tc-info">
-        <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
-        <ul className="tc-meta">
-          <li>
-            <span aria-hidden="true">🕑</span>
-            {bookingType?.duration_minutes ? `${bookingType.duration_minutes} min` : "Pick a time"}
-          </li>
-          <li>
-            <span className="tc-video">{VIDEO_ICON}</span>
-            {meeting}
-          </li>
-          <li>
-            <span aria-hidden="true">🌐</span>
-            {shortTimezone()}
-          </li>
-        </ul>
+        <div className="tc-info-top">
+          <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
+          <ul className="tc-meta">
+            <li>
+              <span aria-hidden="true">🕑</span>
+              {bookingType?.duration_minutes ? `${bookingType.duration_minutes} min` : "Pick a time"}
+            </li>
+            <li>
+              <span className="tc-video">{VIDEO_ICON}</span>
+              {meeting}
+            </li>
+            <li>
+              <span aria-hidden="true">🌐</span>
+              {shortTimezone()}
+            </li>
+          </ul>
+        </div>
         {description ? <p className="tc-desc">{description}</p> : null}
         {mock ? <span className="tc-badge" title="Add your TidyCal token to go live">Preview times</span> : null}
       </aside>
