@@ -262,7 +262,18 @@ function hostingerDevApi(mode: string): Plugin {
                 phone_number: phone.slice(0, 40),
                 timezone: timezone.slice(0, 191),
               });
-              if (r.status === 201) return json(res, 201, { ok: true, data: (r.data as { data?: unknown }).data ?? null });
+              if (r.status === 201) {
+                let booking = ((r.data as { data?: Record<string, unknown> }).data ?? null) as Record<string, unknown> | null;
+                // Google Meet links are attached a moment after create; poll once so
+                // the confirmation screen can show the join URL.
+                if (booking && !booking.meeting_url && booking.id) {
+                  await new Promise((resolve) => setTimeout(resolve, 1500));
+                  const follow = await tidyCalReal(tidycal.token, "GET", `/bookings/${booking.id}`);
+                  const fresh = (follow.data as { data?: Record<string, unknown> }).data;
+                  if (fresh?.meeting_url) booking = fresh;
+                }
+                return json(res, 201, { ok: true, data: booking });
+              }
               if (r.status === 409) return json(res, 409, { ok: false, error: "That time was just taken. Please pick another slot." });
               return json(res, r.status || 502, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
             }

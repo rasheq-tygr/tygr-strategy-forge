@@ -136,7 +136,9 @@ export function resolveBookingType(
 export function timeslotWindow(days = 35) {
   const now = new Date();
   const end = new Date(now.getTime() + days * 24 * 3600 * 1000);
-  return { startsAt: now.toISOString(), endsAt: end.toISOString() };
+  // TidyCal requires Y-m-d\TH:i:s\Z — milliseconds are rejected (422).
+  const zulu = (d: Date) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
+  return { startsAt: zulu(now), endsAt: zulu(end) };
 }
 
 /** Local YYYY-MM-DD key for grouping UTC slots into the booker's days. */

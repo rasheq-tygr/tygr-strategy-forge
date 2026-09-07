@@ -81,7 +81,17 @@ if ($method === 'POST') {
     }
     [$code, $data] = tygr_tidycal_request('POST', "/booking-types/{$typeId}/bookings", $body);
     if ($code === 201) {
-        tygr_json_out(201, ['ok' => true, 'data' => $data['data'] ?? null]);
+        $booking = is_array($data['data'] ?? null) ? $data['data'] : null;
+        // Google Meet links are attached a moment after create; poll once so
+        // the confirmation screen can show the join URL.
+        if (is_array($booking) && empty($booking['meeting_url']) && !empty($booking['id'])) {
+            usleep(1500000);
+            [, $follow] = tygr_tidycal_request('GET', '/bookings/' . $booking['id']);
+            if (is_array($follow['data'] ?? null) && !empty($follow['data']['meeting_url'])) {
+                $booking = $follow['data'];
+            }
+        }
+        tygr_json_out(201, ['ok' => true, 'data' => $booking]);
     }
     if ($code === 409) {
         tygr_json_out(409, ['ok' => false, 'error' => 'That time was just taken. Please pick another slot.']);

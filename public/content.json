@@ -235,7 +235,8 @@
     "email": "rasheq@tygrventures.com",
     "phone": "+1 (202) 932-9662",
     "bookingUrl": "",
-    "tidycalPath": "rasheqrahman/discovery-call"
+    "tidycalPath": "rasheq/tygr-ventures-30-minute-intro",
+    "tidycalBookingTypeId": 2074091
   },
   "founder": {
     "name": "Rasheq Rahman",
