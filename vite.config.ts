@@ -346,6 +346,11 @@ function hostingerDevApi(mode: string): Plugin {
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), hostingerDevApi(mode)],
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    strictPort: true,
+  },
   build: {
     outDir: "dist",
     assetsDir: "assets",

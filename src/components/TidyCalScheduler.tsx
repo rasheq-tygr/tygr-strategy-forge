@@ -48,8 +48,8 @@ function plainText(html?: string): string {
 
 /**
  * Custom booking widget backed by the TidyCal REST API (via the /api/tidycal.php
- * proxy) — not an iframe. Calendly-style: event info on the left, a month
- * calendar and the selected day's times on the right, then a details form.
+ * proxy) — not an iframe. Event info in a header, a compact month picker, then
+ * the selected day's times in a full-width grid, then a details form.
  */
 export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   const [status, setStatus] = useState<Status>("loading");
@@ -126,21 +126,6 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
     () => (selectedDay ? dayMap.get(selectedDay) ?? [] : []),
     [dayMap, selectedDay],
   );
-
-  // Group a day's slots into Morning / Afternoon / Evening for a cleaner read.
-  const periods = useMemo(() => {
-    const buckets: { label: string; slots: TidyCalSlot[] }[] = [
-      { label: "Morning", slots: [] },
-      { label: "Afternoon", slots: [] },
-      { label: "Evening", slots: [] },
-    ];
-    for (const s of daySlots) {
-      const h = new Date(s.starts_at).getHours();
-      const idx = h < 12 ? 0 : h < 17 ? 1 : 2;
-      buckets[idx].slots.push(s);
-    }
-    return buckets.filter((b) => b.slots.length > 0);
-  }, [daySlots]);
 
   const cells = useMemo(() => monthMatrix(view.year, view.month), [view]);
 
@@ -224,21 +209,23 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   return (
     <div className={`tc tc-cal-layout ${className ?? ""}`.trim()}>
       <aside className="tc-info">
-        <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
-        <ul className="tc-meta">
-          <li>
-            <span aria-hidden="true">🕑</span>
-            {bookingType?.duration_minutes ? `${bookingType.duration_minutes} min` : "Pick a time"}
-          </li>
-          <li>
-            <span className="tc-video">{VIDEO_ICON}</span>
-            {meeting}
-          </li>
-          <li>
-            <span aria-hidden="true">🌐</span>
-            {shortTimezone()}
-          </li>
-        </ul>
+        <div className="tc-info-top">
+          <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
+          <ul className="tc-meta">
+            <li>
+              <span aria-hidden="true">🕑</span>
+              {bookingType?.duration_minutes ? `${bookingType.duration_minutes} min` : "Pick a time"}
+            </li>
+            <li>
+              <span className="tc-video">{VIDEO_ICON}</span>
+              {meeting}
+            </li>
+            <li>
+              <span aria-hidden="true">🌐</span>
+              {shortTimezone()}
+            </li>
+          </ul>
+        </div>
         {description ? <p className="tc-desc">{description}</p> : null}
         {mock ? <span className="tc-badge" title="Add your TidyCal token to go live">Preview times</span> : null}
       </aside>
@@ -351,26 +338,21 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
             {selectedDay ? (
               <>
                 <p className="tc-slots-head">{formatLongDayLabel(`${selectedDay}T12:00:00`)}</p>
-                {periods.map((p) => (
-                  <div key={p.label} className="tc-period">
-                    <p className="tc-period-label">{p.label}</p>
-                    <div className="tc-times">
-                      {p.slots.map((s) => (
-                        <button
-                          key={s.starts_at}
-                          type="button"
-                          className="tc-time"
-                          onClick={() => {
-                            setSelectedSlot(s.starts_at);
-                            setError("");
-                          }}
-                        >
-                          {formatTimeLabel(s.starts_at)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                <div className="tc-times">
+                  {daySlots.map((s) => (
+                    <button
+                      key={s.starts_at}
+                      type="button"
+                      className="tc-time"
+                      onClick={() => {
+                        setSelectedSlot(s.starts_at);
+                        setError("");
+                      }}
+                    >
+                      {formatTimeLabel(s.starts_at)}
+                    </button>
+                  ))}
+                </div>
               </>
             ) : (
               <p className="tc-muted tc-slots-hint">Select a highlighted day to see open times.</p>

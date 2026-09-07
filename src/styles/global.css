@@ -781,10 +781,6 @@ h3,
   }
 }
 
-#contact .wrap {
-  width: min(1320px, calc(100% - 2.5rem));
-}
-
 .contact-panel {
   display: flex;
   flex-direction: column;
@@ -798,6 +794,14 @@ h3,
   margin-bottom: 0.6rem;
 }
 
+.contact-lead > div > p:not(.eyebrow) {
+  margin: 0 0 1.15rem;
+  max-width: 48rem;
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: rgba(245, 243, 239, 0.86);
+}
+
 .contact-meta a {
   display: block;
   font-weight: 700;
@@ -809,40 +813,51 @@ h3,
   background: rgba(255, 255, 255, 0.05);
   color: var(--tygr-cream);
   border-radius: 18px;
-  padding: 1.7rem 1.8rem;
+  padding: 1.35rem 1.25rem 1.4rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: none;
   backdrop-filter: blur(16px);
 }
 
-/* Event info | calendar with times stacked underneath. */
+/* Shared picker columns: title+calendar | description+times. */
 .tc-cal-layout {
-  display: grid;
-  grid-template-columns: minmax(200px, 0.85fr) minmax(280px, 1.2fr);
-  gap: 1.4rem;
-  align-items: start;
+  --tc-cal-col: 15.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
 }
 
 .tc-info {
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  padding-right: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1.1rem;
+}
+
+.tc-info-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem 1.4rem;
 }
 
 .tc-kicker {
   font-weight: 800;
-  font-size: 1.2rem;
-  margin: 0 0 0.8rem;
+  font-size: 1.35rem;
+  margin: 0;
   color: var(--tygr-cream);
   line-height: 1.2;
 }
 
 .tc-meta {
   list-style: none;
-  margin: 0 0 0.9rem;
+  margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1.15rem;
 }
 
 .tc-meta li {
@@ -860,10 +875,11 @@ h3,
 }
 
 .tc-desc {
-  color: rgba(245, 243, 239, 0.62);
-  font-size: 0.86rem;
-  line-height: 1.5;
-  margin: 0 0 0.9rem;
+  color: rgba(245, 243, 239, 0.9);
+  font-size: 1.22rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 68ch;
 }
 
 .tc-muted {
@@ -891,35 +907,37 @@ h3,
 }
 
 .tc-when {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
+  display: grid;
+  grid-template-columns: var(--tc-cal-col) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.85rem 1.5rem;
   min-width: 0;
 }
 
 .tc-cal {
-  min-width: 0;
+  width: var(--tc-cal-col);
+  max-width: 100%;
 }
 
 .tc-cal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.45rem;
 }
 
 .tc-cal-title {
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .tc-nav {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.04);
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   color: var(--tygr-cream);
@@ -932,9 +950,10 @@ h3,
 
 .tc-weekdays {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.2rem;
-  margin-bottom: 0.3rem;
+  grid-template-columns: repeat(7, 1.85rem);
+  justify-content: space-between;
+  gap: 0.1rem;
+  margin-bottom: 0.15rem;
 }
 
 .tc-weekdays span {
@@ -948,17 +967,20 @@ h3,
 
 .tc-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.2rem;
+  grid-template-columns: repeat(7, 1.85rem);
+  justify-content: space-between;
+  gap: 0.1rem;
 }
 
 .tc-cell {
-  aspect-ratio: 1 / 1;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
   border: none;
   background: transparent;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.74rem;
   color: var(--tygr-cream);
   cursor: pointer;
 }
@@ -989,10 +1011,6 @@ h3,
 
 .tc-slots {
   min-width: 0;
-  max-height: 280px;
-  overflow-y: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 1rem;
 }
 
 .tc-slots-head {
@@ -1005,33 +1023,20 @@ h3,
   margin-top: 0.4rem;
 }
 
-.tc-period {
-  margin-bottom: 0.9rem;
-}
-
-.tc-period-label {
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(245, 243, 239, 0.45);
-  font-weight: 700;
-  margin: 0 0 0.4rem;
-}
-
 .tc-times {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.45rem;
+  grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr));
+  gap: 0.4rem;
 }
 
 .tc-time {
   width: 100%;
-  padding: 0.62rem 0.4rem;
+  padding: 0.5rem 0.3rem;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.04);
   border-radius: 10px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
   color: var(--tygr-cream);
   transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
@@ -1048,6 +1053,7 @@ h3,
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  max-width: 28rem;
 }
 
 .tc-back {
@@ -1136,20 +1142,17 @@ h3,
 }
 
 @media (max-width: 780px) {
-  .tc-cal-layout {
+  .tc-when {
     grid-template-columns: 1fr;
   }
-  .tc-info {
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-right: 0;
-    padding-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .tc {
+    padding: 1.15rem 1.1rem 1.3rem;
   }
   .tc-times {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .tc-slots {
-    max-height: none;
+    grid-template-columns: repeat(auto-fill, minmax(5.4rem, 1fr));
   }
 }
 
