@@ -902,9 +902,10 @@ h3,
 }
 
 .tc-when {
-  display: flex;
-  flex-direction: column;
-  gap: 1.05rem;
+  display: grid;
+  grid-template-columns: 15.25rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.85rem 1.5rem;
   min-width: 0;
 }
 
@@ -1133,6 +1134,12 @@ h3,
   align-items: center;
   gap: 0.45rem;
   margin-top: 0.8rem;
+}
+
+@media (max-width: 780px) {
+  .tc-when {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
