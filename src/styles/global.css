@@ -819,11 +819,12 @@ h3,
   backdrop-filter: blur(16px);
 }
 
-/* Keep the booking card a tidy, contained width so the calendar and times
-   read as a compact card rather than sprawling across the full section. */
+/* Let the booking card use the horizontal space, left-aligned so its edge
+   lines up with the heading and copy above it (rather than centered/indented).
+   The wider it gets, the more columns of times sit beside the calendar. */
 .contact-tidycal {
-  max-width: 44rem;
-  margin-left: auto;
+  max-width: 62rem;
+  margin-left: 0;
   margin-right: auto;
 }
 
