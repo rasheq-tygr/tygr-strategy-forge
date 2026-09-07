@@ -781,10 +781,6 @@ h3,
   }
 }
 
-#contact .wrap {
-  width: min(1320px, calc(100% - 3rem));
-}
-
 .contact-panel {
   display: flex;
   flex-direction: column;
@@ -799,8 +795,11 @@ h3,
 }
 
 .contact-lead > div > p {
-  margin: 0 0 1rem;
-  max-width: 42rem;
+  margin: 0 0 1.15rem;
+  max-width: 48rem;
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: rgba(245, 243, 239, 0.86);
 }
 
 .contact-meta a {
@@ -814,7 +813,7 @@ h3,
   background: rgba(255, 255, 255, 0.05);
   color: var(--tygr-cream);
   border-radius: 18px;
-  padding: 1.4rem 1.6rem 1.6rem;
+  padding: 1.35rem 1.25rem 1.4rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: none;
   backdrop-filter: blur(16px);
@@ -830,17 +829,17 @@ h3,
 
 .tc-info {
   display: grid;
-  grid-template-columns: var(--tc-cal-col) minmax(0, 1fr);
-  gap: 0.45rem 1.5rem;
+  grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.3fr);
+  gap: 0.55rem 2rem;
   align-items: start;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 0.95rem;
+  padding-bottom: 1.05rem;
 }
 
 .tc-kicker {
   grid-column: 1;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.28rem;
   margin: 0;
   color: var(--tygr-cream);
   line-height: 1.2;
@@ -874,11 +873,11 @@ h3,
 .tc-desc {
   grid-column: 2;
   grid-row: 1 / span 2;
-  color: rgba(245, 243, 239, 0.62);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  color: rgba(245, 243, 239, 0.86);
+  font-size: 1.18rem;
+  line-height: 1.58;
   margin: 0;
-  max-width: 46rem;
+  max-width: none;
 }
 
 .tc-muted {
