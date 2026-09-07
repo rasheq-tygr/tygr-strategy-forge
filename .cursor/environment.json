@@ -10,5 +10,10 @@
   ],
   "ports": [
     { "name": "web", "port": 5173 }
+  ],
+  "egressMode": "parent_plus_network_settings",
+  "egressAllowlist": [
+    "tidycal.com",
+    "www.tidycal.com"
   ]
 }
