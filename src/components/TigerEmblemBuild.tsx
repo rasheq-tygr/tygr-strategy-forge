@@ -13,20 +13,23 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 function scrollMetrics() {
   const dest = document.getElementById("ecosystem");
-  const doc = document.documentElement;
-  const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
-  const travel = clamp(window.scrollY / maxScroll);
-  let assemble = travel;
+  const vh = window.innerHeight || 1;
+  // Solid after about half a screen — not the whole journey to Orbit.
+  const assemble = clamp(window.scrollY / (vh * 0.45));
+  let migrate = 0;
   if (dest) {
-    const destY = dest.getBoundingClientRect().top + window.scrollY;
-    assemble = clamp(window.scrollY / Math.max(1, destY - window.innerHeight * 0.32));
+    const r = dest.getBoundingClientRect();
+    // Stay big on the right while Orbit is in view; slide left as we leave it.
+    const start = vh * 0.35;
+    const end = -r.height * 0.25;
+    migrate = clamp((start - r.top) / Math.max(1, start - end));
   }
-  return { travel, assemble, dest };
+  return { assemble, migrate, dest };
 }
 
 /**
- * Scatter in the hero (right), fuse while dropping toward The Orbit, then
- * dock into the navbar lockup — bright and small — which is his home.
+ * Scatter in the hero, lock into a big solid mark by The Orbit, then
+ * migrate left into the navbar as you keep scrolling.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -72,11 +75,11 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
     let raf = 0;
     const render = () => {
-      const { assemble, dest } = scrollMetrics();
+      const { assemble, migrate, dest } = scrollMetrics();
       const p = reduce ? 1 : assemble;
-      const fuse = reduce ? 1 : clamp((p - 0.45) / 0.28);
-      const down = reduce ? 1 : easeOut(clamp(p / 0.5));
-      const dock = reduce ? 1 : easeOut(clamp((p - 0.42) / 0.58));
+      const fuse = reduce ? 1 : clamp((p - 0.08) / 0.32);
+      const down = reduce ? 1 : easeOut(p);
+      const dock = reduce ? 1 : easeOut(migrate);
       const shardFade = 1 - fuse;
 
       if (!reduce) {
@@ -94,12 +97,12 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         const vw = window.innerWidth;
         const max = 1180;
         const inset = Math.max(24, (vw - max) / 2 + 12);
-        const startW = Math.min(380, vw * 0.32);
+        const startW = Math.min(420, vw * 0.36);
         const startX = Math.max(inset, vw - inset - startW);
-        const startY = window.scrollY + window.innerHeight * 0.16;
+        const startY = window.scrollY + window.innerHeight * 0.14;
         const orbitY = dest
-          ? dest.getBoundingClientRect().top + window.scrollY + 56
-          : startY + window.innerHeight;
+          ? dest.getBoundingClientRect().top + window.scrollY + 40
+          : startY + window.innerHeight * 0.6;
         const midX = startX;
         const midY = startY + (orbitY - startY) * down;
         const destX = b.left;
@@ -116,11 +119,11 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       }
 
       if (canvas.current) {
-        // Quiet while crossing The Orbit, then bright once he lives in the nav.
-        const vis = dock < 0.55 ? 0.95 - dock * 1.1 : 0.35 + (dock - 0.55) * 1.45;
-        canvas.current.style.opacity = clamp(vis).toFixed(3);
-        const glow = dock < 0.7 ? (1 - fuse) * 20 : 6 + dock * 6;
-        const glowA = dock < 0.7 ? (1 - fuse) * 0.24 : 0.15 + dock * 0.4;
+        // Big and readable in Orbit; brighter as he docks in the nav.
+        const vis = 0.72 + dock * 0.28;
+        canvas.current.style.opacity = vis.toFixed(3);
+        const glow = 8 + (1 - fuse) * 10 + dock * 6;
+        const glowA = 0.12 + (1 - fuse) * 0.12 + dock * 0.35;
         canvas.current.style.filter = `drop-shadow(0 0 ${glow.toFixed(1)}px rgba(235, 132, 0, ${clamp(glowA).toFixed(3)}))`;
       }
 
