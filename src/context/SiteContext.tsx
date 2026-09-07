@@ -8,7 +8,17 @@ import {
   type ReactNode,
 } from "react";
 import fallback from "../../public/content.json";
-import { clearPassword, getStoredPassword, saveContent, storePassword, verifyPassword } from "../lib/api";
+import {
+  clearCredentials,
+  getStoredGoogleToken,
+  getStoredPassword,
+  saveContent,
+  storeGoogleToken,
+  storePassword,
+  verifyGoogleToken,
+  verifyPassword,
+} from "../lib/api";
+import { decodeIdToken } from "../lib/google";
 import { getByPath, setByPath } from "../lib/paths";
 import { isSiteContent, type SiteContent } from "../types/content";
 
@@ -24,7 +34,9 @@ type SiteContextValue = {
   get: (path: string) => string;
   set: (path: string, value: unknown) => void;
   replace: (next: SiteContent) => void;
+  editorEmail: string;
   unlock: (password: string) => Promise<boolean>;
+  unlockWithGoogle: (token: string) => Promise<boolean>;
   lock: () => void;
   save: () => Promise<void>;
 };
@@ -34,6 +46,7 @@ const SiteContext = createContext<SiteContextValue | null>(null);
 export function SiteProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<SiteContent>(fallback as SiteContent);
   const [unlocked, setUnlocked] = useState(false);
+  const [editorEmail, setEditorEmail] = useState("");
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -52,11 +65,23 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const googleToken = getStoredGoogleToken();
+    if (googleToken) {
+      verifyGoogleToken(googleToken).then((ok) => {
+        if (ok) {
+          setUnlocked(true);
+          setEditorEmail(decodeIdToken(googleToken)?.email ?? "");
+        } else {
+          clearCredentials();
+        }
+      });
+      return;
+    }
     const stored = getStoredPassword();
     if (!stored) return;
     verifyPassword(stored).then((ok) => {
       if (ok) setUnlocked(true);
-      else clearPassword();
+      else clearCredentials();
     });
   }, []);
 
@@ -91,14 +116,27 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     if (ok) {
       storePassword(password);
       setUnlocked(true);
+      setEditorEmail("");
+      setError("");
+    }
+    return ok;
+  }, []);
+
+  const unlockWithGoogle = useCallback(async (token: string) => {
+    const ok = await verifyGoogleToken(token);
+    if (ok) {
+      storeGoogleToken(token);
+      setUnlocked(true);
+      setEditorEmail(decodeIdToken(token)?.email ?? "");
       setError("");
     }
     return ok;
   }, []);
 
   const lock = useCallback(() => {
-    clearPassword();
+    clearCredentials();
     setUnlocked(false);
+    setEditorEmail("");
   }, []);
 
   const save = useCallback(async () => {
@@ -126,11 +164,13 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       get,
       set,
       replace,
+      editorEmail,
       unlock,
+      unlockWithGoogle,
       lock,
       save,
     }),
-    [content, unlocked, dirty, status, error, get, set, replace, unlock, lock, save],
+    [content, unlocked, editorEmail, dirty, status, error, get, set, replace, unlock, unlockWithGoogle, lock, save],
   );
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;

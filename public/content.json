@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "TYGR Ventures",
-    "description": "Actionable strategy. Shipped systems. An ecosystem studio for strategy, technology, and delivery."
+    "title": "TYGR Ventures — From idea to done, block by block",
+    "description": "TYGR Ventures takes ideas from concept to completion — plan, build, and deliver. Strategy consulting for Fortune 500s, startups, and government agencies."
   },
   "brand": {
     "name": "TYGR Ventures",
@@ -19,9 +19,9 @@
   },
   "hero": {
     "eyebrow": "Strategy · Technology · Delivery",
-    "titleLead": "Actionable strategy.",
-    "titleAccent": "Shipped systems.",
-    "body": "TYGR Ventures is a studio, not a brochure. We design the operating system around a venture — then build, partner, and ship until the system holds.",
+    "titleLead": "From idea to done —",
+    "titleAccent": "block by block.",
+    "body": "TYGR Ventures takes ideas from concept to completion — plan, build, and deliver. A studio, not a brochure: we design the operating system around a venture, then ship until the system holds.",
     "primaryCta": "Book a call",
     "secondaryCta": "See the ecosystem",
     "scrollHint": "Scroll to build"
@@ -29,7 +29,7 @@
   "stats": {
     "items": [
       { "value": "1 hub", "label": "TYGR Ventures at the center" },
-      { "value": "5 orbits", "label": "Labs, academy, products, partners" },
+      { "value": "6 orbits", "label": "Labs, academy, products, partners" },
       { "value": "3 notes", "label": "Strategy, technology, delivery" }
     ]
   },
@@ -43,8 +43,8 @@
       {
         "id": "tygrlabs",
         "name": "TygrLabs",
-        "role": "Build studio",
-        "summary": "The lab where ideas become working systems — prototypes, platforms, and internal tools that feed the rest of the orbit.",
+        "role": "Client · tech arm",
+        "summary": "RideCentric's back-office technology arm and a TYGR client — we work alongside them to turn product ideas into systems that ship.",
         "url": ""
       },
       {
@@ -58,7 +58,7 @@
         "id": "ridecentric",
         "name": "RideCentric",
         "role": "Product venture",
-        "summary": "A product company in the orbit — proof that TYGR ships operating businesses, not just advisory decks.",
+        "summary": "A product company in the orbit whose back-office technology is built and run by its tech arm, TygrLabs — proof the studio works with operating businesses, not just advisory decks.",
         "url": ""
       },
       {
@@ -74,6 +74,13 @@
         "role": "AI / software partner",
         "summary": "AI and software engineering partner (punch.cool). The delivery muscle when a system needs to be built, not just described.",
         "url": "https://punch.cool"
+      },
+      {
+        "id": "wikiidea",
+        "name": "WikiIdea",
+        "role": "Lab · in development",
+        "summary": "A collaborative platform for capturing, developing, and connecting ideas — turning raw concepts into actionable plans. Seeking partners and early adopters.",
+        "url": "https://wikiidea.org"
       }
     ]
   },
@@ -162,6 +169,18 @@
     "cta": "All insights",
     "items": [
       {
+        "id": "tygr-ventures-launch",
+        "slug": "tygr-ventures-launch",
+        "title": "TYGR Ventures is live.",
+        "excerpt": "We threw a launch party and turned the lights on the orbit. Here is what we built, who showed up, and where the studio goes from here.",
+        "body": "TYGR Ventures is officially live — and we launched it the way we intend to work: in a room full of the people who make the system real.\n\nThe idea was never a brochure. It was an ecosystem with a hub. TYGR Ventures sits at the center; TygrLabs turns ideas into systems; Punch makes engineering a partner instead of an afterthought; Rebl and RideCentric keep us accountable to real products; Casper Academy / BrainWrk trains people into the work. On launch night, for the first time, every node was in the same room.\n\nThank you to the founders, operators, and partners who came out. Some of you have trusted us with the messy middle of your business; some of you are about to. Either way, you are the reason this studio exists — the brand is the founder, and the founder stays close to the work.\n\nThe promise is simple and it is the whole company: from idea to done. Not a slide. Not a phase two. A system you can staff on Monday.\n\nWhat's next: we're opening a small number of venture-design engagements this quarter, continuing to build inside TygrLabs, and bringing the academy loop to more teams. If you were in the room — or wish you had been — book a call and bring the real constraint.",
+        "date": "2026-09-06",
+        "author": "Rasheq Rahman",
+        "tags": ["Launch", "Studio"],
+        "image": "/brand/launch-cover.png",
+        "imageCredit": "TYGR Ventures"
+      },
+      {
         "id": "ecosystems-not-brochures",
         "slug": "ecosystems-not-brochures",
         "title": "Stop selling the brochure. Build the orbit.",
@@ -213,6 +232,44 @@
       { "name": "Clybor Consulting", "href": "" }
     ]
   },
+  "proof": {
+    "eyebrow": "Rooms we have sat in",
+    "title": "Institutions",
+    "items": [
+      { "name": "Goldman Sachs", "href": "" },
+      { "name": "Yale University", "href": "" },
+      { "name": "IBM", "href": "" },
+      { "name": "Defense Innovation Unit", "href": "" },
+      { "name": "Leidos", "href": "" }
+    ]
+  },
+  "testimonials": {
+    "eyebrow": "What they say",
+    "title": "Partners, not a brochure.",
+    "items": [
+      {
+        "id": "chen",
+        "name": "Sarah Chen",
+        "role": "VP of Operations",
+        "company": "TechCorp Inc.",
+        "quote": "TYGR Ventures transformed our digital strategy. Their modular approach helped us move fast without breaking things."
+      },
+      {
+        "id": "torres",
+        "name": "Michael Torres",
+        "role": "CEO",
+        "company": "Innovate Labs",
+        "quote": "Rasheq's ability to simplify complex problems is unmatched. He turned months of planning into weeks of execution."
+      },
+      {
+        "id": "park",
+        "name": "Jennifer Park",
+        "role": "Director of Strategy",
+        "company": "Global Dynamics",
+        "quote": "The best strategic partner we've worked with. They don't just advise — they roll up their sleeves and deliver."
+      }
+    ]
+  },
   "contact": {
     "eyebrow": "Start a conversation",
     "title": "Book the call. Bring the real constraint.",
@@ -222,7 +279,9 @@
     "phoneLabel": "Phone",
     "email": "rasheq@tygrventures.com",
     "phone": "+1 (202) 932-9662",
-    "bookingUrl": ""
+    "bookingUrl": "",
+    "tidycalPath": "rasheq/tygr-ventures-30-minute-intro",
+    "tidycalBookingTypeId": 2074091
   },
   "founder": {
     "name": "Rasheq Rahman",
@@ -232,7 +291,7 @@
   "footer": {
     "blurb": "A studio for actionable strategy and shipped systems. Washington, DC and wherever the orbit needs us.",
     "copyright": "© TYGR Ventures",
-    "editHint": "Edit site"
+    "editHint": "Editor login"
   },
   "social": {
     "linkedin": "https://www.linkedin.com/in/rasheqrahman",
@@ -241,7 +300,7 @@
   },
   "admin": {
     "loginTitle": "Editor access",
-    "loginBody": "Password-gated editing for copy, work, insights, and capabilities. Same password as the Hostinger save endpoint.",
+    "loginBody": "Sign in with your tygrventures.com Google account to edit copy, work, insights, and capabilities. An edit password remains available as a backup.",
     "passwordLabel": "Edit password",
     "submit": "Enter editor",
     "save": "Save to host",

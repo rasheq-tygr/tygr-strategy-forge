@@ -30,7 +30,7 @@ export function Header() {
             </NavLink>
           ))}
         </div>
-        <a className="btn btn-primary" href={bookingHref(content.contact.bookingUrl, content.contact.email)}>
+        <a className="btn btn-primary" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
           <Editable path="nav.cta" />
         </a>
       </nav>

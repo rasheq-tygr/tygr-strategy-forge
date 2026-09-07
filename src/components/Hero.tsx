@@ -43,19 +43,6 @@ export function Hero() {
     <section className="hero" ref={root}>
       <div className="hero-layers" ref={layers}>
         <div className="hero-grid" />
-        <div className="block-wave" aria-hidden="true">
-          {Array.from({ length: 14 }, (_, i) => (
-            <span
-              key={i}
-              className="cube"
-              style={{
-                left: `${8 + ((i * 17) % 84)}%`,
-                top: `${18 + ((i * 23) % 52)}%`,
-                opacity: 0.18 + (i % 5) * 0.08,
-              }}
-            />
-          ))}
-        </div>
       </div>
       <div className="wrap hero-content">
         <div className="hero-copy">
@@ -73,7 +60,7 @@ export function Hero() {
             <Editable path="hero.body" multiline />
           </p>
           <div className="hero-actions">
-            <a className="btn btn-primary" href={bookingHref(content.contact.bookingUrl, content.contact.email)}>
+            <a className="btn btn-primary" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
               <Editable path="hero.primaryCta" />
             </a>
             <a className="btn btn-ghost" href="#ecosystem">

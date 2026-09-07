@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSite } from "../context/SiteContext";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
+import { TigerMark } from "./TigerMark";
 
 export function EcosystemOrbit() {
   const { content } = useSite();
@@ -114,7 +115,8 @@ export function EcosystemOrbit() {
           </svg>
           <div className="orbit-world" ref={world} />
           <button type="button" className="hub" onClick={() => setActive("hub")}>
-            <div>
+            <div className="hub-inner">
+              <TigerMark className="hub-mark" size={54} title="TYGR Ventures" />
               <strong>
                 <Editable path="ecosystem.hubLabel" />
               </strong>

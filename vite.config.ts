@@ -12,6 +12,158 @@ function readEnvPassword(mode: string) {
   return env.EDIT_PASSWORD || env.VITE_EDIT_PASSWORD || "change-me";
 }
 
+function readTidyCalConfig(mode: string) {
+  const env = loadEnv(mode, root, "");
+  return {
+    token: env.TIDYCAL_TOKEN || "",
+    bookingTypeId: env.TIDYCAL_BOOKING_TYPE_ID || "",
+  };
+}
+
+const isoZulu = (d: Date) => d.toISOString().replace(/\.\d{3}Z$/, "Z");
+
+// Business-day window for synthetic availability, in UTC. ~9:00 AM–5:00 PM ET.
+const MOCK_DAY_START_UTC_MIN = 13 * 60;
+const MOCK_DAY_END_UTC_MIN = 21 * 60;
+
+/**
+ * Synthetic timeslots so the booking UI is testable locally without a token.
+ * Emits slots at the booking type's real cadence (every `durationMin`) across a
+ * full business day so the preview looks like genuine availability rather than a
+ * handful of on-the-hour times.
+ */
+function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
+  const out: { starts_at: string; ends_at: string; available_bookings: number }[] = [];
+  const end = new Date(endsAt);
+  const now = Date.now();
+  const cursor = new Date(Math.max(new Date(startsAt).getTime(), now));
+  cursor.setUTCHours(0, 0, 0, 0);
+  const step = Math.max(15, durationMin);
+  for (let d = new Date(cursor); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const dow = d.getUTCDay();
+    if (dow === 0 || dow === 6) continue;
+    const midnight = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0);
+    for (let mins = MOCK_DAY_START_UTC_MIN; mins + durationMin <= MOCK_DAY_END_UTC_MIN; mins += step) {
+      const s = new Date(midnight + mins * 60000);
+      if (s.getTime() < now + 2 * 3600 * 1000 || s > end) continue;
+      out.push({
+        starts_at: isoZulu(s),
+        ends_at: isoZulu(new Date(s.getTime() + durationMin * 60000)),
+        available_bookings: 1,
+      });
+    }
+  }
+  return out;
+}
+
+// Mirrors the real "TYGR Ventures 30 Minute Intro" booking type (id 2074091,
+// Google Meet) so the preview fallback shows the correct event when TidyCal is
+// unreachable. Booking type id is overridden with the configured id at runtime.
+const MOCK_BOOKING_TYPE = {
+  id: 2074091,
+  title: "TYGR Ventures 30 Minute Intro",
+  duration_minutes: 30,
+  padding_minutes: 0,
+  url_slug: "tygr-ventures-30-minute-intro",
+  description: "A 30-minute intro over Google Meet to talk through your constraint and whether the studio is a fit.",
+  price: 0,
+  currency_code: "USD",
+  private: false,
+  url: "https://tidycal.com/rasheq/tygr-ventures-30-minute-intro",
+  booking_page_url: "https://tidycal.com/rasheq/tygr-ventures-30-minute-intro",
+  locations: [{ location_option: "Google Meet", location_link_source: "google_meet" }],
+};
+
+/** Call the real TidyCal API from the dev server (token stays server-side). */
+async function tidyCalReal(
+  token: string,
+  method: string,
+  apiPath: string,
+  body?: unknown,
+): Promise<{ status: number; data: Record<string, unknown> }> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/json",
+  };
+  if (body !== undefined) headers["Content-Type"] = "application/json";
+  try {
+    const res = await fetch(`https://tidycal.com/api${apiPath}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const text = await res.text();
+    let data: Record<string, unknown> = {};
+    try {
+      data = text ? (JSON.parse(text) as Record<string, unknown>) : {};
+    } catch {
+      data = {};
+    }
+    return { status: res.status, data };
+  } catch {
+    return { status: 502, data: { error: "TidyCal request failed" } };
+  }
+}
+
+function readGoogleConfig(mode: string) {
+  const env = loadEnv(mode, root, "");
+  const clientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID || "";
+  const allowed = (env.GOOGLE_ALLOWED_EMAILS || env.VITE_GOOGLE_ALLOWED_EMAILS || "rasheq@tygrventures.com")
+    .split(/[\s,]+/)
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return { clientId, allowed };
+}
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const json = Buffer.from(parts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
+    const parsed = JSON.parse(json) as Record<string, unknown>;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Verify a Google ID token during local dev. When a client ID is configured we
+ * validate against Google's tokeninfo endpoint (mirroring the PHP host). With no
+ * client ID we decode-and-allowlist so a token can be simulated offline.
+ */
+async function verifyGoogleTokenDev(
+  token: string,
+  cfg: { clientId: string; allowed: string[] },
+): Promise<boolean> {
+  if (!token) return false;
+
+  const emailAllowed = (email: unknown) => {
+    if (typeof email !== "string") return false;
+    return cfg.allowed.length === 0 || cfg.allowed.includes(email.toLowerCase());
+  };
+
+  if (cfg.clientId) {
+    try {
+      const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+      if (!res.ok) return false;
+      const claims = (await res.json()) as Record<string, unknown>;
+      const verified = claims.email_verified === true || claims.email_verified === "true";
+      const audOk = !cfg.clientId || claims.aud === cfg.clientId;
+      const notExpired = typeof claims.exp !== "number" || claims.exp * 1000 > Date.now();
+      return verified && audOk && notExpired && emailAllowed(claims.email);
+    } catch {
+      return false;
+    }
+  }
+
+  const claims = decodeJwtPayload(token);
+  if (!claims) return false;
+  const verified = claims.email_verified === true || claims.email_verified === "true";
+  const notExpired = typeof claims.exp !== "number" || claims.exp * 1000 > Date.now();
+  return verified && notExpired && emailAllowed(claims.email);
+}
+
 function readJsonBody(req: import("http").IncomingMessage) {
   return new Promise<string>((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -41,10 +193,14 @@ function parseMultipart(body: Buffer, boundary: string) {
 
 function hostingerDevApi(mode: string): Plugin {
   const password = readEnvPassword(mode);
+  const tidycal = readTidyCalConfig(mode);
+  const google = readGoogleConfig(mode);
   const contentFile = path.join(root, "public", "content.json");
   const uploadDir = path.join(root, "public", "uploads");
 
-  const authorize = (req: import("http").IncomingMessage) => {
+  const authorize = async (req: import("http").IncomingMessage) => {
+    const googleToken = String(req.headers["x-google-token"] || "");
+    if (googleToken && (await verifyGoogleTokenDev(googleToken, google))) return true;
     const header = String(req.headers["x-edit-password"] || "");
     return header === password;
   };
@@ -60,12 +216,124 @@ function hostingerDevApi(mode: string): Plugin {
     configureServer(server: ViteDevServer) {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0] || "";
+        const query = new URLSearchParams(req.url?.split("?")[1] || "");
+
+        if (url === "/api/tidycal.php") {
+          const configuredType = tidycal.bookingTypeId;
+          const resolveType = (requested: string) => (configuredType ? configuredType : requested);
+          const previewBookingType = configuredType
+            ? { ...MOCK_BOOKING_TYPE, id: Number(configuredType) || MOCK_BOOKING_TYPE.id }
+            : MOCK_BOOKING_TYPE;
+
+          if (req.method === "GET" && query.get("action") === "booking-types") {
+            if (tidycal.token) {
+              const r = await tidyCalReal(tidycal.token, "GET", "/booking-types");
+              // When TidyCal is unreachable from this environment (e.g. the Cloud
+              // VM egress can't establish TLS to tidycal.com) fall back to labeled
+              // preview data so the widget still renders. Production PHP is unchanged.
+              if (r.status === 502) {
+                return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
+              }
+              let items = Array.isArray((r.data as { data?: unknown }).data)
+                ? ((r.data as { data: Record<string, unknown>[] }).data)
+                : [];
+              if (configuredType) items = items.filter((b) => String(b.id) === configuredType);
+              return json(res, r.status || 502, { ok: r.status === 200, data: items });
+            }
+            return json(res, 200, { ok: true, mock: true, data: [previewBookingType] });
+          }
+
+          if (req.method === "GET" && query.get("action") === "timeslots") {
+            const typeId = resolveType(query.get("booking_type_id") || "");
+            const startsAt = query.get("starts_at") || "";
+            const endsAt = query.get("ends_at") || "";
+            if (!typeId || !startsAt || !endsAt) {
+              return json(res, 400, { ok: false, error: "Missing booking_type_id, starts_at or ends_at" });
+            }
+            if (tidycal.token) {
+              const qs = new URLSearchParams({ starts_at: startsAt, ends_at: endsAt }).toString();
+              const r = await tidyCalReal(tidycal.token, "GET", `/booking-types/${typeId}/timeslots?${qs}`);
+              if (r.status === 502) {
+                return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+              }
+              return json(res, r.status || 502, { ok: r.status === 200, data: (r.data as { data?: unknown }).data ?? [] });
+            }
+            return json(res, 200, { ok: true, mock: true, data: mockTimeslots(startsAt, endsAt, MOCK_BOOKING_TYPE.duration_minutes) });
+          }
+
+          if (req.method === "POST") {
+            let input: Record<string, unknown> = {};
+            try {
+              input = JSON.parse((await readJsonBody(req)) || "{}") as Record<string, unknown>;
+            } catch {
+              return json(res, 400, { ok: false, error: "Invalid JSON" });
+            }
+            if (input.action !== "book") return json(res, 400, { ok: false, error: "Unsupported action" });
+            const typeId = resolveType(String(input.booking_type_id ?? ""));
+            const startsAt = String(input.starts_at ?? "");
+            const name = String(input.name ?? "").trim();
+            const email = String(input.email ?? "").trim();
+            const phone = String(input.phone ?? "").trim();
+            const timezone = String(input.timezone ?? "UTC");
+            if (!typeId || !startsAt || !name || !phone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+              return json(res, 422, { ok: false, error: "Name, a valid email, a phone number and a time slot are required." });
+            }
+            if (tidycal.token) {
+              // TidyCal's public API has no field for a booker phone on video booking
+              // types, so append it to the name — the one free-text channel it stores
+              // and shows on the booking, calendar event, and host notification.
+              const bookedName = phone ? `${name} (${phone})`.slice(0, 191) : name.slice(0, 191);
+              const r = await tidyCalReal(tidycal.token, "POST", `/booking-types/${typeId}/bookings`, {
+                starts_at: startsAt,
+                name: bookedName,
+                email: email.slice(0, 191),
+                phone_number: phone.slice(0, 40),
+                timezone: timezone.slice(0, 191),
+              });
+              if (r.status === 201) {
+                let booking = ((r.data as { data?: Record<string, unknown> }).data ?? null) as Record<string, unknown> | null;
+                // Google Meet links are attached a moment after create; poll once so
+                // the confirmation screen can show the join URL.
+                if (booking && !booking.meeting_url && booking.id) {
+                  await new Promise((resolve) => setTimeout(resolve, 1500));
+                  const follow = await tidyCalReal(tidycal.token, "GET", `/bookings/${booking.id}`);
+                  const fresh = (follow.data as { data?: Record<string, unknown> }).data;
+                  if (fresh?.meeting_url) booking = fresh;
+                }
+                return json(res, 201, { ok: true, data: booking });
+              }
+              if (r.status === 409) return json(res, 409, { ok: false, error: "That time was just taken. Please pick another slot." });
+              // Only fall through to the preview confirmation when TidyCal is
+              // unreachable from this environment; surface real API errors otherwise.
+              if (r.status !== 502) {
+                return json(res, r.status, { ok: false, error: String((r.data as { message?: unknown }).message ?? "Could not create the booking.") });
+              }
+            }
+            const start = new Date(startsAt);
+            return json(res, 201, {
+              ok: true,
+              mock: true,
+              data: {
+                id: Math.floor(Math.random() * 1e6),
+                booking_type_id: Number(typeId) || typeId,
+                starts_at: isoZulu(start),
+                ends_at: isoZulu(new Date(start.getTime() + MOCK_BOOKING_TYPE.duration_minutes * 60000)),
+                timezone,
+                meeting_url: "https://meet.tidycal.example/mock-room",
+                contact: { name, email, phone_number: phone, timezone },
+              },
+            });
+          }
+
+          return json(res, 400, { ok: false, error: "Unsupported request" });
+        }
+
         if (req.method === "POST" && url === "/api/auth.php") {
-          if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
+          if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           return json(res, 200, { ok: true });
         }
         if (req.method === "POST" && url === "/api/save.php") {
-          if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
+          if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           try {
             const raw = await readJsonBody(req);
             const parsed = JSON.parse(raw) as { content?: unknown };
@@ -77,7 +345,7 @@ function hostingerDevApi(mode: string): Plugin {
           }
         }
         if (req.method === "POST" && url === "/api/upload.php") {
-          if (!authorize(req)) return json(res, 401, { ok: false, error: "Invalid password" });
+          if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           try {
             const chunks: Buffer[] = [];
             await new Promise<void>((resolve, reject) => {
@@ -110,6 +378,11 @@ function hostingerDevApi(mode: string): Plugin {
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), hostingerDevApi(mode)],
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    strictPort: true,
+  },
   build: {
     outDir: "dist",
     assetsDir: "assets",
