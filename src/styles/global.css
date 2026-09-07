@@ -802,12 +802,16 @@ h3,
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
 }
 
-/* Calendly-style two-pane layout: event info + calendar/times (or form). */
+/* Calendly-style: event info | calendar | times. */
 .tc-cal-layout {
   display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
-  gap: 1.6rem;
+  grid-template-columns: minmax(200px, 0.85fr) minmax(240px, 1.1fr);
+  gap: 1.4rem;
   align-items: start;
+}
+
+.tc-cal-layout.has-times {
+  grid-template-columns: minmax(190px, 0.85fr) minmax(240px, 1.15fr) minmax(220px, 0.95fr);
 }
 
 .tc-info {
@@ -877,11 +881,8 @@ h3,
   white-space: nowrap;
 }
 
-/* Month calendar + times column */
-.tc-when {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 1.4rem;
+.tc-cal {
+  min-width: 0;
 }
 
 .tc-cal-head {
@@ -971,9 +972,12 @@ h3,
 }
 
 .tc-slots {
-  min-height: 200px;
-  max-height: 320px;
+  min-width: 0;
+  min-height: 220px;
+  max-height: 420px;
   overflow-y: auto;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  padding-left: 1rem;
 }
 
 .tc-slots-head {
@@ -1001,12 +1005,13 @@ h3,
 
 .tc-times {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
 }
 
 .tc-time {
-  padding: 0.55rem 0.4rem;
+  width: 100%;
+  padding: 0.62rem 0.4rem;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: #fff;
   border-radius: 10px;
@@ -1108,8 +1113,9 @@ h3,
   margin-top: 0.8rem;
 }
 
-@media (max-width: 780px) {
-  .tc-cal-layout {
+@media (max-width: 960px) {
+  .tc-cal-layout,
+  .tc-cal-layout.has-times {
     grid-template-columns: 1fr;
   }
   .tc-info {
@@ -1118,11 +1124,12 @@ h3,
     padding-right: 0;
     padding-bottom: 1rem;
   }
-  .tc-when {
-    grid-template-columns: 1fr;
-  }
   .tc-slots {
     max-height: none;
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 1rem;
   }
 }
 

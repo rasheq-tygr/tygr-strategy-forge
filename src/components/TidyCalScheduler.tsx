@@ -222,7 +222,7 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   const description = plainText(bookingType?.description);
 
   return (
-    <div className={`tc tc-cal-layout ${className ?? ""}`.trim()}>
+    <div className={`tc tc-cal-layout ${!selectedSlot && selectedDay ? "has-times" : ""} ${className ?? ""}`.trim()}>
       <aside className="tc-info">
         <p className="tc-kicker">{bookingType?.title ?? "Book a call"}</p>
         <ul className="tc-meta">
@@ -292,8 +292,8 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
           </button>
         </form>
       ) : (
-        <div className="tc-when">
-          <div className="tc-cal">
+        <>
+        <div className="tc-cal">
             <div className="tc-cal-head">
               <button
                 type="button"
@@ -386,7 +386,7 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
               </p>
             ) : null}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
