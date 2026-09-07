@@ -782,7 +782,7 @@ h3,
 }
 
 #contact .wrap {
-  width: min(1320px, calc(100% - 2.5rem));
+  width: min(1320px, calc(100% - 3rem));
 }
 
 .contact-panel {
@@ -791,16 +791,16 @@ h3,
   gap: 0.4rem;
 }
 
-.contact-book {
-  width: min(1480px, calc(100% - 2rem));
-  margin: 0 auto;
-}
-
 .contact-lead {
   display: grid;
   grid-template-columns: 1.6fr 0.7fr;
   gap: 2.5rem;
   margin-bottom: 0.6rem;
+}
+
+.contact-lead > div > p {
+  margin: 0 0 1rem;
+  max-width: 42rem;
 }
 
 .contact-meta a {
@@ -820,23 +820,25 @@ h3,
   backdrop-filter: blur(16px);
 }
 
-/* Header + compact calendar, then times use the full card width. */
+/* Shared picker columns: title+calendar | description+times. */
 .tc-cal-layout {
+  --tc-cal-col: 15.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
 }
 
 .tc-info {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.45rem 1.4rem;
+  display: grid;
+  grid-template-columns: var(--tc-cal-col) minmax(0, 1fr);
+  gap: 0.45rem 1.5rem;
+  align-items: start;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 0.95rem;
 }
 
 .tc-kicker {
+  grid-column: 1;
   font-weight: 800;
   font-size: 1.1rem;
   margin: 0;
@@ -845,13 +847,14 @@ h3,
 }
 
 .tc-meta {
+  grid-column: 1;
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 1.1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
 }
 
 .tc-meta li {
@@ -869,12 +872,13 @@ h3,
 }
 
 .tc-desc {
-  flex: 1 1 100%;
+  grid-column: 2;
+  grid-row: 1 / span 2;
   color: rgba(245, 243, 239, 0.62);
   font-size: 0.84rem;
   line-height: 1.45;
   margin: 0;
-  max-width: 72ch;
+  max-width: 46rem;
 }
 
 .tc-muted {
@@ -903,14 +907,14 @@ h3,
 
 .tc-when {
   display: grid;
-  grid-template-columns: 15.25rem minmax(0, 1fr);
+  grid-template-columns: var(--tc-cal-col) minmax(0, 1fr);
   align-items: start;
   gap: 0.85rem 1.5rem;
   min-width: 0;
 }
 
 .tc-cal {
-  width: 15.25rem;
+  width: var(--tc-cal-col);
   max-width: 100%;
 }
 
@@ -1137,8 +1141,15 @@ h3,
 }
 
 @media (max-width: 780px) {
+  .tc-info,
   .tc-when {
     grid-template-columns: 1fr;
+  }
+  .tc-kicker,
+  .tc-meta,
+  .tc-desc {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 

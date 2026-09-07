@@ -41,8 +41,6 @@ export function ContactBlock() {
             </div>
           </div>
         </Reveal>
-      </div>
-      <div className="contact-book">
         <Reveal>
           <TidyCalScheduler
             bookingTypeId={content.contact.tidycalBookingTypeId}
