@@ -819,6 +819,19 @@ h3,
   backdrop-filter: blur(16px);
 }
 
+/* Keep the booking card a tidy, contained width so the calendar and times
+   read as a compact card rather than sprawling across the full section. */
+.contact-tidycal {
+  max-width: 44rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.contact-tidycal .tc-desc {
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
 /* Shared picker columns: title+calendar | description+times. */
 .tc-cal-layout {
   --tc-cal-col: 15.25rem;
