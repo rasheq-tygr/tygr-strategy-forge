@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  EMBLEM_BLOCKS,
   EMBLEM_HEIGHT,
   EMBLEM_VIEWBOX,
   EMBLEM_WIDTH,
@@ -10,14 +11,21 @@ import {
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
+function buildTarget() {
+  const dest = document.getElementById("ecosystem");
+  if (!dest) return null;
+  const destY = dest.getBoundingClientRect().top + window.scrollY;
+  return { destY, range: Math.max(1, destY - window.innerHeight * 0.28) };
+}
+
 /**
- * Hundreds of geometric shards start scattered, then lock into the tiger mark
- * as the visitor scrolls the full page. The cluster itself travels from the
- * hero down to the footer so the build lasts the whole site, not one screen.
+ * Shards scatter in the hero, then fuse into the solid brand mark by the
+ * Orbit section (the second full section after the hero).
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<SVGSVGElement>(null);
+  const solid = useRef<SVGGElement>(null);
   const shardsRef = useRef<(SVGPolygonElement | null)[]>([]);
   const [shards, setShards] = useState<EmblemShard[]>([]);
 
@@ -63,7 +71,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       return checked > 0;
     };
 
-    const applyShard = (el: SVGPolygonElement, shard: EmblemShard, p: number) => {
+    const applyShard = (el: SVGPolygonElement, shard: EmblemShard, p: number, shardFade: number) => {
       const local = reduce ? 1 : easeOut(clamp((p - shard.start) / shard.span));
       const ox = (1 - local) * shard.dx;
       const oy = (1 - local) * shard.dy;
@@ -74,14 +82,15 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         "transform",
         `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${rot.toFixed(2)} ${shard.size / 2} ${shard.size / 2})`,
       );
-      el.style.opacity = String(0.38 + local * 0.62);
+      el.style.opacity = String((0.4 + local * 0.6) * shardFade);
     };
 
     if (reduce) {
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
-        if (el) applyShard(el, shard, 1);
+        if (el) applyShard(el, shard, 1, 0);
       });
+      if (solid.current) solid.current.style.opacity = "1";
     }
 
     let raf = 0;
@@ -89,30 +98,29 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     let overDark = true;
     let cur = 0;
     const render = () => {
-      const doc = document.documentElement;
-      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
-      const p = clamp(window.scrollY / max);
+      const target = buildTarget();
+      const p = reduce ? 1 : target ? clamp(window.scrollY / target.range) : 1;
+      const fuse = reduce ? 1 : clamp((p - 0.72) / 0.22);
+      const shardFade = 1 - fuse;
 
-      const shell = wrap.current?.parentElement;
-      const shellH = shell?.scrollHeight ?? doc.scrollHeight;
       const wrapH = wrap.current?.offsetHeight ?? 0;
-      if (wrap.current) {
-        wrap.current.style.top = `${p * Math.max(0, shellH - wrapH)}px`;
+      if (wrap.current && target) {
+        const endTop = Math.max(0, target.destY - wrapH * 0.12);
+        wrap.current.style.top = `${p * endTop}px`;
       }
 
       if (!reduce) {
         shards.forEach((shard, i) => {
           const el = shardsRef.current[i];
-          if (el) applyShard(el, shard, p);
+          if (el) applyShard(el, shard, p, shardFade);
         });
       }
+      if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
 
       if (frame % 6 === 0) overDark = isDarkBehind();
       frame += 1;
-      // Stay readable on navy; keep a faint watermark on cream so the build
-      // is visible all the way to the footer.
-      const target = overDark ? 0.96 : 0.26;
-      cur += (target - cur) * 0.18;
+      const vis = overDark ? 0.98 : 0.22;
+      cur += (vis - cur) * 0.18;
       if (canvas.current) canvas.current.style.opacity = cur.toFixed(3);
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
@@ -147,6 +155,11 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
             style={{ opacity: 0 }}
           />
         ))}
+        <g className="emblem-solid" ref={solid} style={{ opacity: 0 }}>
+          {EMBLEM_BLOCKS.map((d) => (
+            <path key={d.slice(0, 24)} d={d} fill="currentColor" fillRule="evenodd" />
+          ))}
+        </g>
       </svg>
     </div>
   );

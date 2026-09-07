@@ -90,8 +90,8 @@ export function sampleEmblemShards(target = 320): EmblemShard[] {
       dy: Math.sin(angle) * dist,
       rot0: (h2 - 0.5) * 220,
       rot1: (h3 - 0.5) * 14,
-      start: h4 * 0.42,
-      span: 0.38 + h1 * 0.28,
+      start: h4 * 0.22,
+      span: 0.34 + h1 * 0.14,
       points: `${half + skew},0 ${size},${half - skew * 0.4} ${half - skew},${size} 0,${half + skew * 0.3}`,
     });
   }
