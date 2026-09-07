@@ -1200,6 +1200,27 @@ h3,
   color: var(--tygr-orange);
 }
 
+/* Official TidyCal embed when the REST proxy is unconfigured or unreachable. */
+.tc-embed-fallback {
+  padding: 0;
+  overflow: hidden;
+  background: var(--tygr-cream);
+  min-height: 560px;
+}
+
+.tc-embed-fallback iframe {
+  width: 100%;
+  min-height: 560px;
+  border: 0;
+  display: block;
+}
+
+.tc-embed-fallback .tc-fallback {
+  display: block;
+  margin: 0.75rem 1rem 1rem;
+  color: var(--tygr-navy);
+}
+
 .footer {
   background: var(--tygr-navy);
   color: var(--tygr-cream);
