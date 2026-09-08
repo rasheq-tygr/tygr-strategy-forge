@@ -137,8 +137,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       if (canvas.current) {
         const vis = 0.82 + dock * 0.18;
         canvas.current.style.opacity = vis.toFixed(3);
-        canvas.current.style.filter =
-          "drop-shadow(0 0 8px rgba(255, 246, 221, 0.95)) drop-shadow(0 0 20px rgba(255, 157, 31, 1)) drop-shadow(0 0 44px rgba(235, 132, 0, 0.85))";
+        canvas.current.style.filter = "drop-shadow(0 0 10px rgba(235, 132, 0, 0.45))";
       }
 
       mark?.classList.toggle("is-home", dock > 0.92);

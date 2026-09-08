@@ -204,12 +204,8 @@ h3,
 
 .header .brand-mark {
   opacity: 0;
-  color: var(--tygr-orange-glow);
-  filter:
-    drop-shadow(0 0 3px #fff8e4)
-    drop-shadow(0 0 10px var(--tygr-orange-glow))
-    drop-shadow(0 0 22px rgba(235, 132, 0, 0.95))
-    drop-shadow(0 0 42px rgba(255, 157, 31, 0.75));
+  color: var(--tygr-orange);
+  filter: drop-shadow(0 0 8px rgba(235, 132, 0, 0.5));
   transition: opacity 0.3s ease;
 }
 
@@ -218,12 +214,8 @@ h3,
 }
 
 .header .wordmark {
-  color: #fff;
-  text-shadow:
-    0 0 4px rgba(255, 255, 255, 0.9),
-    0 0 12px rgba(255, 210, 110, 1),
-    0 0 24px rgba(255, 157, 31, 0.9),
-    0 0 48px rgba(235, 132, 0, 0.7);
+  color: var(--tygr-cream);
+  text-shadow: 0 0 10px rgba(235, 132, 0, 0.4);
 }
 
 .header-nav {
@@ -291,14 +283,11 @@ h3,
   right: max(1.5rem, calc((100vw - var(--max)) / 2 + 0.75rem));
   width: min(380px, 32vw);
   max-width: calc(100vw - 3rem);
-  color: var(--tygr-orange-glow);
+  color: var(--tygr-orange);
   z-index: 45;
   pointer-events: none;
   will-change: top, left, width;
-  filter:
-    drop-shadow(0 0 6px #fff6dd)
-    drop-shadow(0 0 18px rgba(255, 157, 31, 0.95))
-    drop-shadow(0 0 42px rgba(235, 132, 0, 0.8));
+  filter: drop-shadow(0 0 12px rgba(235, 132, 0, 0.4));
 }
 
 .emblem-canvas {
@@ -610,22 +599,15 @@ h3,
 
 .hub-mark {
   display: block;
-  color: var(--tygr-orange-glow);
-  filter:
-    drop-shadow(0 0 4px #fff6dd)
-    drop-shadow(0 0 14px var(--tygr-orange-glow))
-    drop-shadow(0 0 32px rgba(235, 132, 0, 0.85));
+  color: var(--tygr-orange);
+  filter: drop-shadow(0 0 8px rgba(235, 132, 0, 0.45));
 }
 
 .hub strong {
   font-family: var(--font-display);
   font-size: 0.98rem;
   letter-spacing: -0.02em;
-  color: #fff;
-  text-shadow:
-    0 0 6px rgba(255, 255, 255, 0.75),
-    0 0 14px rgba(255, 210, 110, 0.95),
-    0 0 28px rgba(235, 132, 0, 0.75);
+  color: var(--tygr-cream);
 }
 
 .sat {
