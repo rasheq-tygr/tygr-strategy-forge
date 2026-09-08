@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   EMBLEM_BLOCKS,
   EMBLEM_HEIGHT,
@@ -11,27 +12,35 @@ import {
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
+function brandMark() {
+  return document.querySelector<SVGElement>(".header .brand-mark");
+}
+
 function scrollMetrics() {
   const dest = document.getElementById("ecosystem");
+  const hub = document.querySelector<HTMLElement>("#ecosystem .hub");
   const vh = window.innerHeight || 1;
-  // Solid after about half a screen — not the whole journey to Orbit.
   const assemble = clamp(window.scrollY / (vh * 0.45));
   let migrate = 0;
-  if (dest) {
-    const r = dest.getBoundingClientRect();
-    // Stay big on the right while Orbit is in view; slide left as we leave it.
-    const start = vh * 0.35;
-    const end = -r.height * 0.25;
-    migrate = clamp((start - r.top) / Math.max(1, start - end));
+  const trigger = hub ?? dest;
+  if (trigger) {
+    const r = trigger.getBoundingClientRect();
+    const point = hub ? r.bottom : r.top + r.height * 0.55;
+    // Fly once the hub has been passed — one short beat, not a long drift.
+    const start = vh * 0.42;
+    const end = vh * 0.06;
+    migrate = clamp((start - point) / Math.max(1, start - end));
   }
   return { assemble, migrate, dest };
 }
 
 /**
- * Scatter in the hero, lock into a big solid mark by The Orbit, then
- * migrate left into the navbar as you keep scrolling.
+ * Home: scatter in the hero, solid in The Orbit, then fly to the navbar
+ * once you pass the hub. Other pages: skip the build; he already lives in the nav.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<SVGSVGElement>(null);
   const solid = useRef<SVGGElement>(null);
@@ -39,10 +48,21 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
   const [shards, setShards] = useState<EmblemShard[]>([]);
 
   useEffect(() => {
+    if (!isHome) {
+      setShards([]);
+      brandMark()?.classList.add("is-home");
+      return;
+    }
+    brandMark()?.classList.remove("is-home");
     setShards(sampleEmblemShards(340));
-  }, []);
+  }, [isHome]);
 
   useEffect(() => {
+    if (!isHome) {
+      if (wrap.current) wrap.current.style.opacity = "0";
+      brandMark()?.classList.add("is-home");
+      return;
+    }
     if (shards.length === 0) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -61,36 +81,32 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       el.style.opacity = String((0.4 + local * 0.6) * shardFade);
     };
 
-    const brand = () => document.querySelector<SVGElement>(".header .brand-mark");
-
     if (reduce) {
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
         if (el) applyShard(el, shard, 1, 0);
       });
       if (solid.current) solid.current.style.opacity = "1";
-      brand()?.classList.add("is-home");
+      brandMark()?.classList.add("is-home");
       if (wrap.current) wrap.current.style.opacity = "0";
+      return;
     }
 
     let raf = 0;
     const render = () => {
       const { assemble, migrate, dest } = scrollMetrics();
-      const p = reduce ? 1 : assemble;
-      const fuse = reduce ? 1 : clamp((p - 0.08) / 0.32);
-      const down = reduce ? 1 : easeOut(p);
-      const dock = reduce ? 1 : easeOut(migrate);
+      const fuse = clamp((assemble - 0.08) / 0.32);
+      const down = easeOut(assemble);
+      const dock = easeOut(migrate);
       const shardFade = 1 - fuse;
 
-      if (!reduce) {
-        shards.forEach((shard, i) => {
-          const el = shardsRef.current[i];
-          if (el) applyShard(el, shard, p, shardFade);
-        });
-      }
+      shards.forEach((shard, i) => {
+        const el = shardsRef.current[i];
+        if (el) applyShard(el, shard, assemble, shardFade);
+      });
       if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
 
-      const mark = brand();
+      const mark = brandMark();
       const el = wrap.current;
       if (el && mark) {
         const b = mark.getBoundingClientRect();
@@ -119,12 +135,10 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       }
 
       if (canvas.current) {
-        // Big and readable in Orbit; brighter as he docks in the nav.
-        const vis = 0.72 + dock * 0.28;
+        const vis = 0.82 + dock * 0.18;
         canvas.current.style.opacity = vis.toFixed(3);
-        const glow = 8 + (1 - fuse) * 10 + dock * 6;
-        const glowA = 0.12 + (1 - fuse) * 0.12 + dock * 0.35;
-        canvas.current.style.filter = `drop-shadow(0 0 ${glow.toFixed(1)}px rgba(235, 132, 0, ${clamp(glowA).toFixed(3)}))`;
+        canvas.current.style.filter =
+          "drop-shadow(0 0 8px rgba(255, 246, 221, 0.95)) drop-shadow(0 0 20px rgba(255, 157, 31, 1)) drop-shadow(0 0 44px rgba(235, 132, 0, 0.85))";
       }
 
       mark?.classList.toggle("is-home", dock > 0.92);
@@ -138,9 +152,11 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     raf = requestAnimationFrame(render);
     return () => {
       cancelAnimationFrame(raf);
-      brand()?.classList.remove("is-home");
+      if (!isHome) brandMark()?.classList.add("is-home");
     };
-  }, [shards]);
+  }, [shards, isHome]);
+
+  if (!isHome) return null;
 
   return (
     <div className={`emblem-build ${className ?? ""}`} ref={wrap}>
