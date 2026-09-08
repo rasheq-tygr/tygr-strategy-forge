@@ -75,7 +75,7 @@ export function Hero() {
         <span className="arrow" />
       </div>
       <div className="hero-rail">
-        <LogoTicker source="proof" variant="hero" />
+        <LogoTicker source="proof" />
       </div>
     </section>
   );

@@ -241,7 +241,7 @@
       { "name": "IBM", "href": "", "logo": "/logos/ibm.png" },
       { "name": "Defense Innovation Unit", "href": "", "logo": "/logos/diu.png" },
       { "name": "Leidos", "href": "", "logo": "/logos/leidos.png" },
-      { "name": "IEEE", "href": "" }
+      { "name": "IEEE", "href": "", "logo": "/logos/ieee.svg" }
     ]
   },
   "testimonials": {
