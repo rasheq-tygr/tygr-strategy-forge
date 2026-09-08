@@ -222,14 +222,14 @@
     "eyebrow": "In orbit",
     "title": "Partners and nodes",
     "items": [
-      { "name": "TygrLabs", "href": "" },
-      { "name": "Casper Academy", "href": "" },
-      { "name": "BrainWrk", "href": "" },
-      { "name": "RideCentric", "href": "" },
+      { "name": "TygrLabs", "href": "https://tygrlabs.co" },
+      { "name": "Casper Academy", "href": "https://casper.academy" },
+      { "name": "BrainWrk", "href": "https://brainwrk.ai" },
+      { "name": "RideCentric", "href": "https://ridecentric.com" },
       { "name": "Rebl", "href": "" },
       { "name": "Punch", "href": "https://punch.cool" },
-      { "name": "Equifinality Solutions", "href": "" },
-      { "name": "Clybor Consulting", "href": "" }
+      { "name": "Equifinality Solutions", "href": "https://equifinalitysolutions.com" },
+      { "name": "Clybor Consulting", "href": "https://clyborconsulting.com" }
     ]
   },
   "proof": {
