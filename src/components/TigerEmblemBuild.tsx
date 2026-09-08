@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  EMBLEM_BLOCKS,
   EMBLEM_HEIGHT,
+  EMBLEM_MARK_PATH,
   EMBLEM_VIEWBOX,
   EMBLEM_WIDTH,
   sampleEmblemShards,
@@ -180,10 +180,8 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
             style={{ opacity: 0 }}
           />
         ))}
-        <g className="emblem-solid" ref={solid} style={{ opacity: 0 }}>
-          {EMBLEM_BLOCKS.map((d) => (
-            <path key={d.slice(0, 24)} d={d} fill="currentColor" fillRule="evenodd" />
-          ))}
+        <g className="emblem-solid" ref={solid} style={{ opacity: 0 }} transform="scale(3.3318181818)">
+          <path d={EMBLEM_MARK_PATH} fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
         </g>
       </svg>
     </div>
