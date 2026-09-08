@@ -11,8 +11,8 @@ export function Footer() {
       <div className="wrap footer-grid">
         <div>
           <div className="brand" style={{ marginBottom: "1rem" }}>
-            <TigerMark />
-            <Editable path="brand.name" />
+            <TigerMark size={36} />
+            <Editable path="brand.name" className="wordmark" />
           </div>
           <p>
             <Editable path="footer.blurb" multiline />
