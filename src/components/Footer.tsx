@@ -1,59 +1,49 @@
 import { Link } from "react-router-dom";
 import { useSite } from "../context/SiteContext";
 import { Editable } from "./Editable";
+import { SocialLinks } from "./SocialLinks";
 import { TigerMark } from "./TigerMark";
 
 export function Footer() {
   const { content } = useSite();
+  const tel = content.contact.phone.replace(/[^\d+]/g, "");
 
   return (
     <footer className="footer">
       <div className="wrap footer-grid">
-        <div>
-          <div className="brand" style={{ marginBottom: "1rem" }}>
-            <TigerMark size={36} />
+        <div className="footer-brand">
+          <Link to="/" className="brand">
+            <TigerMark size={48} />
             <Editable path="brand.name" className="wordmark" />
-          </div>
-          <p>
+          </Link>
+          <p className="footer-blurb">
             <Editable path="footer.blurb" multiline />
           </p>
         </div>
-        <div>
+        <div className="footer-col">
           <p className="eyebrow">Contact</p>
           <a href={`mailto:${content.contact.email}`}>
             <Editable path="contact.email" />
           </a>
-          <a href={`tel:${content.contact.phone.replace(/[^\d+]/g, "")}`}>
+          <a href={`tel:${tel}`}>
             <Editable path="contact.phone" />
           </a>
-          <p>
+          <p className="footer-founder">
             <Editable path="founder.name" /> · <Editable path="founder.role" />
           </p>
         </div>
-        <div>
+        <div className="footer-col footer-elsewhere">
           <p className="eyebrow">Elsewhere</p>
-          <a href={content.social.linkedin} target="_blank" rel="noreferrer">
-            LinkedIn
-          </a>
-          <br />
-          <a href={content.social.x} target="_blank" rel="noreferrer">
-            X
-          </a>
-          <br />
-          <a href={content.social.instagram} target="_blank" rel="noreferrer">
-            Instagram
-          </a>
-          <p style={{ marginTop: "1.2rem" }}>
-            <Link to="/admin">
-              <Editable path="footer.editHint" />
-            </Link>
-          </p>
+          <SocialLinks />
         </div>
       </div>
-      <div className="wrap" style={{ marginTop: "2rem" }}>
+      <div className="wrap footer-bottom">
         <small>
           <Editable path="footer.copyright" />
         </small>
+        <Link to="/admin" className="footer-edit">
+          <Editable path="footer.editHint" />
+        </Link>
       </div>
     </footer>
   );
