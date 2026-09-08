@@ -205,12 +205,15 @@ h3,
 .header .brand-mark {
   opacity: 0;
   color: var(--tygr-orange);
-  filter: drop-shadow(0 0 8px rgba(235, 132, 0, 0.5));
-  transition: opacity 0.3s ease;
+  filter: none;
+  transition: opacity 0.35s ease, filter 0.45s ease;
 }
 
 .header .brand-mark.is-home {
   opacity: 1;
+  filter:
+    drop-shadow(0 0 5px rgba(235, 132, 0, 0.85))
+    drop-shadow(0 0 14px rgba(235, 132, 0, 0.5));
 }
 
 .header .wordmark {
