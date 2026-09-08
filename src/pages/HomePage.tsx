@@ -16,7 +16,7 @@ export function HomePage() {
       <EcosystemOrbit />
       <Capabilities />
       <Testimonials />
-      <LogoTicker source="proof" />
+      <LogoTicker source="partners" />
       <WorkGrid limit={3} />
       <InsightGrid limit={3} />
       <ContactBlock />
