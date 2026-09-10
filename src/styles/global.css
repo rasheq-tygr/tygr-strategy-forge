@@ -218,7 +218,7 @@ h3,
   opacity: 0;
   color: var(--tygr-orange);
   filter: none;
-  transition: opacity 0.35s ease, filter 0.45s ease;
+  transition: filter 0.45s ease;
 }
 
 .header .brand-mark.is-home {

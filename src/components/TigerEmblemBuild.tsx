@@ -21,22 +21,20 @@ function scrollMetrics() {
   const hub = document.querySelector<HTMLElement>("#ecosystem .hub");
   const vh = window.innerHeight || 1;
   const assemble = clamp(window.scrollY / (vh * 0.45));
-  let migrate = 0;
   const trigger = hub ?? dest;
+  let docked = false;
   if (trigger) {
     const r = trigger.getBoundingClientRect();
     const point = hub ? r.bottom : r.top + r.height * 0.55;
-    // Fly once the hub has been passed — one short beat, not a long drift.
-    const start = vh * 0.42;
-    const end = vh * 0.06;
-    migrate = clamp((start - point) / Math.max(1, start - end));
+    docked = point < vh * 0.42;
   }
-  return { assemble, migrate, dest };
+  return { assemble, docked, dest };
 }
 
 /**
- * Home: scatter in the hero, solid in The Orbit, then fly to the navbar
- * once you pass the hub. Other pages: skip the build; he already lives in the nav.
+ * Home: scatter in the hero, sit solid through The Orbit, then snap into the
+ * navbar the moment the hub is passed. Other pages: skip the build; he already
+ * lives in the nav.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const { pathname } = useLocation();
@@ -94,10 +92,9 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
     let raf = 0;
     const render = () => {
-      const { assemble, migrate, dest } = scrollMetrics();
+      const { assemble, docked, dest } = scrollMetrics();
       const fuse = clamp((assemble - 0.08) / 0.32);
       const down = easeOut(assemble);
-      const dock = easeOut(migrate);
       const shardFade = 1 - fuse;
 
       shards.forEach((shard, i) => {
@@ -108,8 +105,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
       const mark = brandMark();
       const el = wrap.current;
-      if (el && mark) {
-        const b = mark.getBoundingClientRect();
+      if (el) {
         const vw = window.innerWidth;
         const max = 1180;
         const inset = Math.max(24, (vw - max) / 2 + 12);
@@ -119,29 +115,20 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         const orbitY = dest
           ? dest.getBoundingClientRect().top + window.scrollY + 40
           : startY + window.innerHeight * 0.6;
-        const midX = startX;
-        const midY = startY + (orbitY - startY) * down;
-        const destX = b.left;
-        const destY = b.top + window.scrollY;
-        const destW = Math.max(28, b.width);
-        const x = midX + (destX - midX) * dock;
-        const y = midY + (destY - midY) * dock;
-        const w = startW + (destW - startW) * dock;
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
+        el.style.left = `${startX}px`;
+        el.style.top = `${startY + (orbitY - startY) * down}px`;
         el.style.right = "auto";
-        el.style.width = `${w}px`;
+        el.style.width = `${startW}px`;
         el.style.transform = "none";
+        el.style.opacity = docked ? "0" : "1";
       }
 
       if (canvas.current) {
-        const vis = 0.82 + dock * 0.18;
-        canvas.current.style.opacity = vis.toFixed(3);
+        canvas.current.style.opacity = "1";
         canvas.current.style.filter = "drop-shadow(0 0 10px rgba(235, 132, 0, 0.45))";
       }
 
-      mark?.classList.toggle("is-home", dock > 0.92);
-      if (wrap.current) wrap.current.style.opacity = dock > 0.97 ? "0" : "1";
+      mark?.classList.toggle("is-home", docked);
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
       if (hint) hint.classList.toggle("is-away", window.scrollY > 48);
