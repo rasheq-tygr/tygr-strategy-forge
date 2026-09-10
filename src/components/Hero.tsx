@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
 import { Editable } from "./Editable";
+import { LogoTicker } from "./LogoTicker";
 
 export function Hero() {
   const { content } = useSite();
@@ -74,9 +75,7 @@ export function Hero() {
         <span className="arrow" />
       </div>
       <div className="hero-rail">
-        <div className="wrap">
-          <Editable path="hero.eyebrow" />
-        </div>
+        <LogoTicker source="proof" variant="hero" />
       </div>
     </section>
   );

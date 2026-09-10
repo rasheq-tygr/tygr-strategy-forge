@@ -44,7 +44,7 @@ export type InsightItem = {
   imageCredit: string;
 };
 
-export type PartnerItem = { name: string; href: string };
+export type PartnerItem = { name: string; href: string; logo?: string };
 
 export type TestimonialItem = {
   id: string;

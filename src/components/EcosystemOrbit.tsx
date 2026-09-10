@@ -117,9 +117,7 @@ export function EcosystemOrbit() {
           <button type="button" className="hub" onClick={() => setActive("hub")}>
             <div className="hub-inner">
               <TigerMark className="hub-mark" size={54} title="TYGR Ventures" />
-              <strong>
-                <Editable path="ecosystem.hubLabel" />
-              </strong>
+              <Editable path="brand.name" className="wordmark" />
             </div>
           </button>
           {nodes.map((node, i) => (

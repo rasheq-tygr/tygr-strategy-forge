@@ -5,16 +5,18 @@ export function StatBar() {
   const { content } = useSite();
   return (
     <div className="stat-bar">
-      {content.stats.items.map((_, i) => (
-        <div className="stat" key={i}>
-          <div className="stat-value">
-            <Editable path={`stats.items.${i}.value`} />
+      <div className="wrap stat-bar-grid">
+        {content.stats.items.map((_, i) => (
+          <div className="stat" key={i}>
+            <div className="stat-value">
+              <Editable path={`stats.items.${i}.value`} />
+            </div>
+            <div className="stat-label">
+              <Editable path={`stats.items.${i}.label`} />
+            </div>
           </div>
-          <div className="stat-label">
-            <Editable path={`stats.items.${i}.label`} />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
