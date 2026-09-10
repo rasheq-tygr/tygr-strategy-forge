@@ -236,7 +236,7 @@
     "eyebrow": "Rooms we have sat in",
     "title": "Institutions",
     "items": [
-      { "name": "Goldman Sachs", "href": "", "logo": "/logos/goldman-sachs.png" },
+      { "name": "Goldman Sachs", "href": "", "logo": "/logos/goldman-sachs.svg" },
       { "name": "Yale University", "href": "", "logo": "/logos/yale.png" },
       { "name": "IBM", "href": "", "logo": "/logos/ibm.png" },
       { "name": "Defense Innovation Unit", "href": "", "logo": "/logos/diu.png" },

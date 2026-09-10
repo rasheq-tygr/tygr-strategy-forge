@@ -694,11 +694,11 @@ h3,
 .ticker-hero {
   border: 0;
   background: transparent;
-  padding: 1.15rem 0;
+  padding: 0.85rem 0;
 }
 
 .ticker-hero .ticker-track {
-  gap: 3.8rem;
+  gap: 3.2rem;
 }
 
 .ticker-item {
@@ -745,18 +745,19 @@ h3,
 }
 
 .ticker-hero .ticker-logo {
-  height: 32px;
-  filter: brightness(0) invert(1);
+  height: 24px;
+  max-width: 126px;
+  filter: brightness(0) invert(0.58) sepia(0.9) saturate(3.4) hue-rotate(182deg);
 }
 
 .ticker-hero .ticker-item:hover,
 .ticker-hero .ticker-logo-item:hover {
-  color: var(--tygr-cream);
+  color: #9bb6d4;
   opacity: 1;
 }
 
 .ticker-hero .ticker-logo-item:hover .ticker-logo {
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(0.68) sepia(0.9) saturate(3.6) hue-rotate(182deg);
 }
 
 .quotes-grid {
