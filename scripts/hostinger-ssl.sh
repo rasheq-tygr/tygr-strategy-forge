@@ -89,15 +89,84 @@ summary() {
   fi
 }
 
-echo "=== websites (domain filter) ==="
+echo "=== websites ==="
 code=$(api GET "/api/hosting/v1/websites?domain=${DOMAIN}&per_page=25" "" /tmp/websites.json)
 echo "HTTP ${code}"
 dump "websites domain=${DOMAIN}" /tmp/websites.json
+python3 - <<'PY'
+import json
+p=json.load(open("/tmp/websites.json"))
+items = p.get("data") if isinstance(p.get("data"), list) else None
+if items is None and isinstance(p.get("data"), dict):
+    items = p["data"].get("data") or p["data"].get("items") or []
+if items is None:
+    items = p.get("items") or []
+keys = (
+    "domain", "username", "is_enabled", "ipv4", "ip", "ipv6",
+    "root_directory", "vhost_type", "website_type", "status",
+)
+for w in items[:12]:
+    if not isinstance(w, dict):
+        continue
+    bits = [f"{k}={w.get(k)}" for k in keys if k in w]
+    extra = [f"{k}={w.get(k)}" for k in w if k not in keys][:8]
+    print("::notice::website " + " ".join(bits + extra))
+PY
+true
 
-echo "=== websites (username filter) ==="
-code=$(api GET "/api/hosting/v1/websites?username=${USER}&per_page=25" "" /tmp/websites-user.json)
+echo "=== DNS zone ==="
+code=$(api GET "/api/dns/v1/zones/${DOMAIN}" "" /tmp/dns-zone.json)
 echo "HTTP ${code}"
-dump "websites username=${USER}" /tmp/websites-user.json
+dump "dns-zone" /tmp/dns-zone.json
+python3 - <<'PY'
+import json
+p=json.load(open("/tmp/dns-zone.json"))
+recs = p if isinstance(p, list) else p.get("data") or p.get("records") or p.get("zone") or []
+if isinstance(recs, dict):
+    recs = recs.get("data") or recs.get("records") or recs.get("zone") or []
+aaaa = []
+for r in recs:
+    if not isinstance(r, dict):
+        continue
+    typ = str(r.get("type") or r.get("record_type") or "")
+    name = str(r.get("name") or r.get("host") or "")
+    content = str(r.get("content") or r.get("value") or r.get("records") or "")
+    print(f"::notice::dns {typ} {name} {content}"[:220])
+    if typ.upper() == "AAAA":
+        aaaa.append(name)
+open("/tmp/aaaa-names.txt","w").write("\n".join(aaaa))
+PY
+
+if [[ -s /tmp/aaaa-names.txt ]]; then
+  warn "Deleting AAAA records so Let's Encrypt does not validate over a Hostinger parking IPv6."
+  code=$(api DELETE "/api/dns/v1/zones/${DOMAIN}" '{"filters":[{"name":"@","type":"AAAA"},{"name":"www","type":"AAAA"}]}' /tmp/dns-del-aaaa.json || true)
+  echo "delete AAAA HTTP ${code}"
+  dump "dns-del-aaaa" /tmp/dns-del-aaaa.json || true
+fi
+
+echo "=== parked domains ==="
+code=$(api GET "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/parked-domains" "" /tmp/parked.json || true)
+echo "HTTP ${code}"
+dump "parked-domains" /tmp/parked.json || true
+code=$(api POST "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/parked-domains" '{"domain":"www.tygrventures.com"}' /tmp/park-www.json || true)
+echo "park www HTTP ${code}"
+dump "park-www" /tmp/park-www.json || true
+
+echo "=== disable website cache ==="
+code=$(api PATCH "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/cache/toggle" '{"is_enabled":false}' /tmp/cache-off.json || true)
+echo "HTTP ${code}"
+dump "cache-off" /tmp/cache-off.json || true
+code=$(api DELETE "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/cache/clear" "" /tmp/cache-clear.json || true)
+echo "clear cache HTTP ${code}"
+
+echo "=== public HTTP (must be 200 for SSL domain challenge) ==="
+http80=$(curl -sS -o /tmp/http80.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/" || echo err)
+canary=$(curl -sS -o /tmp/canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/.well-known/acme-challenge/tygr-ssl-check.txt" || echo err)
+www80=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://www.${DOMAIN}/" || echo err)
+notice "http80=${http80} www80=${www80} canary=${canary} canary_body=$(head -c 80 /tmp/canary.body 2>/dev/null | tr '\n' ' ')"
+if [[ "$http80" == "403" || "$canary" == "403" ]]; then
+  warn "HTTP 403 from GitHub Actions. Hostinger cannot complete Domain challenge until port 80 serves the site (and /.well-known/acme-challenge/)."
+fi
 
 echo "=== ssl status (before) ==="
 code=$(api GET "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/ssl/status" "" /tmp/ssl-status.json)
@@ -108,31 +177,29 @@ STATUS=$(ssl_field status)
 LAST_ERROR=$(ssl_field last_error)
 notice "SSL before: status=${STATUS} last_error=${LAST_ERROR}"
 
-echo "=== clear cache ==="
-code=$(api DELETE "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/cache/clear" "" /tmp/cache-clear.json || true)
-echo "HTTP ${code}"
-dump "cache-clear" /tmp/cache-clear.json || true
-
 echo "=== HTTPS redirect off until TLS works ==="
 code=$(api PATCH "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/ssl/https-redirect/toggle" '{"is_enabled":false}' /tmp/redirect.json || true)
 echo "HTTP ${code}"
 dump "https-redirect-off" /tmp/redirect.json || true
 
-should_install=1
-if [[ "$STATUS" == "installing" || "$STATUS" == "waiting_for_retry" ]]; then
-  should_install=0
-  notice "SSL already ${STATUS}; not calling setup (Hostinger returns 422 while an install is in progress)."
+challenge_stuck=0
+if [[ "${LAST_ERROR}" == *"Domain challenge failed"* ]]; then
+  challenge_stuck=1
+fi
+if [[ "$STATUS" == "failed" || "$STATUS" == "not_installed" || "$STATUS" == "expired" ]]; then
+  challenge_stuck=1
+fi
+if [[ "$STATUS" == "waiting_for_retry" && "$challenge_stuck" -eq 1 ]]; then
+  notice "Uninstalling stuck SSL (waiting_for_retry + Domain challenge failed) so a new setup can run."
 fi
 
-if [[ "$should_install" -eq 1 ]]; then
-  if [[ "$STATUS" == "failed" || "$STATUS" == "expired" || "$STATUS" == "not_installed" || "$STATUS" == "active" ]]; then
-    echo "=== uninstall (safe no-op if none assigned; required before replacing a custom cert) ==="
+if [[ "$STATUS" != "installing" ]]; then
+  if [[ "$challenge_stuck" -eq 1 || "$STATUS" == "active" || "$STATUS" == "waiting_for_retry" ]]; then
+    echo "=== uninstall ==="
     code=$(api DELETE "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/ssl" "" /tmp/ssl-uninstall.json || true)
     echo "uninstall HTTP ${code}"
     dump "ssl-uninstall" /tmp/ssl-uninstall.json || true
-    if [[ "$code" == "422" ]]; then
-      warn "Uninstall returned 422 (install in progress or free subdomain). Will try setup anyway."
-    fi
+    notice "SSL uninstall HTTP ${code}"
   fi
 
   echo "=== request SSL install ==="
@@ -141,8 +208,10 @@ if [[ "$should_install" -eq 1 ]]; then
   dump "ssl-setup" /tmp/ssl-install.json
   notice "SSL setup HTTP ${code}"
   if [[ "$code" != "200" && "$code" != "201" && "$code" != "202" && "$code" != "204" ]]; then
-    warn "SSL setup returned HTTP ${code} (422 is expected while installing, or if a custom cert is present)."
+    warn "SSL setup returned HTTP ${code}"
   fi
+else
+  notice "SSL is installing; not calling setup (Hostinger returns 422)."
 fi
 
 echo "=== poll SSL status ==="
@@ -176,40 +245,40 @@ done
 dump "ssl-status-after" /tmp/ssl-status.json
 
 echo "=== prove TLS on port 443 ==="
+set +e
 python3 - <<'PY'
 import socket, ssl, sys
 
 host = "tygrventures.com"
 ip = socket.gethostbyname(host)
 print(f"resolved {host} -> {ip}")
+print(f"::notice::resolved {host} -> {ip}")
 
-# HTTP on 80
 try:
     s = socket.create_connection((ip, 80), 8)
     s.settimeout(8)
     s.sendall(b"GET / HTTP/1.1\r\nHost: tygrventures.com\r\nConnection: close\r\n\r\n")
     data = s.recv(400)
     s.close()
-    line = data.split(b"\r\n", 1)[0]
-    print("http80", line.decode("latin1", "replace"), "bytes", len(data))
+    line = data.split(b"\r\n", 1)[0].decode("latin1", "replace")
+    print("http80", line, "bytes", len(data))
+    print(f"::notice::prove http80 {line}")
 except Exception as e:
     print("http80 fail", type(e).__name__, e)
 
-# HTTP on 443 (the Chrome ERR_SSL_PROTOCOL_ERROR pattern)
 try:
     s = socket.create_connection((ip, 443), 8)
     s.settimeout(8)
     s.sendall(b"GET / HTTP/1.1\r\nHost: tygrventures.com\r\nConnection: close\r\n\r\n")
     data = s.recv(400)
     s.close()
-    head = data[:120]
-    print("http443", head)
+    print("http443", data[:120])
     if data.startswith(b"HTTP/"):
         print("PORT_443_SPEAKS_HTTP")
+        print("::notice::PORT_443_SPEAKS_HTTP")
 except Exception as e:
     print("http443 fail", type(e).__name__, e)
 
-# Real TLS
 ctx = ssl.create_default_context()
 try:
     with socket.create_connection((ip, 443), 8) as raw:
@@ -217,14 +286,16 @@ try:
         with ctx.wrap_socket(raw, server_hostname=host) as ss:
             cert = ss.getpeercert()
             print("TLS_OK", ss.version(), ss.cipher())
-            print("subject", cert.get("subject"))
+            print("::notice::TLS_OK", ss.version())
             print("SAN", cert.get("subjectAltName"))
             sys.exit(0)
 except Exception as e:
     print("TLS_FAIL", type(e).__name__, e)
+    print(f"::notice::TLS_FAIL {type(e).__name__}: {e}")
     sys.exit(2)
 PY
 tls_rc=$?
+set -e
 
 if [[ "$tls_rc" -eq 0 ]]; then
   notice "Port 443 is speaking TLS"
@@ -246,15 +317,16 @@ warn "Port 443 is not serving a TLS certificate yet (Chrome ERR_SSL_PROTOCOL_ERR
 {
   echo "## Hostinger SSL"
   echo
-  echo "Chrome \`ERR_SSL_PROTOCOL_ERROR\` is expected until Hostinger finishes installing the cert."
+  echo "Chrome \`ERR_SSL_PROTOCOL_ERROR\` continues until Hostinger can issue the cert."
   echo
   echo "- API status: **${STATUS:-unknown}**"
   echo "- last_error: \`${LAST_ERROR:-}\`"
-  echo "- Port 443 currently accepts TCP but does not complete a TLS handshake (often it answers plain HTTP 403 instead of TLS)."
-  echo "- Hostinger lifetime SSL can take up to 1–2 hours after setup."
-  echo "- Until then try \`http://tygrventures.com\` (HTTPS redirect is off)."
+  echo "- HTTP from this runner: \`http80=${http80}\` \`canary=${canary}\`"
+  echo "- Port 443 currently answers plain HTTP instead of TLS."
+  echo "- Hostinger last_error **Domain challenge failed** means HTTP-01 could not see the domain (port 80 403, HTTPS redirect, or DNS)."
+  echo "- Until then try \`http://tygrventures.com\`."
   echo
-  echo "hPanel → website Dashboard → Security → SSL."
+  echo "hPanel → website Dashboard → Security → SSL → Uninstall, then Install."
 } | summary
 
 if [[ "$STATUS" == "active" ]]; then
@@ -262,10 +334,14 @@ if [[ "$STATUS" == "active" ]]; then
   exit 1
 fi
 
-# Installing can legally take longer than this job.
-if [[ "$STATUS" == "installing" || "$STATUS" == "waiting_for_retry" ]]; then
-  notice "SSL still ${STATUS}. Leave this job green; re-run Hostinger SSL in ~15 minutes."
+if [[ "${LAST_ERROR}" == *"Domain challenge failed"* ]]; then
+  err "Hostinger Domain challenge failed. HTTPS will not work until http://${DOMAIN}/.well-known/acme-challenge/ is reachable on port 80."
+  exit 1
+fi
+
+if [[ "$STATUS" == "installing" ]]; then
+  notice "SSL still installing."
   exit 0
 fi
 
-exit 0
+exit 1

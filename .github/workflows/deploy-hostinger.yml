@@ -91,3 +91,27 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DRY_RUN: ${{ inputs.dry_run == true }}
         run: bash scripts/deploy-hostinger-ftp.sh dist
+
+  ssl:
+    name: Install SSL after publish
+    needs: build-and-deploy
+    if: ${{ github.event.inputs.dry_run != true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HOSTINGER_USER: u764653958
+      HOSTINGER_DOMAIN: tygrventures.com
+      HOSTINGER_API: https://developers.hostinger.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check, install, and prove TLS
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          if [ -z "$HOSTINGER_API_TOKEN" ]; then
+            echo "::warning::HOSTINGER_API_TOKEN is not set; skipping SSL."
+            exit 0
+          fi
+          bash scripts/hostinger-ssl.sh

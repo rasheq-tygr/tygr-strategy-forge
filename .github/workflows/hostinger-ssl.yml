@@ -4,11 +4,6 @@ name: Hostinger SSL
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/hostinger-ssl.yml'
-      - 'scripts/hostinger-ssl.sh'
 
 concurrency:
   group: hostinger-ssl

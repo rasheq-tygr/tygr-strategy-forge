@@ -92,7 +92,9 @@ After `FTP_PASSWORD` exists, push to `main` or **Actions → Deploy to Hostinger
 
 Hostinger must install a certificate before `https://tygrventures.com` works. Until port 443 speaks TLS, Chrome shows **This site can’t provide a secure connection** / `ERR_SSL_PROTOCOL_ERROR`.
 
-Add repo secret `HOSTINGER_API_TOKEN` (hPanel → **API**). Then **Actions → Hostinger SSL → Run workflow**, or wait for Hostinger’s lifetime SSL (can take up to 1–2 hours after the site is pointed). HTTPS redirect stays off until the Action proves TLS. Meanwhile `http://tygrventures.com` can load if your network is not blocked.
+Add repo secret `HOSTINGER_API_TOKEN` (hPanel → **API**). Deploy on `main` retries SSL after FTP. You can also **Actions → Hostinger SSL → Run workflow**.
+
+If Hostinger reports **Domain challenge failed**, port 80 is not serving `/.well-known/acme-challenge/` to their validator (HTTP 403, force-HTTPS, or DNS). HTTPS redirect stays off until TLS works. Meanwhile try `http://tygrventures.com`.
 
 ### First time on a new Hostinger account
 
