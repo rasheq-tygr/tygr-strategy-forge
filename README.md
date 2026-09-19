@@ -72,7 +72,7 @@ The sync **does not overwrite** live editor data:
 
 ### One-time GitHub secret
 
-The workflow already uses the Hostinger FTP host `82.25.82.89`, user `u764653958`, and `/public_html/`. Add **one** repo secret:
+The workflow already uses the Hostinger FTP host `82.25.82.89` and user `u764653958`. It detects whether that account lands in `public_html` or already inside it. Add **one** repo secret:
 
 [https://github.com/rasheq-tygr/tygr-strategy-forge/settings/secrets/actions](https://github.com/rasheq-tygr/tygr-strategy-forge/settings/secrets/actions)
 
