@@ -1,0 +1,89 @@
+# Install / reinstall SSL for tygrventures.com via the Hostinger API.
+# Secret: HOSTINGER_API_TOKEN (hPanel → API). Do not commit the token.
+name: Hostinger SSL
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: hostinger-ssl
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ssl:
+    name: Check and install SSL
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HOSTINGER_USER: u764653958
+      HOSTINGER_DOMAIN: tygrventures.com
+      HOSTINGER_API: https://developers.hostinger.com
+    steps:
+      - name: Require API token
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          if [ -z "$HOSTINGER_API_TOKEN" ]; then
+            echo "::error::HOSTINGER_API_TOKEN is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: List website and SSL status
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json")
+          echo "::group::websites"
+          curl -sS --fail-with-body "${auth[@]}" \
+            "${HOSTINGER_API}/api/hosting/v1/websites?domain=${HOSTINGER_DOMAIN}&per_page=25"
+          echo
+          echo "::endgroup::"
+          echo "::group::ssl-status-before"
+          curl -sS --fail-with-body "${auth[@]}" \
+            "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/status"
+          echo
+          echo "::endgroup::"
+
+      - name: Request SSL install
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json")
+          code=$(curl -sS -o /tmp/ssl-install.json -w '%{http_code}' -X POST "${auth[@]}" \
+            "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/setup")
+          echo "install HTTP ${code}"
+          cat /tmp/ssl-install.json || true
+          echo
+          if [ "$code" != "200" ] && [ "$code" != "201" ] && [ "$code" != "202" ] && [ "$code" != "204" ]; then
+            # 422 often means already installing or custom cert; still print status.
+            echo "::warning::SSL setup returned HTTP ${code}"
+          fi
+
+      - name: Poll SSL status
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json")
+          for i in 1 2 3 4 5 6; do
+            body=$(curl -sS --fail-with-body "${auth[@]}" \
+              "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/status")
+            echo "$body"
+            status=$(python3 -c "import json,sys; print(json.loads(sys.argv[1]).get('status') or json.loads(sys.argv[1]).get('data',{}).get('status',''))" "$body" 2>/dev/null || echo unknown)
+            echo "status=${status}"
+            if [ "$status" = "active" ]; then
+              echo "SSL is active"
+              exit 0
+            fi
+            if [ "$status" = "failed" ]; then
+              echo "::error::SSL installation failed"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "::warning::SSL not active yet; check hPanel → SSL in a minute."
