@@ -61,6 +61,18 @@ jobs:
         run: |
           bash scripts/prepare-hostinger-dist.sh dist
           printf '%s %s\n' "${GITHUB_SHA}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/tygr-deploy.txt
+          # Full public_html upload pack (do not include the zip folder itself).
+          (cd dist && zip -r ../public_html.zip .)
+
+      - name: Upload public_html pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: public_html
+          path: |
+            public_html.zip
+            dist/index.html
+            dist/tygr-deploy.txt
+          if-no-files-found: error
 
       - name: Require FTP password
         env:
