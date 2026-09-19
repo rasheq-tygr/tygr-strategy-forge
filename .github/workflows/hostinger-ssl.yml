@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/hostinger-ssl.yml'
+      - 'scripts/hostinger-ssl.sh'
 
 concurrency:
   group: hostinger-ssl
@@ -20,12 +21,15 @@ jobs:
   ssl:
     name: Check and install SSL
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     env:
       HOSTINGER_USER: u764653958
       HOSTINGER_DOMAIN: tygrventures.com
       HOSTINGER_API: https://developers.hostinger.com
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Require API token
         env:
           HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
@@ -35,94 +39,7 @@ jobs:
             exit 1
           fi
 
-      - name: Website, SSL status, clear cache
+      - name: Check, install, and prove TLS
         env:
           HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
-        run: |
-          set -euo pipefail
-          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json" -H "Content-Type: application/json")
-          echo "::group::websites"
-          curl -sS "${auth[@]}" "${HOSTINGER_API}/api/hosting/v1/websites?domain=${HOSTINGER_DOMAIN}&per_page=25"
-          echo
-          echo "::endgroup::"
-          echo "::group::ssl-status-before"
-          curl -sS "${auth[@]}" \
-            "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/status"
-          echo
-          echo "::endgroup::"
-          echo "::group::clear-cache"
-          curl -sS -X DELETE "${auth[@]}" \
-            "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/cache/clear" || true
-          echo
-          echo "::endgroup::"
-
-      - name: Turn off HTTPS redirect until TLS works
-        env:
-          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
-        run: |
-          set -euo pipefail
-          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json" -H "Content-Type: application/json")
-          curl -sS -X PATCH "${auth[@]}" \
-            -d '{"is_enabled":false}' \
-            "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/https-redirect/toggle" || true
-          echo
-
-      - name: Request SSL install
-        env:
-          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
-        run: |
-          set -euo pipefail
-          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json")
-          code=$(curl -sS -o /tmp/ssl-install.json -w '%{http_code}' -X POST "${auth[@]}" \
-            "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/setup")
-          echo "install HTTP ${code}"
-          cat /tmp/ssl-install.json || true
-          echo
-
-      - name: Poll SSL status
-        env:
-          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
-        run: |
-          set -euo pipefail
-          auth=(-H "Authorization: Bearer ${HOSTINGER_API_TOKEN}" -H "Accept: application/json")
-          for i in 1 2 3 4 5 6 7 8; do
-            body=$(curl -sS "${auth[@]}" \
-              "${HOSTINGER_API}/api/hosting/v1/accounts/${HOSTINGER_USER}/websites/${HOSTINGER_DOMAIN}/ssl/status")
-            echo "$body"
-            python3 - <<'PY'
-import json, os
-raw=os.environ.get("BODY","")
-PY
-            echo "$body" > /tmp/ssl-status.json
-            python3 -c '
-import json
-p=json.load(open("/tmp/ssl-status.json"))
-d=p.get("data", p) if isinstance(p, dict) else {}
-print("status=", d.get("status"))
-print("provider=", d.get("provider"))
-print("last_error=", d.get("last_error"))
-print("redirect=", d.get("is_https_redirect_enabled"))
-print("expires_at=", d.get("expires_at"))
-'
-            status=$(python3 -c 'import json; p=json.load(open("/tmp/ssl-status.json")); d=p.get("data", p) if isinstance(p, dict) else {}; print(d.get("status") or "")')
-            if [ "$status" = "active" ]; then
-              echo "API reports SSL active"
-              break
-            fi
-            if [ "$status" = "failed" ]; then
-              echo "::error::SSL installation failed"
-              exit 1
-            fi
-            sleep 15
-          done
-
-      - name: Prove TLS on port 443
-        run: |
-          set +e
-          echo | openssl s_client -connect tygrventures.com:443 -servername tygrventures.com -brief 2>&1 | tee /tmp/tls.txt
-          if rg -q "Protocol version:|Ciphersuite:" /tmp/tls.txt; then
-            echo "Port 443 is speaking TLS"
-            exit 0
-          fi
-          echo "::warning::Port 443 is not serving a TLS certificate yet (ERR_SSL_PROTOCOL_ERROR in Chrome)."
-          exit 0
+        run: bash scripts/hostinger-ssl.sh

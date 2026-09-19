@@ -88,6 +88,12 @@ Do not put `EDIT_PASSWORD`, `TIDYCAL_TOKEN`, or `api/config.php` in GitHub. Thos
 
 After `FTP_PASSWORD` exists, push to `main` or **Actions → Deploy to Hostinger → Run workflow**. Use **dry_run** on a manual dispatch to list the FTP plan without writing files.
 
+### SSL (Chrome `ERR_SSL_PROTOCOL_ERROR`)
+
+Hostinger must install a certificate before `https://tygrventures.com` works. Until port 443 speaks TLS, Chrome shows **This site can’t provide a secure connection** / `ERR_SSL_PROTOCOL_ERROR`.
+
+Add repo secret `HOSTINGER_API_TOKEN` (hPanel → **API**). Then **Actions → Hostinger SSL → Run workflow**, or wait for Hostinger’s lifetime SSL (can take up to 1–2 hours after the site is pointed). HTTPS redirect stays off until the Action proves TLS. Meanwhile `http://tygrventures.com` can load if your network is not blocked.
+
 ### First time on a new Hostinger account
 
 Do this once in File Manager if the files are not already on disk:
