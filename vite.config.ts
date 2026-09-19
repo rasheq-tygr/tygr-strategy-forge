@@ -91,6 +91,7 @@ async function tidyCalReal(
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(8000),
     });
     const text = await res.text();
     let data: Record<string, unknown> = {};
