@@ -70,33 +70,23 @@ The sync **does not overwrite** live editor data:
 | `uploads/` | Media uploaded on the host |
 | `api/config.php` | Edit password, Google client, TidyCal token |
 
-### One-time GitHub secrets
+### One-time GitHub secret
 
-In the repo: **Settings → Secrets and variables → Actions**. FTP values come from Hostinger hPanel → **Files → FTP Accounts**.
+The workflow already uses the Hostinger FTP host `82.25.82.89`, user `u764653958`, and `/public_html/`. Add **one** repo secret:
 
-**Secrets**
+[https://github.com/rasheq-tygr/tygr-strategy-forge/settings/secrets/actions](https://github.com/rasheq-tygr/tygr-strategy-forge/settings/secrets/actions)
 
 | Secret | Value |
 | --- | --- |
-| `FTP_SERVER` | Host from the FTP account (often `ftp.tygrventures.com` or `srv….hostinger.com`) |
-| `FTP_USERNAME` | FTP username |
-| `FTP_PASSWORD` | FTP password |
+| `FTP_PASSWORD` | FTP password from hPanel → **Files → FTP Accounts** (the hidden field on that card; reveal or reset it there) |
 | `VITE_GOOGLE_CLIENT_ID` | Optional. Baked into the production JS bundle |
 | `VITE_GOOGLE_ALLOWED_EMAILS` | Optional. Defaults in code to `rasheq@tygrventures.com` |
 | `VITE_UNSPLASH_ACCESS_KEY` | Optional. Admin photo search |
 | `VITE_BOOKING_URL` | Optional. Fallback booking link |
 
-**Variables** (optional; **Settings → Secrets and variables → Actions → Variables**)
-
-| Variable | Default |
-| --- | --- |
-| `FTP_SERVER_DIR` | `/public_html/` — addon domains may need `/domains/tygrventures.com/public_html/` |
-| `FTP_PROTOCOL` | `ftp` (`ftps` or `ftps-legacy` if the host requires TLS) |
-| `FTP_PORT` | `21` |
-
 Do not put `EDIT_PASSWORD`, `TIDYCAL_TOKEN`, or `api/config.php` in GitHub. Those stay on the host.
 
-After the secrets exist, merge to `main` (or **Actions → Deploy to Hostinger → Run workflow**). The first run from `main` is the one that publishes. Use **dry_run** on a manual dispatch to list the FTP plan without writing files.
+After `FTP_PASSWORD` exists, push to `main` or **Actions → Deploy to Hostinger → Run workflow**. Use **dry_run** on a manual dispatch to list the FTP plan without writing files.
 
 ### First time on a new Hostinger account
 
