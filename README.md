@@ -38,16 +38,15 @@ The editor accepts **Google Sign-In** (preferred) with an **edit password** as a
 ### Google Sign-In (recommended)
 
 1. In [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials), create an **OAuth 2.0 Client ID** of type **Web application**.
-2. Add **Authorized JavaScript origins**: `http://localhost:5173` (dev) and `https://tygrventures.com` (prod).
-3. Copy the **Client ID** into:
-   - `.env`: `VITE_GOOGLE_CLIENT_ID` (frontend) and `GOOGLE_CLIENT_ID` (dev mock)
-   - Hostinger `api/config.php`: `google_client_id`
-4. Set the allowlist of editor accounts:
+2. Add **Authorized JavaScript origins**: `http://localhost:5173`, `http://tygrventures.com`, and `https://tygrventures.com`.
+3. Add **Authorized redirect URIs**: `http://localhost:5173/admin`, `http://tygrventures.com/admin`, and `https://tygrventures.com/admin`. HTTPS is not required for the button; until Hostinger SSL is live, `http://` must be listed.
+4. Copy the **Client ID** into Hostinger `api/config.php` as `google_client_id` (the login page reads it from `/api/google.php`). Optionally also set GitHub secret `VITE_GOOGLE_CLIENT_ID` as a fallback.
+5. Set the allowlist of editor accounts:
    - `.env`: `VITE_GOOGLE_ALLOWED_EMAILS` / `GOOGLE_ALLOWED_EMAILS`
    - Hostinger `api/config.php`: `google_allowed_emails`
    - Defaults to `rasheq@tygrventures.com`.
 
-The frontend only unlocks after the ID token is verified against Google's `tokeninfo` endpoint and matched to the allowlist. Leaving `VITE_GOOGLE_CLIENT_ID` blank hides the Google button and falls back to the password login.
+The frontend only unlocks after the ID token is verified against Google's `tokeninfo` endpoint and matched to the allowlist. If `google_client_id` is empty in `config.php` **and** `VITE_GOOGLE_CLIENT_ID` is empty, `/admin` shows only the password form.
 
 ### Edit password (backup / static preview)
 

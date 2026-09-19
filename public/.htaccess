@@ -11,4 +11,7 @@
 
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
+  <Files "index.html">
+    Header set Cache-Control "no-store"
+  </Files>
 </IfModule>

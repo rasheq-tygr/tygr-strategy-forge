@@ -120,5 +120,72 @@ export function isAllowedEditor(email: string): boolean {
 }
 
 export function googleClientId(): string {
-  return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || "";
+  return String(import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
+}
+
+const NONCE_KEY = "tygr.google.nonce";
+let consumedRedirect: { token: string; error: string } | null = null;
+
+/** Live Hostinger `api/config.php` wins over the value baked into the JS bundle. */
+export async function resolveGoogleClientId(): Promise<string> {
+  const baked = googleClientId();
+  try {
+    const res = await fetch("/api/google.php", { cache: "no-store" });
+    if (res.ok) {
+      const data = (await res.json()) as { google_client_id?: unknown };
+      const fromHost = typeof data.google_client_id === "string" ? data.google_client_id.trim() : "";
+      if (fromHost) return fromHost;
+    }
+  } catch {
+    // Static preview / missing PHP: use the Vite env fallback.
+  }
+  return baked;
+}
+
+export function googleRedirectUri(): string {
+  return `${window.location.origin}/admin`;
+}
+
+export function googleOauthErrorMessage(error: string): string {
+  if (error === "redirect_uri_mismatch") {
+    return `Google rejected this site URL. In Google Cloud Console → Credentials → your Web client, add Authorized redirect URI ${googleRedirectUri()} and Authorized JavaScript origin ${window.location.origin}.`;
+  }
+  if (error === "access_denied") return "Google sign-in was cancelled.";
+  return error ? `Google sign-in failed (${error}).` : "Google sign-in failed.";
+}
+
+/** Read an OAuth redirect once (id_token lives in the URL hash). */
+export function consumeGoogleRedirect(): { token: string; error: string } {
+  if (consumedRedirect) return consumedRedirect;
+  if (typeof window === "undefined") {
+    consumedRedirect = { token: "", error: "" };
+    return consumedRedirect;
+  }
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const error = hash.get("error") || query.get("error") || "";
+  const token = hash.get("id_token") || "";
+  if (token || error) {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    url.searchParams.delete("error");
+    url.searchParams.delete("error_description");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }
+  consumedRedirect = { token, error };
+  return consumedRedirect;
+}
+
+/** Visible Google button: redirect for an ID token (works on http://, not only GIS iframes). */
+export function startGoogleRedirect(clientId: string): void {
+  const nonce = crypto.randomUUID();
+  sessionStorage.setItem(NONCE_KEY, nonce);
+  const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  url.searchParams.set("client_id", clientId);
+  url.searchParams.set("redirect_uri", googleRedirectUri());
+  url.searchParams.set("response_type", "id_token");
+  url.searchParams.set("scope", "openid email profile");
+  url.searchParams.set("nonce", nonce);
+  url.searchParams.set("prompt", "select_account");
+  window.location.assign(url.toString());
 }

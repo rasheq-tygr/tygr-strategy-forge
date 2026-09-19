@@ -218,6 +218,10 @@ function hostingerDevApi(mode: string): Plugin {
         const url = req.url?.split("?")[0] || "";
         const query = new URLSearchParams(req.url?.split("?")[1] || "");
 
+        if (url === "/api/google.php") {
+          return json(res, 200, { ok: true, google_client_id: google.clientId });
+        }
+
         if (url === "/api/tidycal.php") {
           const configuredType = tidycal.bookingTypeId;
           const resolveType = (requested: string) => (configuredType ? configuredType : requested);

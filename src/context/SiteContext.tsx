@@ -18,7 +18,7 @@ import {
   verifyGoogleToken,
   verifyPassword,
 } from "../lib/api";
-import { decodeIdToken } from "../lib/google";
+import { consumeGoogleRedirect, decodeIdToken } from "../lib/google";
 import { getByPath, setByPath } from "../lib/paths";
 import { isSiteContent, type SiteContent } from "../types/content";
 
@@ -65,6 +65,19 @@ export function SiteProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const redirected = consumeGoogleRedirect();
+    if (redirected.token) {
+      verifyGoogleToken(redirected.token).then((ok) => {
+        if (ok) {
+          storeGoogleToken(redirected.token);
+          setUnlocked(true);
+          setEditorEmail(decodeIdToken(redirected.token)?.email ?? "");
+        } else {
+          setError("That Google account is not an approved editor.");
+        }
+      });
+      return;
+    }
     const googleToken = getStoredGoogleToken();
     if (googleToken) {
       verifyGoogleToken(googleToken).then((ok) => {
