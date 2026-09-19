@@ -136,6 +136,7 @@ for r in recs:
         aaaa.append(name)
 open("/tmp/aaaa-names.txt","w").write("\n".join(aaaa))
 PY
+true
 
 if [[ -s /tmp/aaaa-names.txt ]]; then
   warn "Deleting AAAA records so Let's Encrypt does not validate over a Hostinger parking IPv6."
@@ -162,8 +163,9 @@ echo "clear cache HTTP ${code}"
 echo "=== public HTTP (must be 200 for SSL domain challenge) ==="
 http80=$(curl -sS -o /tmp/http80.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/" || echo err)
 canary=$(curl -sS -o /tmp/canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/.well-known/acme-challenge/tygr-ssl-check.txt" || echo err)
+root_canary=$(curl -sS -o /tmp/root-canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/tygr-ssl-check.txt" || echo err)
 www80=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://www.${DOMAIN}/" || echo err)
-notice "http80=${http80} www80=${www80} canary=${canary} canary_body=$(head -c 80 /tmp/canary.body 2>/dev/null | tr '\n' ' ')"
+notice "http80=${http80} www80=${www80} canary=${canary} root_canary=${root_canary} canary_body=$(head -c 80 /tmp/canary.body 2>/dev/null | tr '\n' ' ') root_body=$(head -c 40 /tmp/root-canary.body 2>/dev/null | tr '\n' ' ')"
 if [[ "$http80" == "403" || "$canary" == "403" ]]; then
   warn "HTTP 403 from GitHub Actions. Hostinger cannot complete Domain challenge until port 80 serves the site (and /.well-known/acme-challenge/)."
 fi
