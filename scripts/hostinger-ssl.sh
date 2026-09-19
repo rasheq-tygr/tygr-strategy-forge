@@ -114,7 +114,7 @@ for w in items[:12]:
 PY
 true
 
-echo "=== DNS zone ==="
+echo "=== DNS zone (Hostinger SSL guide: one A, no AAAA, no CAA) ==="
 code=$(api GET "/api/dns/v1/zones/${DOMAIN}" "" /tmp/dns-zone.json)
 echo "HTTP ${code}"
 dump "dns-zone" /tmp/dns-zone.json
@@ -124,7 +124,6 @@ p=json.load(open("/tmp/dns-zone.json"))
 recs = p if isinstance(p, list) else p.get("data") or p.get("records") or p.get("zone") or []
 if isinstance(recs, dict):
     recs = recs.get("data") or recs.get("records") or recs.get("zone") or []
-aaaa = []
 for r in recs:
     if not isinstance(r, dict):
         continue
@@ -132,18 +131,31 @@ for r in recs:
     name = str(r.get("name") or r.get("host") or "")
     content = str(r.get("content") or r.get("value") or r.get("records") or "")
     print(f"::notice::dns {typ} {name} {content}"[:220])
-    if typ.upper() == "AAAA":
-        aaaa.append(name)
-open("/tmp/aaaa-names.txt","w").write("\n".join(aaaa))
 PY
 true
 
-if [[ -s /tmp/aaaa-names.txt ]]; then
-  warn "Deleting AAAA records so Let's Encrypt does not validate over a Hostinger parking IPv6."
-  code=$(api DELETE "/api/dns/v1/zones/${DOMAIN}" '{"filters":[{"name":"@","type":"AAAA"},{"name":"www","type":"AAAA"}]}' /tmp/dns-del-aaaa.json || true)
-  echo "delete AAAA HTTP ${code}"
-  dump "dns-del-aaaa" /tmp/dns-del-aaaa.json || true
-fi
+# Public DNS currently has two A records (@ → 46.202.183.170 website + 82.25.82.89 FTP)
+# and an AAAA on @. Let's Encrypt prefers IPv6; Hostinger's AAAA is a parking anycast
+# and fails HTTP-01 ("Domain challenge failed"). Keep a single website A record.
+WEBSITE_A="46.202.183.170"
+warn "Removing AAAA/CAA and extra apex A records (Hostinger Lifetime SSL guide)."
+code=$(api DELETE "/api/dns/v1/zones/${DOMAIN}" \
+  '{"filters":[{"name":"@","type":"AAAA"},{"name":"www","type":"AAAA"},{"name":"@","type":"CAA"},{"name":"www","type":"CAA"}]}' \
+  /tmp/dns-del-aaaa.json || true)
+echo "delete AAAA/CAA HTTP ${code}"
+dump "dns-del-aaaa" /tmp/dns-del-aaaa.json || true
+
+code=$(api PUT "/api/dns/v1/zones/${DOMAIN}" \
+  "{\"overwrite\":true,\"zone\":[{\"name\":\"@\",\"type\":\"A\",\"ttl\":300,\"records\":[{\"content\":\"${WEBSITE_A}\"}]}]}" \
+  /tmp/dns-put-a.json || true)
+echo "put single A @ HTTP ${code}"
+dump "dns-put-a" /tmp/dns-put-a.json || true
+
+echo "=== public DNS after edit ==="
+dig +short A "${DOMAIN}" | tee /tmp/dig-a.txt || true
+dig +short AAAA "${DOMAIN}" | tee /tmp/dig-aaaa.txt || true
+notice "dig A $(tr '\n' ' ' </tmp/dig-a.txt)"
+notice "dig AAAA $(tr '\n' ' ' </tmp/dig-aaaa.txt || true)"
 
 echo "=== parked domains ==="
 code=$(api GET "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/parked-domains" "" /tmp/parked.json || true)
@@ -161,10 +173,10 @@ code=$(api DELETE "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/cache/cle
 echo "clear cache HTTP ${code}"
 
 echo "=== public HTTP (must be 200 for SSL domain challenge) ==="
-http80=$(curl -sS -o /tmp/http80.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/" || echo err)
-canary=$(curl -sS -o /tmp/canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/.well-known/acme-challenge/tygr-ssl-check.txt" || echo err)
-root_canary=$(curl -sS -o /tmp/root-canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/tygr-ssl-check.txt" || echo err)
-www80=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://www.${DOMAIN}/" || echo err)
+http80=$(curl -4 -sS -o /tmp/http80.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/" || echo err)
+canary=$(curl -4 -sS -o /tmp/canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/.well-known/acme-challenge/tygr-ssl-check.txt" || echo err)
+root_canary=$(curl -4 -sS -o /tmp/root-canary.body -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://${DOMAIN}/tygr-ssl-check.txt" || echo err)
+www80=$(curl -4 -sS -o /dev/null -w '%{http_code}' --max-time 20 -A 'Mozilla/5.0' "http://www.${DOMAIN}/" || echo err)
 notice "http80=${http80} www80=${www80} canary=${canary} root_canary=${root_canary} canary_body=$(head -c 80 /tmp/canary.body 2>/dev/null | tr '\n' ' ') root_body=$(head -c 40 /tmp/root-canary.body 2>/dev/null | tr '\n' ' ')"
 if [[ "$http80" == "403" || "$canary" == "403" ]]; then
   warn "HTTP 403 from GitHub Actions. Hostinger cannot complete Domain challenge until port 80 serves the site (and /.well-known/acme-challenge/)."
