@@ -2,7 +2,10 @@
 
 Marketing site for [tygrventures.com](https://tygrventures.com): a Vite + React + TypeScript static build with a scroll-driven ecosystem, cream / navy / orange design system, and password-gated inline editing.
 
-The server does **not** need Node at runtime. Hostinger serves the built files from `public_html`. A small PHP endpoint writes `content.json` when you save edits.
+**Source of truth:** this GitHub repo (`rasheq-tygr/tygr-strategy-forge`).  
+**Production:** Hostinger shared hosting at `https://tygrventures.com` (`public_html`).
+
+The server does **not** need Node at runtime. GitHub Actions builds the Vite app and FTPs `dist/` to Hostinger. A small PHP endpoint writes `content.json` when you save edits.
 
 ## Local development
 
@@ -55,16 +58,62 @@ The frontend only unlocks after the ID token is verified against Google's `token
 
 Never commit `api/config.php` or a real production password. `VITE_EDIT_PASSWORD` is only a fallback when the PHP auth route is missing (static preview). On the live host, PHP is the source of truth.
 
-## Hostinger deploy
+## GitHub → Hostinger deploy
+
+Pushes to `main` (and manual **Run workflow**) run [`.github/workflows/deploy-hostinger.yml`](.github/workflows/deploy-hostinger.yml): `npm ci` → `npm run build` → FTP the contents of `dist/` into `public_html`.
+
+The sync **does not overwrite** live editor data:
+
+| Left on the host | Why |
+| --- | --- |
+| `content.json` | Inline /admin edits |
+| `uploads/` | Media uploaded on the host |
+| `api/config.php` | Edit password, Google client, TidyCal token |
+
+### One-time GitHub secrets
+
+In the repo: **Settings → Secrets and variables → Actions**. FTP values come from Hostinger hPanel → **Files → FTP Accounts**.
+
+**Secrets**
+
+| Secret | Value |
+| --- | --- |
+| `FTP_SERVER` | Host from the FTP account (often `ftp.tygrventures.com` or `srv….hostinger.com`) |
+| `FTP_USERNAME` | FTP username |
+| `FTP_PASSWORD` | FTP password |
+| `VITE_GOOGLE_CLIENT_ID` | Optional. Baked into the production JS bundle |
+| `VITE_GOOGLE_ALLOWED_EMAILS` | Optional. Defaults in code to `rasheq@tygrventures.com` |
+| `VITE_UNSPLASH_ACCESS_KEY` | Optional. Admin photo search |
+| `VITE_BOOKING_URL` | Optional. Fallback booking link |
+
+**Variables** (optional; **Settings → Secrets and variables → Actions → Variables**)
+
+| Variable | Default |
+| --- | --- |
+| `FTP_SERVER_DIR` | `/public_html/` — addon domains may need `/domains/tygrventures.com/public_html/` |
+| `FTP_PROTOCOL` | `ftp` (`ftps` or `ftps-legacy` if the host requires TLS) |
+| `FTP_PORT` | `21` |
+
+Do not put `EDIT_PASSWORD`, `TIDYCAL_TOKEN`, or `api/config.php` in GitHub. Those stay on the host.
+
+After the secrets exist, merge to `main` (or **Actions → Deploy to Hostinger → Run workflow**). The first run from `main` is the one that publishes. Use **dry_run** on a manual dispatch to list the FTP plan without writing files.
+
+### First time on a new Hostinger account
+
+Do this once in File Manager if the files are not already on disk:
+
+1. Copy `public/api/config.sample.php` → `public_html/api/config.php` and set `edit_password`, Google, and TidyCal values.
+2. Seed `public_html/content.json` from `public/content.json` in this repo.
+3. Create `public_html/uploads` and set it writable (`755` or `775`).
+
+Then let GitHub Actions publish the rest (`index.html`, `assets/`, `.htaccess`, `api/*.php`, logos).
+
+### Manual upload (fallback)
 
 1. `npm run build` — output is `dist/`.
-2. Upload **the contents of `dist/`** into `public_html` (not the `dist` folder itself).
-3. Confirm these landed at the web root:
-   - `index.html`, `assets/`, `.htaccess`
-   - `content.json`
-   - `api/auth.php`, `api/save.php`, `api/upload.php`, `api/lib.php`, `api/config.sample.php`
-   - `uploads/` (writable by PHP, mode `755` or `775`)
-4. On the host, copy `api/config.sample.php` to `api/config.php` and set a strong `edit_password`.
+2. `bash scripts/prepare-hostinger-dist.sh dist` so you do not clobber live CMS files.
+3. Upload **the contents of `dist/`** into `public_html` (not the `dist` folder itself).
+4. Confirm `index.html`, `assets/`, `.htaccess`, and `api/*.php` landed at the web root.
 5. Apache should already honor `.htaccess` (SPA fallback to `index.html` while real files like PHP and JSON still win).
 6. Visit `https://tygrventures.com/admin`, unlock, edit, save. Confirm `content.json` updates on disk.
 
