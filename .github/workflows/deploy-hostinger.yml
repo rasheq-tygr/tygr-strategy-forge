@@ -55,7 +55,13 @@ jobs:
           VITE_GOOGLE_ALLOWED_EMAILS: ${{ secrets.VITE_GOOGLE_ALLOWED_EMAILS }}
           VITE_UNSPLASH_ACCESS_KEY: ${{ secrets.VITE_UNSPLASH_ACCESS_KEY }}
           VITE_BOOKING_URL: ${{ secrets.VITE_BOOKING_URL }}
-        run: npm run build
+        run: |
+          if [ -z "$VITE_GOOGLE_CLIENT_ID" ]; then
+            echo "::warning::VITE_GOOGLE_CLIENT_ID is empty. Google Sign-In stays hidden on /admin until this Actions secret is set, then rebuild."
+          else
+            echo "::notice::VITE_GOOGLE_CLIENT_ID is set; Google Sign-In will be baked into the bundle."
+          fi
+          npm run build
 
       - name: Exclude live CMS files
         run: |
@@ -98,6 +104,7 @@ jobs:
     if: ${{ github.event.inputs.dry_run != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    continue-on-error: true
     env:
       HOSTINGER_USER: u764653958
       HOSTINGER_DOMAIN: tygrventures.com

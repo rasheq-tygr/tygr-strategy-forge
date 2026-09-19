@@ -134,22 +134,57 @@ for r in recs:
 PY
 true
 
-# Public DNS currently has two A records (@ → 46.202.183.170 website + 82.25.82.89 FTP)
-# and an AAAA on @. Let's Encrypt prefers IPv6; Hostinger's AAAA is a parking anycast
-# and fails HTTP-01 ("Domain challenge failed"). Keep a single website A record.
-WEBSITE_A="46.202.183.170"
-warn "Removing AAAA/CAA and extra apex A records (Hostinger Lifetime SSL guide)."
+# Plan details website IP (and FTP) is 82.25.82.89. 46.202.183.170 is a stale leftover A
+# that 403'd the site. Keep a single A on @ / www. Let's Encrypt prefers IPv6, so drop AAAA/CAA.
+WEBSITE_A="82.25.82.89"
+warn "Removing AAAA/CAA records (Hostinger Lifetime SSL HTTP-01)."
 code=$(api DELETE "/api/dns/v1/zones/${DOMAIN}" \
   '{"filters":[{"name":"@","type":"AAAA"},{"name":"www","type":"AAAA"},{"name":"@","type":"CAA"},{"name":"www","type":"CAA"}]}' \
   /tmp/dns-del-aaaa.json || true)
 echo "delete AAAA/CAA HTTP ${code}"
 dump "dns-del-aaaa" /tmp/dns-del-aaaa.json || true
 
-code=$(api PUT "/api/dns/v1/zones/${DOMAIN}" \
-  "{\"overwrite\":true,\"zone\":[{\"name\":\"@\",\"type\":\"A\",\"ttl\":300,\"records\":[{\"content\":\"${WEBSITE_A}\"}]}]}" \
-  /tmp/dns-put-a.json || true)
-echo "put single A @ HTTP ${code}"
-dump "dns-put-a" /tmp/dns-put-a.json || true
+need_a=$(python3 - "$WEBSITE_A" <<'PY'
+import json, sys
+want = sys.argv[1]
+p = json.load(open("/tmp/dns-zone.json"))
+recs = p if isinstance(p, list) else p.get("data") or p.get("records") or p.get("zone") or []
+if isinstance(recs, dict):
+    recs = recs.get("data") or recs.get("records") or recs.get("zone") or []
+values = []
+for r in recs:
+    if not isinstance(r, dict):
+        continue
+    typ = str(r.get("type") or r.get("record_type") or "").upper()
+    name = str(r.get("name") or r.get("host") or "")
+    if typ != "A" or name not in ("@", ""):
+        continue
+    content = r.get("content") or r.get("value") or r.get("records") or []
+    if isinstance(content, str):
+        values.append(content)
+    elif isinstance(content, list):
+        for item in content:
+            if isinstance(item, dict):
+                values.append(str(item.get("content") or item.get("value") or ""))
+            else:
+                values.append(str(item))
+values = [v for v in values if v]
+if values == [want]:
+    print("0")
+else:
+    print("1")
+PY
+)
+if [[ "$need_a" == "1" ]]; then
+  notice "Setting apex A to ${WEBSITE_A} (website IP from Plan details)."
+  code=$(api PUT "/api/dns/v1/zones/${DOMAIN}" \
+    "{\"overwrite\":true,\"zone\":[{\"name\":\"@\",\"type\":\"A\",\"ttl\":300,\"records\":[{\"content\":\"${WEBSITE_A}\"}]},{\"name\":\"www\",\"type\":\"A\",\"ttl\":300,\"records\":[{\"content\":\"${WEBSITE_A}\"}]}]}" \
+    /tmp/dns-put-a.json || true)
+  echo "put A @/www HTTP ${code}"
+  dump "dns-put-a" /tmp/dns-put-a.json || true
+else
+  notice "Apex A already ${WEBSITE_A}; leaving DNS A records unchanged."
+fi
 
 echo "=== public DNS after edit ==="
 dig +short A "${DOMAIN}" | tee /tmp/dig-a.txt || true
@@ -207,8 +242,12 @@ if [[ "$STATUS" == "waiting_for_retry" && "$challenge_stuck" -eq 1 ]]; then
   notice "Uninstalling stuck SSL (waiting_for_retry + Domain challenge failed) so a new setup can run."
 fi
 
-if [[ "$STATUS" != "installing" ]]; then
-  if [[ "$challenge_stuck" -eq 1 || "$STATUS" == "active" || "$STATUS" == "waiting_for_retry" ]]; then
+if [[ "$STATUS" == "active" ]]; then
+  notice "SSL already active; skipping uninstall/setup so a routine rebuild does not drop HTTPS."
+elif [[ "$STATUS" == "installing" ]]; then
+  notice "SSL is installing; not calling setup (Hostinger returns 422)."
+else
+  if [[ "$challenge_stuck" -eq 1 || "$STATUS" == "waiting_for_retry" ]]; then
     echo "=== uninstall ==="
     code=$(api DELETE "/api/hosting/v1/accounts/${USER}/websites/${DOMAIN}/ssl" "" /tmp/ssl-uninstall.json || true)
     echo "uninstall HTTP ${code}"
@@ -224,8 +263,6 @@ if [[ "$STATUS" != "installing" ]]; then
   if [[ "$code" != "200" && "$code" != "201" && "$code" != "202" && "$code" != "204" ]]; then
     warn "SSL setup returned HTTP ${code}"
   fi
-else
-  notice "SSL is installing; not calling setup (Hostinger returns 422)."
 fi
 
 echo "=== poll SSL status ==="
