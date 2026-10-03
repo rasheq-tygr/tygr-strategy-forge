@@ -32,9 +32,9 @@ function scrollMetrics() {
 }
 
 /**
- * Home: scatter in the hero, sit solid through The Orbit, then snap into the
- * navbar the moment the hub is passed. Other pages: skip the build; he already
- * lives in the nav.
+ * Home: the navbar tiger stays put. A larger hero tiger assembles in place,
+ * then drifts upward more slowly than the page and fades before it can cover
+ * the bar. Other pages: only the navbar mark.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const { pathname } = useLocation();
@@ -51,7 +51,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       brandMark()?.classList.add("is-home");
       return;
     }
-    brandMark()?.classList.remove("is-home");
+    brandMark()?.classList.add("is-home");
     setShards(sampleEmblemShards(340));
   }, [isHome]);
 
@@ -92,10 +92,13 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
     let raf = 0;
     const render = () => {
-      const { assemble, docked, dest } = scrollMetrics();
+      const { assemble } = scrollMetrics();
       const fuse = clamp((assemble - 0.08) / 0.32);
-      const down = easeOut(assemble);
       const shardFade = 1 - fuse;
+      const hero = document.querySelector<HTMLElement>(".hero");
+      const rect = hero?.getBoundingClientRect();
+      const travel = rect ? clamp(-rect.top / (rect.height * 0.8)) : 1;
+      const depth = 1 - clamp((travel - 0.08) / 0.55);
 
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
@@ -103,32 +106,30 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       });
       if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
 
-      const mark = brandMark();
+      brandMark()?.classList.add("is-home");
+
       const el = wrap.current;
       if (el) {
         const vw = window.innerWidth;
-        const max = 1180;
-        const inset = Math.max(24, (vw - max) / 2 + 12);
-        const startW = Math.min(420, vw * 0.36);
-        const startX = Math.max(inset, vw - inset - startW);
-        const startY = window.scrollY + window.innerHeight * 0.14;
-        const orbitY = dest
-          ? dest.getBoundingClientRect().top + window.scrollY + 40
-          : startY + window.innerHeight * 0.6;
-        el.style.left = `${startX}px`;
-        el.style.top = `${startY + (orbitY - startY) * down}px`;
-        el.style.right = "auto";
+        const narrow = vw < 980;
+        const startW = narrow ? Math.min(210, vw * 0.46) : Math.min(360, vw * 0.28);
+        const scale = 1 - travel * 0.06;
+        const lift = travel * (narrow ? 28 : 42);
+        el.style.position = "fixed";
+        el.style.top = narrow ? "5.6rem" : "16vh";
         el.style.width = `${startW}px`;
-        el.style.transform = "none";
-        el.style.opacity = docked ? "0" : "1";
+        el.style.right = "auto";
+        el.style.opacity = depth.toFixed(3);
+        el.style.zIndex = "2";
+        if (narrow) {
+          el.style.left = "50%";
+          el.style.transform = `translateX(-50%) translateY(${(-lift).toFixed(1)}px) scale(${scale.toFixed(3)})`;
+        } else {
+          const inset = Math.max(24, (vw - 1180) / 2 + 12);
+          el.style.left = `${Math.max(inset, vw - inset - startW)}px`;
+          el.style.transform = `translateY(${(-lift).toFixed(1)}px) scale(${scale.toFixed(3)})`;
+        }
       }
-
-      if (canvas.current) {
-        canvas.current.style.opacity = "1";
-        canvas.current.style.filter = "drop-shadow(0 16px 28px rgba(10, 15, 26, 0.12))";
-      }
-
-      mark?.classList.toggle("is-home", docked);
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
       if (hint) hint.classList.toggle("is-away", window.scrollY > 48);

@@ -80,6 +80,7 @@ h3,
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.08;
+  text-wrap: balance;
 }
 
 .wrap {
@@ -110,12 +111,12 @@ h3,
 }
 
 .section-head {
-  max-width: 40rem;
   margin-bottom: 3rem;
 }
 
 .section-head p,
 .lede {
+  max-width: 40rem;
   color: inherit;
   opacity: 0.78;
   font-weight: 400;
@@ -226,17 +227,9 @@ h3,
 }
 
 .header .brand-mark {
-  opacity: 0;
-  color: var(--tygr-orange);
-  filter: none;
-  transition: filter 0.45s ease;
-}
-
-.header .brand-mark.is-home {
   opacity: 1;
-  filter:
-    drop-shadow(0 0 5px rgba(235, 132, 0, 0.85))
-    drop-shadow(0 0 14px rgba(235, 132, 0, 0.5));
+  color: var(--tygr-orange);
+  filter: drop-shadow(0 0 8px rgba(235, 132, 0, 0.35));
 }
 
 .header-nav {
@@ -265,8 +258,9 @@ h3,
   position: relative;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, var(--tygr-cream-light) 0%, var(--tygr-cream) 42%, #efeae2 100%);
-  color: var(--tygr-ink);
+    radial-gradient(90% 70% at 78% 32%, rgba(235, 132, 0, 0.16), transparent 58%),
+    var(--tygr-navy);
+  color: var(--tygr-cream);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -305,17 +299,17 @@ h3,
 }
 
 .page-emblem {
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 18vh;
   left: auto;
   right: max(1.5rem, calc((100vw - var(--max)) / 2 + 0.75rem));
-  width: min(380px, 32vw);
+  width: min(380px, 30vw);
   max-width: calc(100vw - 3rem);
   color: var(--tygr-orange);
-  z-index: 45;
+  z-index: 2;
   pointer-events: none;
-  will-change: top, left, width;
-  filter: drop-shadow(0 16px 28px rgba(10, 15, 26, 0.1));
+  will-change: top, left, transform, opacity;
+  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
 }
 
 .emblem-canvas {
@@ -346,7 +340,7 @@ h3,
 
 .hero-copy p {
   max-width: 34rem;
-  color: #3f3a34;
+  color: rgba(245, 243, 239, 0.82);
 }
 
 .hero-actions {
@@ -359,9 +353,9 @@ h3,
 .hero-rail {
   position: relative;
   z-index: 2;
-  border-top: var(--hairline-light);
+  border-top: var(--hairline-dark);
   padding: 0;
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--tygr-navy);
 }
 
 .scroll-hint {
@@ -373,7 +367,7 @@ h3,
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  color: #3f3a34;
+  color: var(--tygr-cream);
   font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -756,7 +750,7 @@ h3,
 }
 
 .ticker-hero .ticker-item {
-  color: #44403c;
+  color: rgba(245, 243, 239, 0.78);
 }
 
 .ticker-hero .ticker-logo-item {
@@ -766,17 +760,17 @@ h3,
 .ticker-hero .ticker-logo {
   height: 24px;
   max-width: 126px;
-  filter: grayscale(1) contrast(1.05);
+  filter: brightness(0) invert(0.72);
 }
 
 .ticker-hero .ticker-item:hover,
 .ticker-hero .ticker-logo-item:hover {
-  color: var(--tygr-navy);
+  color: #fff;
   opacity: 1;
 }
 
 .ticker-hero .ticker-logo-item:hover .ticker-logo {
-  filter: none;
+  filter: brightness(0) invert(1);
 }
 
 .quotes-grid {

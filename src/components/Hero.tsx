@@ -27,7 +27,7 @@ export function Hero() {
             <a className="btn btn-primary" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
               <Editable path="hero.primaryCta" />
             </a>
-            <a className="btn btn-ghost light" href="#ecosystem">
+            <a className="btn btn-ghost" href="#ecosystem">
               <Editable path="hero.secondaryCta" />
             </a>
           </div>
