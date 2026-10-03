@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSite } from "../context/SiteContext";
 import { Editable } from "./Editable";
 
@@ -8,10 +9,19 @@ type Props = {
 
 export function LogoTicker({ source = "partners", variant = "light" }: Props) {
   const { content } = useSite();
+  const [paused, setPaused] = useState(false);
   const group = content[source];
   const items = [...group.items, ...group.items];
   return (
-    <div className={`ticker ticker-${variant}`} aria-label={group.title}>
+    <div className={`ticker ticker-${variant} ${paused ? "is-paused" : ""}`} aria-label={group.title}>
+      <button
+        type="button"
+        className="ticker-pause"
+        aria-pressed={paused}
+        onClick={() => setPaused((value) => !value)}
+      >
+        {paused ? "Play" : "Pause"}
+      </button>
       <div className="ticker-track">
         {items.map((item, i) => {
           const idx = i % group.items.length;

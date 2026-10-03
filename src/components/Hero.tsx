@@ -15,6 +15,7 @@ export function Hero() {
     const el = root.current;
     const layer = layers.current;
     if (!el || !layer) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const onMove = (e: MouseEvent) => {
       const rect = el.getBoundingClientRect();
@@ -46,17 +47,17 @@ export function Hero() {
         <div className="hero-grid" />
       </div>
       <div className="wrap hero-content">
+        <h1 className="display-xl hero-title">
+          <Editable path="hero.titleLead" />
+          <br />
+          <span className="accent-italic">
+            <Editable path="hero.titleAccent" />
+          </span>
+        </h1>
         <div className="hero-copy">
           <p className="eyebrow">
             <Editable path="hero.eyebrow" />
           </p>
-          <h1 className="display-xl">
-            <Editable path="hero.titleLead" />
-            <br />
-            <span className="accent-italic">
-              <Editable path="hero.titleAccent" />
-            </span>
-          </h1>
           <p>
             <Editable path="hero.body" multiline />
           </p>
@@ -68,11 +69,11 @@ export function Hero() {
               <Editable path="hero.secondaryCta" />
             </a>
           </div>
+          <div className="scroll-hint">
+            <Editable path="hero.scrollHint" />
+            <span className="arrow" />
+          </div>
         </div>
-      </div>
-      <div className="scroll-hint">
-        <Editable path="hero.scrollHint" />
-        <span className="arrow" />
       </div>
       <div className="hero-rail">
         <LogoTicker source="proof" variant="hero" />

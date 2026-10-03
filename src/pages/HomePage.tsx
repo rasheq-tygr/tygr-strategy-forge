@@ -1,3 +1,4 @@
+import { BookingStrip } from "../components/BookingStrip";
 import { Capabilities } from "../components/Capabilities";
 import { ContactBlock } from "../components/ContactBlock";
 import { EcosystemOrbit } from "../components/EcosystemOrbit";
@@ -18,6 +19,7 @@ export function HomePage() {
       <Testimonials />
       <LogoTicker source="partners" />
       <WorkGrid limit={3} />
+      <BookingStrip />
       <InsightGrid limit={3} />
       <ContactBlock />
     </>

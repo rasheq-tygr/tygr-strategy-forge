@@ -25,20 +25,20 @@ export function Capabilities({ limit, heading = true }: { limit?: number; headin
           </div>
         </Reveal>
         ) : null}
-        <div className="cap-grid">
+        <div className="cap-list">
           {items.map((item, i) => (
-            <Reveal key={item.id}>
-              <article className="card">
-                <div className="cap-number">
-                  <Editable path={`capabilities.items.${i}.number`} />
-                </div>
+            <Reveal key={item.id} className={i === 0 ? "cap-row is-lead" : "cap-row"}>
+              <p className="cap-number">
+                <Editable path={`capabilities.items.${i}.number`} />
+              </p>
+              <div>
                 <h3>
                   <Editable path={`capabilities.items.${i}.title`} />
                 </h3>
                 <p>
                   <Editable path={`capabilities.items.${i}.body`} multiline />
                 </p>
-              </article>
+              </div>
             </Reveal>
           ))}
         </div>
