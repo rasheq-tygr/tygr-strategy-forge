@@ -65,7 +65,23 @@ export function Header() {
       <nav id="site-nav" ref={navRef} className={`header-nav ${open ? "is-open" : ""}`} aria-label="Primary">
         <div className="nav-links">
           {content.nav.links.map((link, i) => (
-            <NavLink key={link.href} to={link.href} onClick={() => setOpen(false)}>
+            <NavLink
+              key={link.href}
+              to={link.href}
+              onClick={(event) => {
+                setOpen(false);
+                const hashIndex = link.href.indexOf("#");
+                if (hashIndex < 0) return;
+                const hash = link.href.slice(hashIndex);
+                if (location.pathname !== "/" || location.hash !== hash) return;
+                event.preventDefault();
+                const id = decodeURIComponent(hash.slice(1));
+                document.getElementById(id)?.scrollIntoView({
+                  behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                  block: "start",
+                });
+              }}
+            >
               <Editable path={`nav.links.${i}.label`} />
             </NavLink>
           ))}

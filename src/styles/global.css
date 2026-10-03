@@ -30,6 +30,16 @@ body,
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5.25rem;
+}
+
+#ecosystem,
+#capabilities,
+#work,
+#insights,
+#contact,
+#testimonials {
+  scroll-margin-top: 5.25rem;
 }
 
 body {
