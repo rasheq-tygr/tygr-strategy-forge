@@ -122,6 +122,45 @@
     "cta": "All work",
     "items": [
       {
+        "id": "job-search-command-center",
+        "slug": "job-search-command-center",
+        "client": "Job Search Command Center",
+        "title": "One desk for a search that used to live in tabs",
+        "summary": "A search scatters across boards, inboxes, and half-written notes. The command center holds roles, follow-ups, and the narrative in one operating picture.",
+        "body": "A job search fails the same way a venture does: the work is real, and the system around it is not. Listings sit in one tab, contacts in another, and the story of the candidate in a document nobody opens on Monday.\n\nJob Search Command Center is the desk. Sources come in. Each role has a state, a next move, and a place in the pipeline. The narrative — what this person actually does — stays attached to the search instead of being rewritten from scratch for every posting.\n\nThe point is cadence, not another tracker. A search can be staffed: what is live, what is going cold, and what has to happen before the week is over.",
+        "outcome": "One operating picture for roles, follow-ups, and the candidate narrative, so the search can be run instead of reassembled.",
+        "year": "2026",
+        "tags": ["Product", "Operating system"],
+        "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
+        "id": "mac-news",
+        "slug": "mac-news",
+        "client": "Mac News",
+        "title": "A morning briefing, not a pile of feeds",
+        "summary": "Newsletters, posts, and links do not become a briefing on their own. Mac News pulls a chosen set of sources onto one desk so the morning starts from a system.",
+        "body": "Most reading setups are a pile: an inbox of newsletters, a social feed, and a row of bookmarks that all claim to be the morning. Nothing in that pile knows what was already read, or what is worth the first ten minutes.\n\nMac News is a desk on the machine. The sources are chosen. They land in one reading surface, in an order a person can finish. The briefing is the product — not another stream that grows while you look at it.\n\nIt stays close to the reader. The point is a system you can open, finish, and leave, not a feed that has to be managed.",
+        "outcome": "A single morning briefing assembled from chosen sources, with a start and a stop.",
+        "year": "2026",
+        "tags": ["Product", "Editorial"],
+        "image": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
+        "id": "ai-index",
+        "slug": "ai-index",
+        "client": "AI Index",
+        "title": "A map of the field, not a pile of claims",
+        "summary": "Models, vendors, and announcements arrive faster than a team can compare them. AI Index is the map: what exists, how it differs, and what is worth a next conversation.",
+        "body": "An AI landscape goes stale the week it is written down. A slide of logos is not a decision. A thread of announcements is not a comparison.\n\nAI Index holds the field as an index a team can use. Entries stay comparable: what the thing is, where it sits, and how it relates to the nodes already in the system. New claims get a place in the map instead of a new document.\n\nThe studio use is practical. When a venture needs a build path, the index is where the options already live — not a research project that starts over each time the question comes up.",
+        "outcome": "A living index of the field, so a team can choose a next step without rebuilding the landscape from scratch.",
+        "year": "2026",
+        "tags": ["Product", "Strategy"],
+        "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
+        "imageCredit": "Unsplash"
+      },
+      {
         "id": "coaching-federation",
         "slug": "global-coaching-federation",
         "client": "Global coaching federation",
