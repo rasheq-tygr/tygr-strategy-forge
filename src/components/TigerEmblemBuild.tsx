@@ -16,30 +16,16 @@ function brandMark() {
   return document.querySelector<SVGElement>(".header .brand-mark");
 }
 
-function scrollMetrics() {
-  const dest = document.getElementById("ecosystem");
-  const hub = document.querySelector<HTMLElement>("#ecosystem .hub");
-  const vh = window.innerHeight || 1;
-  const assemble = clamp(window.scrollY / (vh * 0.45));
-  const trigger = hub ?? dest;
-  let docked = false;
-  if (trigger) {
-    const r = trigger.getBoundingClientRect();
-    const point = hub ? r.bottom : r.top + r.height * 0.55;
-    docked = point < vh * 0.42;
-  }
-  return { assemble, docked, dest };
-}
-
 /**
- * Home: the navbar tiger stays put. A larger hero tiger assembles in place,
- * then drifts upward more slowly than the page and fades before it can cover
- * the bar. Other pages: only the navbar mark.
+ * Home: the navbar tiger stays put. The hero tiger is the same mark,
+ * turned a few degrees in perspective, and levels out as the hero scrolls
+ * away. Other pages: only the navbar mark.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const wrap = useRef<HTMLDivElement>(null);
+  const tilt = useRef<HTMLDivElement>(null);
   const canvas = useRef<SVGSVGElement>(null);
   const solid = useRef<SVGGElement>(null);
   const shardsRef = useRef<(SVGPolygonElement | null)[]>([]);
@@ -92,43 +78,40 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
     let raf = 0;
     const render = () => {
-      const { assemble } = scrollMetrics();
-      const fuse = clamp((assemble - 0.08) / 0.32);
-      const shardFade = 1 - fuse;
       const hero = document.querySelector<HTMLElement>(".hero");
       const rect = hero?.getBoundingClientRect();
       const travel = rect ? clamp(-rect.top / (rect.height * 0.8)) : 1;
-      const depth = 1 - clamp((travel - 0.08) / 0.55);
+      const depth = 1 - clamp((travel - 0.58) / 0.36);
 
-      shards.forEach((shard, i) => {
-        const el = shardsRef.current[i];
-        if (el) applyShard(el, shard, assemble, shardFade);
-      });
-      if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
+      if (solid.current) solid.current.style.opacity = "1";
 
       brandMark()?.classList.add("is-home");
 
       const el = wrap.current;
-      if (el) {
+      const plane = tilt.current;
+      if (el && plane) {
         const vw = window.innerWidth;
         const narrow = vw < 980;
-        const startW = narrow ? Math.min(210, vw * 0.46) : Math.min(360, vw * 0.28);
-        const scale = 1 - travel * 0.06;
-        const lift = travel * (narrow ? 28 : 42);
+        const startW = narrow ? Math.min(210, vw * 0.46) : Math.min(380, vw * 0.3);
+        const stand = clamp(travel / 0.9);
+        const pitch = 12 * (1 - stand);
+        const yaw = 22 * (1 - stand);
+        const scale = 0.9 + stand * 0.1;
+        const lift = (1 - stand) * (narrow ? 12 : 20);
         el.style.position = "fixed";
-        el.style.top = narrow ? "5.6rem" : "16vh";
+        el.style.top = narrow ? "6.2rem" : "18vh";
         el.style.width = `${startW}px`;
         el.style.right = "auto";
         el.style.opacity = depth.toFixed(3);
         el.style.zIndex = "2";
+        el.style.transform = narrow ? "translateX(-50%)" : "none";
         if (narrow) {
           el.style.left = "50%";
-          el.style.transform = `translateX(-50%) translateY(${(-lift).toFixed(1)}px) scale(${scale.toFixed(3)})`;
         } else {
           const inset = Math.max(24, (vw - 1180) / 2 + 12);
           el.style.left = `${Math.max(inset, vw - inset - startW)}px`;
-          el.style.transform = `translateY(${(-lift).toFixed(1)}px) scale(${scale.toFixed(3)})`;
         }
+        plane.style.transform = `translateY(${lift.toFixed(1)}px) rotateX(${pitch.toFixed(2)}deg) rotateY(${yaw.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
       }
 
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
@@ -147,6 +130,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
   return (
     <div className={`emblem-build ${className ?? ""}`} ref={wrap}>
+      <div className="emblem-tilt" ref={tilt}>
       <svg
         className="emblem-canvas"
         viewBox={EMBLEM_VIEWBOX}
@@ -172,6 +156,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           <path d={EMBLEM_MARK_PATH} fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
         </g>
       </svg>
+      </div>
     </div>
   );
 }
