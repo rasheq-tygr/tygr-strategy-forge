@@ -8,7 +8,8 @@ export function WorkGrid({ limit, heading = true }: { limit?: number; heading?: 
   const { content } = useSite();
   const items = limit ? content.work.items.slice(0, limit) : content.work.items;
   const [active, setActive] = useState(0);
-  const current = items[Math.min(active, Math.max(items.length - 1, 0))];
+  const activeIndex = items.length === 0 ? 0 : Math.min(active, items.length - 1);
+  const current = items[activeIndex];
 
   return (
     <section className="section cream" id="work">
@@ -34,11 +35,14 @@ export function WorkGrid({ limit, heading = true }: { limit?: number; heading?: 
               <Link
                 key={item.id}
                 to={`/work/${item.slug}`}
-                className={i === active ? "work-row is-active" : "work-row"}
+                className={i === activeIndex ? "work-row is-active" : "work-row"}
                 onMouseEnter={() => setActive(i)}
                 onFocus={() => setActive(i)}
+                onPointerDown={() => setActive(i)}
               >
-                <div className="work-index">{String(i + 1).padStart(2, "0")}</div>
+                <div className="work-index" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
                 <div className="work-copy">
                   <div className="meta-row">
                     <Editable path={`work.items.${i}.client`} />
@@ -50,12 +54,13 @@ export function WorkGrid({ limit, heading = true }: { limit?: number; heading?: 
                   <p>
                     <Editable path={`work.items.${i}.summary`} multiline />
                   </p>
+                  <img className="work-thumb" src={item.image} alt="" />
                 </div>
               </Link>
             ))}
           </div>
           {current ? (
-            <figure className="work-preview">
+            <figure className="work-preview" aria-hidden="true">
               <img src={current.image} alt="" />
               <figcaption>{current.client}</figcaption>
             </figure>

@@ -543,10 +543,14 @@ h3,
   font-size: clamp(1.45rem, 2vw, 1.85rem);
 }
 
-.cap-row p {
+.cap-row div p {
   margin: 0;
   max-width: 40rem;
   color: rgba(18, 21, 28, 0.74);
+}
+
+.cap-row .cap-number {
+  color: var(--tygr-orange);
 }
 
 .cap-row.is-lead {
@@ -804,9 +808,7 @@ h3,
   cursor: pointer;
 }
 
-.ticker.is-paused .ticker-track,
-.ticker:hover .ticker-track,
-.ticker:focus-within .ticker-track {
+.ticker.is-paused .ticker-track {
   animation-play-state: paused;
 }
 
@@ -927,7 +929,7 @@ h3,
 
 .quote-lead footer span,
 .quote-aside footer span {
-  color: rgba(18, 21, 28, 0.55);
+  color: #3a4150;
 }
 
 .quote-rest {
@@ -968,6 +970,9 @@ h3,
 @media (prefers-reduced-motion: reduce) {
   .ticker-track {
     animation: none;
+  }
+  .ticker-pause {
+    display: none;
   }
 }
 
@@ -1798,6 +1803,14 @@ h3,
   text-transform: uppercase;
 }
 
+.work-thumb {
+  display: none;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  margin-top: 0.85rem;
+}
+
 .insight-feature {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
@@ -1924,12 +1937,19 @@ h3,
   .hero-title {
     text-align: left;
   }
-  .work-preview {
-    position: static;
-    order: -1;
+  .booking-strip-inner {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  .work-preview img {
-    aspect-ratio: 16 / 10;
+  .work-preview {
+    display: none;
+  }
+  .work-thumb {
+    display: block;
+  }
+  .stat + .stat {
+    border-left: 0;
+    border-top: var(--hairline-dark);
   }
   .orbit-stage {
     min-height: 520px;

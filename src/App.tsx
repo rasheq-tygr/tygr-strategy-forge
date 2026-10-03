@@ -23,7 +23,9 @@ function PublicLayout({ children }: { children: ReactNode }) {
     <div className="site-shell">
       <TigerEmblemBuild className="page-emblem" />
       <Header />
-      <main id="content">{children}</main>
+      <main id="content" tabIndex={-1}>
+        {children}
+      </main>
       <Footer />
       <EditChrome />
     </div>

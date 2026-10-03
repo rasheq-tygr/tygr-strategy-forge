@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
@@ -10,6 +10,8 @@ export function Header() {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -21,6 +23,14 @@ export function Header() {
   useEffect(() => {
     setOpen(false);
   }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (open) return;
+    const nav = navRef.current;
+    const toggle = toggleRef.current;
+    if (!nav || !toggle || !nav.contains(document.activeElement)) return;
+    if (getComputedStyle(nav).display === "none") toggle.focus();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -42,6 +52,7 @@ export function Header() {
       </Link>
       <button
         type="button"
+        ref={toggleRef}
         className="nav-toggle"
         aria-expanded={open}
         aria-controls="site-nav"
@@ -51,10 +62,10 @@ export function Header() {
         <span />
         <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
       </button>
-      <nav id="site-nav" className={`header-nav ${open ? "is-open" : ""}`}>
+      <nav id="site-nav" ref={navRef} className={`header-nav ${open ? "is-open" : ""}`} aria-label="Primary">
         <div className="nav-links">
           {content.nav.links.map((link, i) => (
-            <NavLink key={link.href} to={link.href}>
+            <NavLink key={link.href} to={link.href} onClick={() => setOpen(false)}>
               <Editable path={`nav.links.${i}.label`} />
             </NavLink>
           ))}

@@ -11,9 +11,9 @@ export function BookingStrip() {
           <p className="eyebrow">
             <Editable path="contact.eyebrow" />
           </p>
-          <p className="booking-strip-title">
+          <h2 className="booking-strip-title">
             <Editable path="contact.title" />
-          </p>
+          </h2>
         </div>
         <a className="btn btn-primary" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
           <Editable path="contact.cta" />
