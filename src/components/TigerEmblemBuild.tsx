@@ -17,8 +17,8 @@ function brandMark() {
 }
 
 /**
- * Home: shards gather into the tiger while it stays flat. After the mark
- * is whole, further scroll turns it in perspective. The navbar tiger stays
+ * Home: the page loads as scattered shards. Scrolling draws them into the
+ * tiger, and only then does the finished mark turn. The navbar tiger stays
  * put. Other pages: only the navbar mark.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
@@ -77,22 +77,16 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     }
 
     let raf = 0;
-    let clock = 0;
-    let last = performance.now();
-    const render = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      clock = Math.min(1, clock + dt / 1.15);
-
+    const render = () => {
       const hero = document.querySelector<HTMLElement>(".hero");
       const rect = hero?.getBoundingClientRect();
-      const travel = rect ? clamp(-rect.top / (rect.height * 0.8)) : 1;
-      const build = Math.max(clock, clamp(travel / 0.28));
-      const fuse = clamp((build - 0.12) / 0.7);
+      const travel = rect ? clamp(-rect.top / (rect.height * 0.85)) : 1;
+      const build = clamp(travel / 0.62) * 0.45;
+      const fuse = clamp((build - 0.22) / 0.2);
       const shardFade = 1 - fuse;
-      const formed = build > 0.96;
-      const tiltT = formed ? clamp((travel - 0.08) / 0.7) : 0;
-      const depth = 1 - clamp((travel - 0.72) / 0.26);
+      const formed = fuse > 0.98;
+      const tiltT = formed ? clamp((travel - 0.5) / 0.4) : 0;
+      const depth = 1 - clamp((travel - 0.78) / 0.22);
 
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
