@@ -125,7 +125,7 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
 
       if (canvas.current) {
         canvas.current.style.opacity = "1";
-        canvas.current.style.filter = "drop-shadow(0 0 10px rgba(235, 132, 0, 0.45))";
+        canvas.current.style.filter = "drop-shadow(0 16px 28px rgba(10, 15, 26, 0.12))";
       }
 
       mark?.classList.toggle("is-home", docked);

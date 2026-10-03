@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
 import { Editable } from "./Editable";
@@ -7,7 +7,9 @@ import { TigerMark } from "./TigerMark";
 
 export function Header() {
   const { content } = useSite();
+  const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const onLight = pathname === "/" && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -17,7 +19,7 @@ export function Header() {
   }, []);
 
   return (
-    <header className={`header ${scrolled ? "scrolled" : ""}`}>
+    <header className={`header ${scrolled ? "scrolled" : ""} ${onLight ? "header-on-light" : ""}`}>
       <Link to="/" className="brand">
         <TigerMark className="brand-mark" size={48} />
         <Editable path="brand.name" className="wordmark" />
