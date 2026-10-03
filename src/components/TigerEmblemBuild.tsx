@@ -16,10 +16,26 @@ function brandMark() {
   return document.querySelector<SVGElement>(".header .brand-mark");
 }
 
+function backdropIsLight(x: number, y: number) {
+  const nodes = document.elementsFromPoint(x, y);
+  for (const node of nodes) {
+    if (!(node instanceof Element) || node.closest(".page-emblem, .header")) continue;
+    const match = getComputedStyle(node).backgroundColor.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/,
+    );
+    if (!match) continue;
+    const alpha = match[4] === undefined ? 1 : Number(match[4]);
+    if (alpha < 0.45) continue;
+    const luminance = (0.2126 * Number(match[1]) + 0.7152 * Number(match[2]) + 0.0722 * Number(match[3])) / 255;
+    return luminance > 0.72;
+  }
+  return false;
+}
+
 /**
  * Home: the page loads as scattered shards. Scrolling draws them into the
- * tiger, and only then does the finished mark turn. The navbar tiger stays
- * put. Other pages: only the navbar mark.
+ * tiger through the One hub section, then turns the finished mark. It stays
+ * on screen until that section has scrolled past. The navbar tiger stays put.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const { pathname } = useLocation();
@@ -79,14 +95,18 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
     let raf = 0;
     const render = () => {
       const hero = document.querySelector<HTMLElement>(".hero");
-      const rect = hero?.getBoundingClientRect();
-      const travel = rect ? clamp(-rect.top / (rect.height * 0.85)) : 1;
-      const build = clamp(travel / 0.62) * 0.45;
+      const eco = document.querySelector<HTMLElement>("#ecosystem");
+      const vh = window.innerHeight || 1;
+      const scrollY = window.scrollY;
+      const ecoRect = eco?.getBoundingClientRect();
+      const journeyEnd = ecoRect ? ecoRect.bottom + scrollY - vh * 0.2 : (hero?.offsetHeight || vh) * 1.6;
+      const progress = clamp(scrollY / Math.max(journeyEnd, 1));
+      const build = clamp(progress / 0.72) * 0.45;
       const fuse = clamp((build - 0.22) / 0.2);
       const shardFade = 1 - fuse;
       const formed = fuse > 0.98;
-      const tiltT = formed ? clamp((travel - 0.5) / 0.4) : 0;
-      const depth = 1 - clamp((travel - 0.78) / 0.22);
+      const tiltT = formed ? clamp((progress - 0.55) / 0.35) : 0;
+      const depth = 1 - clamp((progress - 0.9) / 0.1);
 
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
@@ -108,7 +128,6 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
         el.style.top = narrow ? "6.2rem" : "18vh";
         el.style.width = `${startW}px`;
         el.style.right = "auto";
-        el.style.opacity = depth.toFixed(3);
         el.style.zIndex = "2";
         el.style.transform = narrow ? "translateX(-50%)" : "none";
         if (narrow) {
@@ -117,6 +136,15 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           const inset = Math.max(24, (vw - 1180) / 2 + 12);
           el.style.left = `${Math.max(inset, vw - inset - startW)}px`;
         }
+        const box = el.getBoundingClientRect();
+        const midY = box.top + box.height * 0.45;
+        const light =
+          (backdropIsLight(box.left + box.width * 0.3, midY) ? 1 : 0) +
+          (backdropIsLight(box.left + box.width * 0.6, midY) ? 1 : 0) +
+          (backdropIsLight(box.left + box.width * 0.5, box.top + box.height * 0.7) ? 1 : 0);
+        const onLight = light / 3;
+        el.style.opacity = (depth * (1 - onLight * 0.88)).toFixed(3);
+        el.classList.toggle("is-on-light", onLight > 0.5);
         plane.style.transform = formed
           ? `rotateX(${pitch.toFixed(2)}deg) rotateY(${yaw.toFixed(2)}deg)`
           : "none";
