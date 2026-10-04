@@ -65,7 +65,6 @@ export type SiteContent = {
     body: string;
     primaryCta: string;
     secondaryCta: string;
-    scrollHint: string;
   };
   stats: { items: StatItem[] };
   ecosystem: {

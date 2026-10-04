@@ -65,10 +65,6 @@ export function Hero() {
               <Editable path="hero.secondaryCta" />
             </a>
           </div>
-          <div className="scroll-hint">
-            <Editable path="hero.scrollHint" />
-            <span className="arrow" />
-          </div>
         </div>
       </div>
       <div className="hero-rail">
