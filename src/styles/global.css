@@ -1259,23 +1259,113 @@ h3,
 
 .article-gallery {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.45rem;
   width: min(72rem, calc(100vw - 3rem));
-  margin: 2rem auto 0;
-  transform: translateX(-50%);
+  margin: 2.2rem auto 0;
   margin-left: 50%;
+  transform: translateX(-50%);
 }
 
-.article-gallery img {
+.article-shot {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: var(--tygr-navy);
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.article-shot img {
   width: 100%;
+  height: 100%;
   aspect-ratio: 3 / 2;
   object-fit: cover;
 }
 
+.article-shot-lead {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+
+.article-shot-lead img {
+  aspect-ratio: auto;
+}
+
+.article-shot-stack {
+  grid-column: span 2;
+}
+
+.article-shot-band {
+  grid-column: span 6;
+}
+
+.article-shot-band img {
+  aspect-ratio: 2.4 / 1;
+  object-position: center 30%;
+}
+
+.article-shot-solo {
+  grid-column: 2 / span 4;
+}
+
+.article-lightbox {
+  position: relative;
+  width: min(68rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.article-lightbox::backdrop {
+  background: rgba(10, 15, 26, 0.92);
+}
+
+.article-lightbox img {
+  width: 100%;
+  max-height: calc(100vh - 4rem);
+  object-fit: contain;
+  background: var(--tygr-navy);
+}
+
+.article-lightbox-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  border: 0;
+  background: var(--tygr-navy);
+  color: var(--tygr-cream);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
 @media (max-width: 700px) {
   .article-gallery {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .article-shot-lead,
+  .article-shot-band {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .article-shot-lead img {
+    aspect-ratio: 3 / 2;
+  }
+
+  .article-shot-stack {
+    grid-column: span 1;
+  }
+
+  .article-shot-solo {
+    grid-column: 1 / -1;
   }
 }
 
