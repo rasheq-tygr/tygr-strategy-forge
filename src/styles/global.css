@@ -644,8 +644,9 @@ h3,
   color: var(--tygr-ink);
 }
 
-.cap-tone-2 div p {
-  color: rgba(18, 21, 28, 0.78);
+.cap-tone-2 div p,
+.cap-tone-2 .cap-number {
+  color: rgba(18, 21, 28, 0.82);
 }
 
 .cap-tone-3 {
