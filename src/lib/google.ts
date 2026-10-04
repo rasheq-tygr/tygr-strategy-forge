@@ -43,7 +43,91 @@ export function googleClientId(): string {
 }
 
 const NONCE_KEY = "tygr.google.nonce";
+const GIS_SRC = "https://accounts.google.com/gsi/client";
 let consumedRedirect: { token: string; error: string } | null = null;
+
+export type GoogleCredentialResponse = { credential?: string };
+
+type GoogleIdConfig = {
+  client_id: string;
+  callback: (response: GoogleCredentialResponse) => void;
+  nonce?: string;
+  auto_select?: boolean;
+  cancel_on_tap_outside?: boolean;
+  ux_mode?: "popup" | "redirect";
+};
+
+type GoogleButtonOptions = {
+  type?: "standard" | "icon";
+  theme?: "outline" | "filled_blue" | "filled_black";
+  size?: "large" | "medium" | "small";
+  shape?: "rectangular" | "pill" | "circle" | "square";
+  text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+  width?: number;
+  logo_alignment?: "left" | "center";
+};
+
+type GoogleAccountsId = {
+  initialize: (config: GoogleIdConfig) => void;
+  renderButton: (parent: HTMLElement, options: GoogleButtonOptions) => void;
+};
+
+declare global {
+  interface Window {
+    google?: { accounts?: { id?: GoogleAccountsId } };
+  }
+}
+
+let scriptPromise: Promise<GoogleAccountsId> | null = null;
+
+/** Official Google button. It checks the JavaScript origin and does not send a redirect URI. */
+export function loadGoogleIdentity(): Promise<GoogleAccountsId> {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("Google Identity requires a browser"));
+  }
+  if (window.google?.accounts?.id) return Promise.resolve(window.google.accounts.id);
+  if (scriptPromise) return scriptPromise;
+
+  scriptPromise = new Promise<GoogleAccountsId>((resolve, reject) => {
+    const finish = () => {
+      const id = window.google?.accounts?.id;
+      if (id) resolve(id);
+      else reject(new Error("Google Identity failed to initialise"));
+    };
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${GIS_SRC}"]`);
+    if (existing) {
+      if (window.google?.accounts?.id) finish();
+      else {
+        existing.addEventListener("load", finish, { once: true });
+        existing.addEventListener("error", () => reject(new Error("Failed to load Google Identity")), { once: true });
+      }
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = GIS_SRC;
+    script.async = true;
+    script.defer = true;
+    script.onload = finish;
+    script.onerror = () => {
+      scriptPromise = null;
+      reject(new Error("Failed to load Google Identity"));
+    };
+    document.head.appendChild(script);
+  });
+
+  return scriptPromise;
+}
+
+export function beginGoogleNonce(): string {
+  const nonce = crypto.randomUUID();
+  sessionStorage.setItem(NONCE_KEY, nonce);
+  return nonce;
+}
+
+export function currentGoogleNonce(): string | null {
+  if (typeof sessionStorage === "undefined") return null;
+  return sessionStorage.getItem(NONCE_KEY);
+}
 
 /** Live Hostinger `api/config.php` wins over the value baked into the JS bundle. */
 export async function resolveGoogleClientId(): Promise<string> {
@@ -61,13 +145,9 @@ export async function resolveGoogleClientId(): Promise<string> {
   return baked;
 }
 
-export function googleRedirectUri(): string {
-  return `${window.location.origin}/admin`;
-}
-
 export function googleOauthErrorMessage(error: string): string {
   if (error === "redirect_uri_mismatch") {
-    return `Google rejected this site URL. In Google Cloud Console → Credentials → your Web client, add Authorized redirect URI ${googleRedirectUri()} and Authorized JavaScript origin ${window.location.origin}.`;
+    return "Google rejected the sign-in request. Use the Google button on this page, and in Google Cloud Console add this site under Authorized JavaScript origins.";
   }
   if (error === "access_denied") return "Google sign-in was cancelled.";
   if (error === "nonce_mismatch") return "Google sign-in could not be verified. Please try again.";
@@ -116,16 +196,3 @@ export function consumeGoogleRedirect(): { token: string; error: string } {
   return consumedRedirect;
 }
 
-/** Visible Google button: redirect for an ID token (works on http://, not only GIS iframes). */
-export function startGoogleRedirect(clientId: string): void {
-  const nonce = crypto.randomUUID();
-  sessionStorage.setItem(NONCE_KEY, nonce);
-  const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", googleRedirectUri());
-  url.searchParams.set("response_type", "id_token");
-  url.searchParams.set("scope", "openid email profile");
-  url.searchParams.set("nonce", nonce);
-  url.searchParams.set("prompt", "select_account");
-  window.location.assign(url.toString());
-}

@@ -27,7 +27,7 @@ export function Capabilities({ limit, heading = true }: { limit?: number; headin
         ) : null}
         <div className="cap-list">
           {items.map((item, i) => (
-            <Reveal key={item.id} className="cap-row">
+            <Reveal key={item.id} className={`cap-row cap-tone-${i % 4}`}>
               <p className="cap-number">
                 <Editable path={`capabilities.items.${i}.number`} />
               </p>

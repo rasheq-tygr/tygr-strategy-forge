@@ -38,8 +38,7 @@ The editor is verified server-side by the PHP `/api/*.php` endpoints (and by the
 ### Google Sign-In (production)
 
 1. In [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials), create an **OAuth 2.0 Client ID** of type **Web application**.
-2. Add **Authorized JavaScript origins**: `http://localhost:5173`, `http://tygrventures.com`, and `https://tygrventures.com`.
-3. Add **Authorized redirect URIs**: `http://localhost:5173/admin`, `http://tygrventures.com/admin`, and `https://tygrventures.com/admin`. HTTPS is not required for the button; until Hostinger SSL is live, `http://` must be listed.
+2. Add **Authorized JavaScript origins**: `http://localhost:5173`, `https://tygrventures.com`, and `https://www.tygrventures.com`. The editor button uses Google Identity Services, which checks this origin. It does not use an OAuth redirect URI.
 4. Copy the **Client ID** into Hostinger `api/config.php` as `google_client_id` (the login page reads it from `/api/google.php`). Optionally also set GitHub secret `VITE_GOOGLE_CLIENT_ID` as a fallback.
 5. Set the allowlist of editor accounts:
    - `.env`: `VITE_GOOGLE_ALLOWED_EMAILS` / `GOOGLE_ALLOWED_EMAILS`
