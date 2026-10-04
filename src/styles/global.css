@@ -593,14 +593,6 @@ h3,
   color: var(--tygr-orange);
 }
 
-.cap-row.is-lead {
-  padding: 2rem 0 1.8rem;
-}
-
-.cap-row.is-lead h3 {
-  font-size: clamp(2rem, 4vw, 3rem);
-}
-
 .cap-number {
   font-family: var(--font-display);
   font-style: italic;
