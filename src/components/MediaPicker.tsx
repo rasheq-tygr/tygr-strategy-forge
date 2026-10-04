@@ -50,7 +50,7 @@ export function MediaPicker({ value, onChange }: Props) {
       <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
           onChange={(e) => void onUpload(e.target.files?.[0])}
         />
         <input

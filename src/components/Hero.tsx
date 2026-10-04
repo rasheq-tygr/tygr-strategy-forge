@@ -1,11 +1,8 @@
-import { useSite } from "../context/SiteContext";
 import { BookingCta } from "./BookingCta";
 import { Editable } from "./Editable";
 import { LogoTicker } from "./LogoTicker";
 
 export function Hero() {
-  const { content } = useSite();
-
   return (
     <section className="hero">
       <div className="wrap hero-content">

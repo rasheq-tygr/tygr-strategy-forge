@@ -1,4 +1,5 @@
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 
 type SocialKey = "linkedin" | "x" | "instagram";
 
@@ -21,20 +22,24 @@ export function SocialLinks() {
   const { content } = useSite();
   return (
     <nav className="social-links" aria-label="Social">
-      {(Object.keys(ICONS) as SocialKey[]).map((key) => (
-        <a
-          key={key}
-          className="social-link"
-          href={content.social[key]}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={ICONS[key].label}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d={ICONS[key].path} />
-          </svg>
-        </a>
-      ))}
+      {(Object.keys(ICONS) as SocialKey[]).map((key) => {
+        const href = safeHref(content.social[key]);
+        if (!href) return null;
+        return (
+          <a
+            key={key}
+            className="social-link"
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={ICONS[key].label}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d={ICONS[key].path} />
+            </svg>
+          </a>
+        );
+      })}
     </nav>
   );
 }

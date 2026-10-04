@@ -1,4 +1,5 @@
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 import { Editable } from "./Editable";
 
 type Props = {
@@ -25,7 +26,7 @@ export function LogoTicker({ source = "partners", variant = "light" }: Props) {
               <Editable path={`${source}.items.${idx}.name`} />
             </span>
           );
-          const href = group.items[idx].href;
+          const href = safeHref(group.items[idx].href);
           return href ? (
             <a key={`${item.name}-${i}`} href={href} target="_blank" rel="noreferrer">
               {inner}

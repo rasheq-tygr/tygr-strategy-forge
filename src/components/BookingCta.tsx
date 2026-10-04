@@ -3,7 +3,7 @@ import { useSite } from "../context/SiteContext";
 import { bookingHref } from "../lib/api";
 import { Editable } from "./Editable";
 
-/** "Book a call" — stays on /contact when the in-site scheduler is available. */
+/** "Book a call" — hosted TidyCal when a path is set, otherwise mailto / override. */
 export function BookingCta({ path, className }: { path: string; className?: string }) {
   const { content } = useSite();
   const href = bookingHref(content.contact);
