@@ -566,39 +566,95 @@ h3,
 }
 
 .cap-list {
-  border-top: 1px solid rgba(18, 21, 28, 0.12);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .cap-row {
-  display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
-  gap: 0.5rem 1.5rem;
-  align-items: baseline;
-  padding: 1.55rem 0;
-  border-bottom: 1px solid rgba(18, 21, 28, 0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  aspect-ratio: 1;
+  min-width: 0;
+  min-height: max(16rem, min-content);
+  padding: 1.5rem 1.45rem 1.4rem;
+  border: 0;
+}
+
+.cap-row > div {
+  min-width: 0;
 }
 
 .cap-row h3 {
-  margin: 0 0 0.45rem;
-  font-size: clamp(1.45rem, 2vw, 1.85rem);
+  margin: 0.4rem 0 0.7rem;
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: wrap;
+  overflow-wrap: break-word;
 }
 
 .cap-row div p {
   margin: 0;
-  max-width: 40rem;
-  color: rgba(18, 21, 28, 0.74);
+  max-width: none;
+  font-size: 0.98rem;
+  line-height: 1.5;
 }
 
-.cap-row .cap-number {
-  color: var(--tygr-orange);
+@media (max-width: 700px) {
+  .cap-row {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 0;
+    padding: 1.15rem 1.05rem 1.05rem;
+  }
+
+  .cap-row h3 {
+    font-size: 1.45rem;
+  }
+
+  .cap-row div p {
+    font-size: 0.92rem;
+  }
 }
 
-.cap-row.is-lead {
-  padding: 2rem 0 1.8rem;
+.cap-tone-0 {
+  background: var(--tygr-navy);
+  color: var(--tygr-cream);
 }
 
-.cap-row.is-lead h3 {
-  font-size: clamp(2rem, 4vw, 3rem);
+.cap-tone-0 div p {
+  color: rgba(245, 243, 239, 0.78);
+}
+
+.cap-tone-1 {
+  background: var(--tygr-orange);
+  color: var(--tygr-navy);
+}
+
+.cap-tone-1 div p,
+.cap-tone-1 .cap-number {
+  color: rgba(10, 15, 26, 0.82);
+}
+
+.cap-tone-2 {
+  background: #e7d3b4;
+  color: var(--tygr-ink);
+}
+
+.cap-tone-2 div p {
+  color: rgba(18, 21, 28, 0.78);
+}
+
+.cap-tone-3 {
+  background: #1c3348;
+  color: var(--tygr-cream);
+}
+
+.cap-tone-3 div p {
+  color: rgba(245, 243, 239, 0.78);
 }
 
 .cap-number {
