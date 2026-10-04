@@ -1259,7 +1259,7 @@ h3,
 
 .article-gallery {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(12, 1fr);
   gap: 0.45rem;
   width: min(72rem, calc(100vw - 3rem));
   margin: 2.2rem auto 0;
@@ -1285,7 +1285,7 @@ h3,
 }
 
 .article-shot-lead {
-  grid-column: span 4;
+  grid-column: span 8;
   grid-row: span 2;
 }
 
@@ -1294,11 +1294,15 @@ h3,
 }
 
 .article-shot-stack {
-  grid-column: span 2;
+  grid-column: span 4;
 }
 
 .article-shot-band {
-  grid-column: span 6;
+  grid-column: span 12;
+}
+
+.article-shot-tile {
+  grid-column: span 3;
 }
 
 .article-shot-band img {
@@ -1307,7 +1311,7 @@ h3,
 }
 
 .article-shot-solo {
-  grid-column: 2 / span 4;
+  grid-column: 3 / span 8;
 }
 
 .article-lightbox {
@@ -1360,7 +1364,8 @@ h3,
     aspect-ratio: 3 / 2;
   }
 
-  .article-shot-stack {
+  .article-shot-stack,
+  .article-shot-tile {
     grid-column: span 1;
   }
 

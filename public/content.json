@@ -231,14 +231,49 @@
             "frame": "stack"
           },
           {
-            "src": "/insights/launch/coffee.jpg",
-            "alt": "Two guests talking over coffee.",
+            "src": "/insights/launch/window.jpg",
+            "alt": "Two guests laughing by the window.",
             "frame": "stack"
           },
           {
             "src": "/insights/launch/cake.jpg",
             "alt": "Sheet cake iced From Idea to Done!, signed Rasheq, with the TYGR Ventures mark.",
             "frame": "band"
+          },
+          {
+            "src": "/insights/launch/circle.jpg",
+            "alt": "Guests talking together, including a woman in a red hijab.",
+            "frame": "lead"
+          },
+          {
+            "src": "/insights/launch/shawl.jpg",
+            "alt": "Three guests in conversation, one in a pink shawl.",
+            "frame": "stack"
+          },
+          {
+            "src": "/insights/launch/plates.jpg",
+            "alt": "Two guests with plates of cake.",
+            "frame": "stack"
+          },
+          {
+            "src": "/insights/launch/table.jpg",
+            "alt": "Guests talking over food.",
+            "frame": "tile"
+          },
+          {
+            "src": "/insights/launch/coffee.jpg",
+            "alt": "Two guests talking over coffee.",
+            "frame": "tile"
+          },
+          {
+            "src": "/insights/launch/gathering.jpg",
+            "alt": "Guests gathered by the mural.",
+            "frame": "tile"
+          },
+          {
+            "src": "/insights/launch/tree.jpg",
+            "alt": "Guests talking under the tree.",
+            "frame": "tile"
           }
         ]
       },
