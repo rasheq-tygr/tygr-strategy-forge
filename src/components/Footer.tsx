@@ -13,7 +13,7 @@ export function Footer() {
       <div className="wrap footer-grid">
         <div className="footer-brand">
           <Link to="/" className="brand">
-            <TigerMark size={48} />
+            <TigerMark className="footer-mark" size={48} />
             <Editable path="brand.name" className="wordmark" />
           </Link>
           <p className="footer-blurb">
