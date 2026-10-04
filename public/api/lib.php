@@ -270,12 +270,14 @@ function tygr_require_auth(): void
         if ($googleToken !== '' && tygr_verify_google_token($googleToken) !== null) {
             return;
         }
-        tygr_json_out(401, ['ok' => false, 'error' => 'Not authorized']);
     }
 
     $expected = (string) (tygr_config()['edit_password'] ?? '');
     if (!tygr_password_usable($expected)) {
-        tygr_json_out(401, ['ok' => false, 'error' => 'Editor password is not configured']);
+        tygr_json_out(401, [
+            'ok' => false,
+            'error' => tygr_google_configured() ? 'Not authorized' : 'Editor password is not configured',
+        ]);
     }
     $given = tygr_password_from_request();
     if ($given !== '' && hash_equals($expected, $given)) {

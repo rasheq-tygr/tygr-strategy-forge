@@ -10,6 +10,7 @@ import {
   isPlaceholderPassword,
   isProductionPasswordUsable,
   isSafeHref,
+  MIN_PRODUCTION_PASSWORD_LENGTH,
   resolveBookingTypeId,
   safeHttpsUrl,
   sanitizeBooking,
@@ -19,6 +20,9 @@ import {
 } from "./security.ts";
 
 describe("passwords", () => {
+  // Production unlock (PHP tygr_require_auth / Vite authorize) is a server-side OR:
+  // a verified Google token, or a usable edit password. There is no TS helper for
+  // that combination; googleClaimsValid and isProductionPasswordUsable are the operands.
   it("treats empty and documented placeholders as unusable in production", () => {
     assert.equal(isPlaceholderPassword(""), true);
     assert.equal(isPlaceholderPassword("change-me"), true);
@@ -26,6 +30,13 @@ describe("passwords", () => {
     assert.equal(isProductionPasswordUsable("change-me"), false);
     assert.equal(isProductionPasswordUsable("short"), false);
     assert.equal(isProductionPasswordUsable("a-reasonably-long-secret"), true);
+  });
+
+  it("rejects local-dev-only and secrets shorter than the production minimum", () => {
+    assert.equal(isProductionPasswordUsable("local-dev-only"), false);
+    assert.equal(isProductionPasswordUsable(""), false);
+    assert.equal(isProductionPasswordUsable("x".repeat(MIN_PRODUCTION_PASSWORD_LENGTH - 1)), false);
+    assert.equal(isProductionPasswordUsable("x".repeat(MIN_PRODUCTION_PASSWORD_LENGTH)), true);
   });
 
   it("compares secrets in constant-length pairs", () => {
@@ -68,6 +79,16 @@ describe("hrefs and meeting urls", () => {
     );
     assert.equal(tidycalHostedPath("//evil.example/phish"), "");
     assert.equal(tidycalHostedPath("javascript:alert(1)"), "");
+  });
+
+  it("drops query strings, traversal, and off-host booking paths", () => {
+    assert.equal(isSafeHref("vbscript:msgbox(1)"), false);
+    assert.equal(isSafeHref(""), false);
+    assert.equal(tidycalHostedPath(""), "");
+    assert.equal(tidycalHostedPath("../escape"), "");
+    assert.equal(tidycalHostedPath("rasheq/intro?x=1"), "");
+    assert.equal(tidycalHostedPath("https://evil.example/phish"), "");
+    assert.equal(tidycalHostedPath("rasheq/intro with space"), "");
   });
 
   it("keeps https meeting links and drops others", () => {

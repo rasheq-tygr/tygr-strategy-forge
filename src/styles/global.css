@@ -1150,6 +1150,12 @@ h3,
   font-size: 0.9rem;
 }
 
+.login-or {
+  margin: 1.25rem 0 0.15rem;
+  color: var(--muted, #5b6470);
+  font-size: 0.8rem;
+}
+
 .btn-google {
   display: inline-flex;
   align-items: center;
@@ -1176,36 +1182,6 @@ h3,
 .btn-google-mark {
   display: block;
   flex: 0 0 auto;
-}
-
-.google-signin-button {
-  display: flex;
-  justify-content: flex-start;
-  min-height: 44px;
-}
-
-.google-signin-error {
-  margin: 0.5rem 0 0;
-  color: #b45309;
-  font-size: 0.85rem;
-}
-
-.login-alt {
-  margin: 0.9rem 0 0.2rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--tygr-orange);
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.login-alt:hover {
-  color: var(--tygr-orange-glow);
 }
 
 .sr-only {

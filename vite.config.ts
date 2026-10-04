@@ -43,10 +43,10 @@ const MOCK_DAY_START_UTC_MIN = 13 * 60;
 const MOCK_DAY_END_UTC_MIN = 21 * 60;
 
 /**
- * Synthetic timeslots so the booking UI is testable locally without a token.
+ * Synthetic timeslots for the `/api/tidycal.php` mock when no token is set.
  * Emits slots at the booking type's real cadence (every `durationMin`) across a
- * full business day so the preview looks like genuine availability rather than a
- * handful of on-the-hour times.
+ * full business day so mock availability looks like a real calendar rather than
+ * a handful of on-the-hour times.
  */
 function mockTimeslots(startsAt: string, endsAt: string, durationMin = 30) {
   const out: { starts_at: string; ends_at: string; available_bookings: number }[] = [];
@@ -197,9 +197,9 @@ function hostingerDevApi(mode: string): Plugin {
   const allowBook = createRateLimiter(BOOK_RATE_MAX, BOOK_RATE_WINDOW_MS);
 
   const authorize = async (req: import("http").IncomingMessage) => {
-    if (google.clientId) {
-      const googleToken = String(req.headers["x-google-token"] || "");
-      return googleToken !== "" && (await verifyGoogleTokenDev(googleToken, google));
+    const googleToken = String(req.headers["x-google-token"] || "");
+    if (google.clientId && googleToken !== "" && (await verifyGoogleTokenDev(googleToken, google))) {
+      return true;
     }
     const header = String(req.headers["x-edit-password"] || "");
     return secretEquals(header, password);

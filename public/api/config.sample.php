@@ -5,16 +5,16 @@
  * Never commit a production secret.
  */
 return [
-    // Editor password used only when Google Sign-In is not configured.
+    // Editor password. Backup login even when Google Sign-In is configured.
     // Must be at least 16 characters. Placeholders such as "change-me" are rejected.
     'edit_password' => getenv('EDIT_PASSWORD') ?: '',
 
-    // TidyCal REST API (custom booking flow). Create a Personal Access Token at
-    // https://tidycal.com/integrations/advanced -> "Manage API keys" (paid plan).
-    // The token stays server-side; the browser only talks to /api/tidycal.php.
+    // TidyCal REST API proxy. Unused by the site UI (Book a call opens the
+    // hosted TidyCal page) but kept on purpose. Create a Personal Access Token
+    // at https://tidycal.com/integrations/advanced -> "Manage API keys".
     'tidycal_token' => getenv('TIDYCAL_TOKEN') ?: '',
 
-    // The booking type the "Book a call" scheduler uses. Digits only.
+    // Booking type id for the REST proxy. Digits only.
     // Find the ID via GET https://tidycal.com/api/booking-types.
     'tidycal_booking_type_id' => getenv('TIDYCAL_BOOKING_TYPE_ID') ?: '',
 
@@ -29,7 +29,7 @@ return [
     //   http://tygrventures.com/admin
     //   https://tygrventures.com/admin
     // The editor login reads this value live from /api/google.php.
-    // When this is set, password login is disabled at the API.
+    // A usable edit_password still works as a backup on /admin.
     'google_client_id' => getenv('GOOGLE_CLIENT_ID') ?: '',
 
     // Comma-separated list of Google accounts allowed to edit the site.

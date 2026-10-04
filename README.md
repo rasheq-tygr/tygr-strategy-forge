@@ -45,9 +45,9 @@ The editor is verified server-side by the PHP `/api/*.php` endpoints (and by the
    - `.env`: `VITE_GOOGLE_ALLOWED_EMAILS` / `GOOGLE_ALLOWED_EMAILS`
    - Hostinger `api/config.php`: `google_allowed_emails`
 
-When `GOOGLE_CLIENT_ID` is set, password login is disabled. The ID token is verified with Google's `tokeninfo` endpoint (POST) and must match the allowlist. An empty allowlist denies every account. If `google_client_id` is empty in `config.php` **and** `VITE_GOOGLE_CLIENT_ID` is empty, `/admin` shows only the password form.
+Google is the primary editor login when a client ID is set. The ID token is verified with Google's `tokeninfo` endpoint (POST) and must match the allowlist. An empty allowlist denies every Google account. `/admin` still shows a password field as a backup; production accepts that password only if it is at least 16 characters and not a placeholder. If both client IDs are empty, `/admin` shows only the password form.
 
-### Edit password (local / when Google is not configured)
+### Edit password (backup / local)
 
 | Where | What to set |
 | --- | --- |
