@@ -5,7 +5,7 @@ import { GoogleSignIn } from "../../components/GoogleSignIn";
 import { googleClientId, resolveGoogleClientId } from "../../lib/google";
 
 export function AdminLogin({ onUnlocked }: { onUnlocked?: () => void } = {}) {
-  const { unlock, content, error: siteError } = useSite();
+  const { unlock, signInWithGoogle, content, error: siteError } = useSite();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [clientId, setClientId] = useState(() => googleClientId());
@@ -44,7 +44,17 @@ export function AdminLogin({ onUnlocked }: { onUnlocked?: () => void } = {}) {
 
       {!googleChecked && !hasGoogle ? <p className="google-signin-pending">Checking Google sign-in…</p> : null}
 
-      {hasGoogle ? <GoogleSignIn clientId={clientId} onError={setError} /> : null}
+      {hasGoogle ? (
+        <GoogleSignIn
+          clientId={clientId}
+          onCredential={async (token) => {
+            setError("");
+            const ok = await signInWithGoogle(token);
+            if (ok) onUnlocked?.();
+          }}
+          onError={setError}
+        />
+      ) : null}
 
       <form onSubmit={(e) => void onSubmit(e)}>
         {hasGoogle ? <p className="login-or">or use the editor password</p> : null}

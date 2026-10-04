@@ -8,7 +8,7 @@ export function AdminLayout() {
   const { unlocked, dirty, status, save, lock, content, error } = useSite();
   const location = useLocation();
 
-  // Google OAuth treats 127.0.0.1 and localhost as different redirect URIs.
+  // Google treats 127.0.0.1 and localhost as different JavaScript origins.
   // Bounce so sign-in uses the registered localhost origin.
   useEffect(() => {
     if (!googleClientId()) return;
