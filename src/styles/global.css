@@ -486,10 +486,10 @@ h3,
 }
 
 .stat-bar {
-  background: #fff;
-  color: var(--tygr-ink);
-  border-top: var(--hairline-light);
-  border-bottom: var(--hairline-light);
+  background: var(--tygr-navy);
+  color: var(--tygr-cream);
+  border-top: 1px solid rgba(235, 132, 0, 0.7);
+  border-bottom: var(--hairline-dark);
 }
 
 .stat-bar-grid {
@@ -498,28 +498,32 @@ h3,
 }
 
 .stat {
-  padding: 2.2rem 1.6rem 2rem;
+  padding: 2.4rem 1.6rem 2.2rem;
 }
 
 .stat + .stat {
-  border-left: var(--hairline-light);
+  border-left: var(--hairline-dark);
 }
 
 .stat-value {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(2.1rem, 3.4vw, 3.1rem);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  line-height: 1;
   letter-spacing: -0.04em;
-  display: inline-block;
-  margin-bottom: 0.45rem;
+  color: var(--tygr-cream);
+  display: block;
+  margin: 0 0 0.75rem;
 }
 
 .stat-label {
-  color: #44403c;
+  color: rgba(245, 243, 239, 0.68);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  max-width: 16rem;
 }
 
 .card {
@@ -1578,7 +1582,7 @@ h3,
   }
   .stat + .stat {
     border-left: 0;
-    border-top: var(--hairline-light);
+    border-top: var(--hairline-dark);
   }
   .orbit-stage {
     min-height: 520px;
