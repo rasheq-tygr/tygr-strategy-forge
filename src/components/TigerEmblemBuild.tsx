@@ -34,8 +34,10 @@ function backdropIsLight(x: number, y: number) {
 
 /**
  * Home: the page loads as scattered shards. Scrolling draws them into the
- * tiger through the One hub section, then turns the finished mark. It stays
- * on screen until that section has scrolled past. The navbar tiger stays put.
+ * tiger through the One hub section, then turns the finished mark. The mark
+ * stays fixed for the rest of the page. Over a light section, including
+ * What the system actually does, it only drops back so the type can lead.
+ * The navbar tiger stays put.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
   const { pathname } = useLocation();
@@ -106,7 +108,6 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       const shardFade = 1 - fuse;
       const formed = fuse > 0.98;
       const tiltT = formed ? clamp((progress - 0.55) / 0.35) : 0;
-      const depth = 1 - clamp((progress - 0.9) / 0.1);
 
       shards.forEach((shard, i) => {
         const el = shardsRef.current[i];
@@ -143,7 +144,9 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
           (backdropIsLight(box.left + box.width * 0.6, midY) ? 1 : 0) +
           (backdropIsLight(box.left + box.width * 0.5, box.top + box.height * 0.7) ? 1 : 0);
         const onLight = light / 3;
-        el.style.opacity = (depth * (1 - onLight * 0.88)).toFixed(3);
+        // Full strength on navy. On cream, stay visible and only go faint.
+        const opacity = 1 - onLight * 0.58;
+        el.style.opacity = opacity.toFixed(3);
         el.classList.toggle("is-on-light", onLight > 0.5);
         plane.style.transform = formed
           ? `rotateX(${pitch.toFixed(2)}deg) rotateY(${yaw.toFixed(2)}deg)`
