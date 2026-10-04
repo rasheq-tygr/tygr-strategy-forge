@@ -1,4 +1,4 @@
-import { EMBLEM_BLOCKS, EMBLEM_RATIO, EMBLEM_VIEWBOX } from "../lib/emblem";
+import { EMBLEM_MARK_PATH, EMBLEM_MARK_RATIO, EMBLEM_MARK_VIEWBOX } from "../lib/emblem";
 
 type Props = { size?: number; className?: string; title?: string };
 
@@ -8,18 +8,17 @@ export function TigerMark({ size = 30, className, title }: Props) {
     <svg
       className={className}
       width={size}
-      height={Math.round(size * EMBLEM_RATIO)}
-      viewBox={EMBLEM_VIEWBOX}
+      height={Math.round(size * EMBLEM_MARK_RATIO)}
+      viewBox={EMBLEM_MARK_VIEWBOX}
       fill="none"
+      overflow="visible"
       style={{ color: "var(--tygr-orange)" }}
       role={title ? "img" : undefined}
       aria-label={title}
       aria-hidden={title ? undefined : true}
     >
       {title ? <title>{title}</title> : null}
-      {EMBLEM_BLOCKS.map((d) => (
-        <path key={d.slice(0, 24)} fill="currentColor" d={d} />
-      ))}
+      <path fill="currentColor" fillRule="evenodd" clipRule="evenodd" d={EMBLEM_MARK_PATH} />
     </svg>
   );
 }

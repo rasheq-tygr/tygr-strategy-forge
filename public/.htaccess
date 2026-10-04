@@ -2,6 +2,8 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  # Hostinger Lifetime SSL uses HTTP-01. Do not send this path to the SPA.
+  RewriteRule ^\.well-known/acme-challenge/ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.html [L]
@@ -11,4 +13,7 @@
   Header set X-Content-Type-Options "nosniff"
   Header set X-Frame-Options "SAMEORIGIN"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+  <Files "index.html">
+    Header set Cache-Control "no-store"
+  </Files>
 </IfModule>

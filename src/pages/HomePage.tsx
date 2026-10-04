@@ -14,10 +14,9 @@ export function HomePage() {
       <Hero />
       <StatBar />
       <EcosystemOrbit />
-      <LogoTicker source="partners" />
       <Capabilities />
       <Testimonials />
-      <LogoTicker source="proof" />
+      <LogoTicker source="partners" />
       <WorkGrid limit={3} />
       <InsightGrid limit={3} />
       <ContactBlock />

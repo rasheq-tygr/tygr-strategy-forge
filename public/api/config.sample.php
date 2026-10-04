@@ -19,10 +19,17 @@ return [
     'tidycal_booking_type_id' => getenv('TIDYCAL_BOOKING_TYPE_ID') ?: '',
 
     // Google Sign-In. Create an OAuth 2.0 Web client at
-    // https://console.cloud.google.com/apis/credentials and add your site
-    // (e.g. https://tygrventures.com) as an Authorized JavaScript origin.
-    // Paste the client ID here and in the frontend VITE_GOOGLE_CLIENT_ID.
-    // When this is set, password login is disabled.
+    // https://console.cloud.google.com/apis/credentials
+    // Authorized JavaScript origins (HTTP until SSL is live):
+    //   http://localhost:5173
+    //   http://tygrventures.com
+    //   https://tygrventures.com
+    // Authorized redirect URIs:
+    //   http://localhost:5173/admin
+    //   http://tygrventures.com/admin
+    //   https://tygrventures.com/admin
+    // The editor login reads this value live from /api/google.php.
+    // When this is set, password login is disabled at the API.
     'google_client_id' => getenv('GOOGLE_CLIENT_ID') ?: '',
 
     // Comma-separated list of Google accounts allowed to edit the site.

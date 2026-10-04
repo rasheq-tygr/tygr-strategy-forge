@@ -35,22 +35,32 @@ export type TidyCalBooking = {
 type ApiResult<T> = { ok: boolean; data: T; mock?: boolean; error?: string; status: number };
 
 const ENDPOINT = "/api/tidycal.php";
+const FETCH_MS = 12_000;
 
 async function call<T>(url: string, init?: RequestInit): Promise<ApiResult<T>> {
-  const res = await fetch(url, init);
-  const body = (await res.json().catch(() => ({}))) as {
-    ok?: boolean;
-    data?: T;
-    mock?: boolean;
-    error?: string;
-  };
-  return {
-    ok: Boolean(body.ok),
-    data: (body.data ?? ([] as unknown)) as T,
-    mock: body.mock,
-    error: body.error,
-    status: res.status,
-  };
+  try {
+    const res = await fetch(url, { ...init, signal: AbortSignal.timeout(FETCH_MS) });
+    const body = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      data?: T;
+      mock?: boolean;
+      error?: string;
+    };
+    return {
+      ok: Boolean(body.ok),
+      data: (body.data ?? ([] as unknown)) as T,
+      mock: body.mock,
+      error: body.error,
+      status: res.status,
+    };
+  } catch {
+    return {
+      ok: false,
+      data: [] as unknown as T,
+      error: "Unable to load availability",
+      status: 0,
+    };
+  }
 }
 
 /** The visitor's IANA timezone, used to convert/display slots and to book. */

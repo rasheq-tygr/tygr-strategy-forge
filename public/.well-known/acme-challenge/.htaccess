@@ -1,0 +1,6 @@
+RewriteEngine Off
+Satisfy Any
+Allow from all
+<IfModule mod_authz_core.c>
+  Require all granted
+</IfModule>

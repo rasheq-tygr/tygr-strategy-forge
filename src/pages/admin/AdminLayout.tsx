@@ -8,8 +8,8 @@ export function AdminLayout() {
   const { unlocked, dirty, status, save, lock, content, error } = useSite();
   const location = useLocation();
 
-  // GIS treats 127.0.0.1 and localhost as different origins. Bounce so Sign in
-  // with Google uses the registered localhost origin.
+  // Google OAuth treats 127.0.0.1 and localhost as different redirect URIs.
+  // Bounce so sign-in uses the registered localhost origin.
   useEffect(() => {
     if (!googleClientId()) return;
     if (window.location.hostname !== "127.0.0.1") return;

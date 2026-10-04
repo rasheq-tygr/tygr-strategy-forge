@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useSite } from "../context/SiteContext";
-import { bookingHref } from "../lib/api";
+import { BookingCta } from "./BookingCta";
 import { Editable } from "./Editable";
 import { TigerMark } from "./TigerMark";
 
@@ -19,8 +19,8 @@ export function Header() {
   return (
     <header className={`header ${scrolled ? "scrolled" : ""}`}>
       <Link to="/" className="brand">
-        <TigerMark />
-        <Editable path="brand.name" />
+        <TigerMark className="brand-mark" size={48} />
+        <Editable path="brand.name" className="wordmark" />
       </Link>
       <nav className="header-nav">
         <div className="nav-links" style={{ display: "flex", gap: "1.4rem" }}>
@@ -30,9 +30,7 @@ export function Header() {
             </NavLink>
           ))}
         </div>
-        <a className="btn btn-primary" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
-          <Editable path="nav.cta" />
-        </a>
+        <BookingCta className="btn btn-primary" path="nav.cta" />
       </nav>
     </header>
   );

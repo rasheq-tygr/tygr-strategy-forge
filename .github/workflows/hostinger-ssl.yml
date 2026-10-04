@@ -1,0 +1,40 @@
+# Install / reinstall SSL for tygrventures.com via the Hostinger API.
+# Secret: HOSTINGER_API_TOKEN (hPanel → API). Do not commit the token.
+name: Hostinger SSL
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: hostinger-ssl
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ssl:
+    name: Check and install SSL
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      HOSTINGER_USER: u764653958
+      HOSTINGER_DOMAIN: tygrventures.com
+      HOSTINGER_API: https://developers.hostinger.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require API token
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          if [ -z "$HOSTINGER_API_TOKEN" ]; then
+            echo "::error::HOSTINGER_API_TOKEN is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Check, install, and prove TLS
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: bash scripts/hostinger-ssl.sh

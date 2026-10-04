@@ -20,6 +20,7 @@ import {
 } from "../lib/tidycal";
 import { tidycalUrl } from "../lib/api";
 import { safeHref } from "../lib/security";
+import { TidyCalEmbed } from "./TidyCalEmbed";
 
 type Status = "loading" | "ready" | "error";
 
@@ -172,6 +173,18 @@ export function TidyCalScheduler({ bookingTypeId, path, className }: Props) {
   }
 
   if (status === "error") {
+    if (path) {
+      return (
+        <div className={`tc tc-embed-fallback ${className ?? ""}`.trim()}>
+          <TidyCalEmbed path={path} />
+          {hostedUrl ? (
+            <a className="tc-fallback" href={hostedUrl} target="_blank" rel="noreferrer">
+              Open the booking page
+            </a>
+          ) : null}
+        </div>
+      );
+    }
     return (
       <div className={`tc ${className ?? ""}`.trim()}>
         <p className="tc-muted">We couldn’t load live availability right now.</p>

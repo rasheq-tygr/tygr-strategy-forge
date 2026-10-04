@@ -222,25 +222,26 @@
     "eyebrow": "In orbit",
     "title": "Partners and nodes",
     "items": [
-      { "name": "TygrLabs", "href": "" },
-      { "name": "Casper Academy", "href": "" },
-      { "name": "BrainWrk", "href": "" },
-      { "name": "RideCentric", "href": "" },
+      { "name": "TygrLabs", "href": "https://tygrlabs.co" },
+      { "name": "Casper Academy", "href": "https://casper.academy" },
+      { "name": "BrainWrk", "href": "https://brainwrk.ai" },
+      { "name": "RideCentric", "href": "https://ridecentric.com" },
       { "name": "Rebl", "href": "" },
       { "name": "Punch", "href": "https://punch.cool" },
-      { "name": "Equifinality Solutions", "href": "" },
-      { "name": "Clybor Consulting", "href": "" }
+      { "name": "Equifinality Solutions", "href": "https://equifinalitysolutions.com" },
+      { "name": "Clybor Consulting", "href": "https://clyborconsulting.com" }
     ]
   },
   "proof": {
     "eyebrow": "Rooms we have sat in",
     "title": "Institutions",
     "items": [
-      { "name": "Goldman Sachs", "href": "" },
-      { "name": "Yale University", "href": "" },
-      { "name": "IBM", "href": "" },
-      { "name": "Defense Innovation Unit", "href": "" },
-      { "name": "Leidos", "href": "" }
+      { "name": "Goldman Sachs", "href": "", "logo": "/logos/goldman-sachs.svg" },
+      { "name": "Yale University", "href": "", "logo": "/logos/yale.png" },
+      { "name": "IBM", "href": "", "logo": "/logos/ibm.png" },
+      { "name": "Defense Innovation Unit", "href": "", "logo": "/logos/diu.png" },
+      { "name": "Leidos", "href": "", "logo": "/logos/leidos.png" },
+      { "name": "IEEE", "href": "", "logo": "/logos/ieee.svg" }
     ]
   },
   "testimonials": {

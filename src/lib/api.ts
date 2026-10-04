@@ -111,7 +111,8 @@ export function tidycalUrl(path?: string) {
 
 /**
  * Resolve the "Book a call" destination. Priority: explicit bookingUrl override,
- * then the TidyCal hosted page, then a build-time fallback, then email.
+ * then the hosted TidyCal page for `tidycalPath`, then a build-time fallback,
+ * then email.
  */
 export function bookingHref(contact: BookingContact) {
   const override = safeHref(contact.bookingUrl);

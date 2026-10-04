@@ -1,198 +1,197 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
-  BUILD_STAGES,
-  EMBLEM_BLOCKS,
-  EMBLEM_CENTER,
+  EMBLEM_HEIGHT,
+  EMBLEM_MARK_PATH,
   EMBLEM_VIEWBOX,
+  EMBLEM_WIDTH,
+  sampleEmblemShards,
+  type EmblemShard,
 } from "../lib/emblem";
 
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-type BlockMeta = { dx: number; dy: number; cx: number; cy: number; angle: number; start: number };
+function brandMark() {
+  return document.querySelector<SVGElement>(".header .brand-mark");
+}
+
+function backdropIsLight(x: number, y: number) {
+  const nodes = document.elementsFromPoint(x, y);
+  for (const node of nodes) {
+    if (!(node instanceof Element) || node.closest(".page-emblem, .header")) continue;
+    const match = getComputedStyle(node).backgroundColor.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/,
+    );
+    if (!match) continue;
+    const alpha = match[4] === undefined ? 1 : Number(match[4]);
+    if (alpha < 0.45) continue;
+    const luminance = (0.2126 * Number(match[1]) + 0.7152 * Number(match[2]) + 0.0722 * Number(match[3])) / 255;
+    return luminance > 0.72;
+  }
+  return false;
+}
 
 /**
- * "From idea to done": the emblem's geometric blocks start scattered (the raw
- * idea), snap together into the finished logo as the user scrolls, then the
- * whole mark recedes into the background as they continue down the page.
+ * Home: the page loads as scattered shards. Scrolling draws them into the
+ * tiger through the One hub section, then turns the finished mark. It stays
+ * on screen until that section has scrolled past. The navbar tiger stays put.
  */
 export function TigerEmblemBuild({ className }: { className?: string }) {
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
   const wrap = useRef<HTMLDivElement>(null);
+  const tilt = useRef<HTMLDivElement>(null);
   const canvas = useRef<SVGSVGElement>(null);
-  const stepper = useRef<HTMLDivElement>(null);
-  const blocks = useRef<(SVGPathElement | null)[]>([]);
-  const steps = useRef<(HTMLSpanElement | null)[]>([]);
-  const fill = useRef<HTMLSpanElement>(null);
+  const solid = useRef<SVGGElement>(null);
+  const shardsRef = useRef<(SVGPolygonElement | null)[]>([]);
+  const [shards, setShards] = useState<EmblemShard[]>([]);
 
   useEffect(() => {
-    const paths = blocks.current.filter(Boolean) as SVGPathElement[];
-    const n = paths.length;
+    if (!isHome) {
+      setShards([]);
+      brandMark()?.classList.add("is-home");
+      return;
+    }
+    brandMark()?.classList.add("is-home");
+    setShards(sampleEmblemShards(340));
+  }, [isHome]);
 
-    const meta: BlockMeta[] = paths.map((p, i) => {
-      let cx = EMBLEM_CENTER.x;
-      let cy = EMBLEM_CENTER.y;
-      try {
-        const b = p.getBBox();
-        cx = b.x + b.width / 2;
-        cy = b.y + b.height / 2;
-      } catch {
-        /* getBBox can throw for empty paths; fall back to center */
-      }
-      let dx = cx - EMBLEM_CENTER.x;
-      let dy = cy - EMBLEM_CENTER.y;
-      const len = Math.hypot(dx, dy) || 1;
-      dx /= len;
-      dy /= len;
-      const angle = (i % 2 === 0 ? 1 : -1) * (16 + ((i * 17) % 34));
-      return { dx, dy, cx, cy, angle, start: (i / n) * 0.5 };
-    });
-
-    const SPAN = 0.55;
-    const DIST = 220;
-
-    const setStage = (p: number) => {
-      const idx = p < 0.3 ? 0 : p < 0.6 ? 1 : p < 0.9 ? 2 : 3;
-      steps.current.forEach((el, i) => {
-        if (!el) return;
-        el.classList.toggle("is-active", i === idx);
-        el.classList.toggle("is-done", i < idx);
-      });
-      if (fill.current) fill.current.style.width = `${clamp(p) * 100}%`;
-    };
-
-    // Peak while assembling, settle to a faint watermark once "done".
-    const WATERMARK = 0.16;
-    const PEAK = 1;
-
-    // Luminance of the first opaque background behind a screen point, walking up
-    // the DOM. Returns 1 (treat as light) when nothing opaque is found, so the
-    // emblem hides rather than muddies transparent/light content.
-    const luminanceBehind = (px: number, py: number) => {
-      let node = document.elementFromPoint(px, py) as HTMLElement | null;
-      while (node) {
-        const nums = getComputedStyle(node).backgroundColor.match(/[\d.]+/g);
-        if (nums && nums.length >= 3) {
-          const alpha = nums.length >= 4 ? Number(nums[3]) : 1;
-          if (alpha > 0.5) {
-            const [r, g, b] = nums.map(Number);
-            return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-          }
-        }
-        node = node.parentElement;
-      }
-      return 1;
-    };
-
-    // The emblem only reads well over dark backgrounds. Sample several points
-    // spanning the mark's actual bounding box (not one fixed point) and treat it
-    // as dark only when *every* covered point is dark. This kills bleed in
-    // dark↔light transition zones where the tall mark straddles two sections.
-    const isDarkBehind = () => {
-      const el = canvas.current;
-      if (!el) return false;
-      const rect = el.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return false;
-      const px = Math.max(2, Math.min(window.innerWidth - 2, rect.left + rect.width / 2));
-      const fracs = [0.12, 0.32, 0.5, 0.68, 0.88];
-      let checked = 0;
-      for (const f of fracs) {
-        const py = rect.top + rect.height * f;
-        if (py < 2 || py > window.innerHeight - 2) continue;
-        checked += 1;
-        if (luminanceBehind(px, py) >= 0.4) return false;
-      }
-      return checked > 0;
-    };
+  useEffect(() => {
+    if (!isHome) {
+      if (wrap.current) wrap.current.style.opacity = "0";
+      brandMark()?.classList.add("is-home");
+      return;
+    }
+    if (shards.length === 0) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const applyShard = (el: SVGPolygonElement, shard: EmblemShard, p: number, shardFade: number) => {
+      const local = reduce ? 1 : easeOut(clamp((p - shard.start) / shard.span));
+      const ox = (1 - local) * shard.dx;
+      const oy = (1 - local) * shard.dy;
+      const rot = shard.rot1 + (1 - local) * (shard.rot0 - shard.rot1);
+      const x = shard.x - shard.size / 2 + ox;
+      const y = shard.y - shard.size / 2 + oy;
+      el.setAttribute(
+        "transform",
+        `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${rot.toFixed(2)} ${shard.size / 2} ${shard.size / 2})`,
+      );
+      el.style.opacity = String((0.4 + local * 0.6) * shardFade);
+    };
+
     if (reduce) {
-      paths.forEach((p) => {
-        p.removeAttribute("transform");
-        p.style.opacity = "1";
+      shards.forEach((shard, i) => {
+        const el = shardsRef.current[i];
+        if (el) applyShard(el, shard, 1, 0);
       });
-      setStage(1);
-      if (stepper.current) stepper.current.style.opacity = "0";
+      if (solid.current) solid.current.style.opacity = "1";
+      brandMark()?.classList.add("is-home");
+      if (wrap.current) wrap.current.style.opacity = "0";
+      return;
     }
 
     let raf = 0;
-    let frame = 0;
-    let overDark = true;
-    let cur = 0;
     const render = () => {
-      const vh = window.innerHeight || 800;
-      const p = clamp(window.scrollY / (vh * 0.7));
-      if (!reduce) {
-        paths.forEach((path, i) => {
-          const m = meta[i];
-          const local = clamp((p - m.start) / SPAN);
-          const e = easeOut(local);
-          const off = (1 - e) * DIST;
-          const rot = (1 - e) * m.angle;
-          path.setAttribute(
-            "transform",
-            `translate(${(m.dx * off).toFixed(2)} ${(m.dy * off).toFixed(2)}) rotate(${rot.toFixed(2)} ${m.cx.toFixed(2)} ${m.cy.toFixed(2)})`,
-          );
-          // Blocks are already visible while scattered (the raw "idea"), then
-          // firm up to full opacity as they lock into place ("done").
-          path.style.opacity = String(clamp(0.42 + local * 0.58));
-        });
-        setStage(p);
-        if (stepper.current) {
-          stepper.current.style.opacity = String(1 - clamp((window.scrollY / vh - 0.66) / 0.25));
+      const hero = document.querySelector<HTMLElement>(".hero");
+      const eco = document.querySelector<HTMLElement>("#ecosystem");
+      const vh = window.innerHeight || 1;
+      const scrollY = window.scrollY;
+      const ecoRect = eco?.getBoundingClientRect();
+      const journeyEnd = ecoRect ? ecoRect.bottom + scrollY - vh * 0.2 : (hero?.offsetHeight || vh) * 1.6;
+      const progress = clamp(scrollY / Math.max(journeyEnd, 1));
+      const build = clamp(progress / 0.72) * 0.45;
+      const fuse = clamp((build - 0.22) / 0.2);
+      const shardFade = 1 - fuse;
+      const formed = fuse > 0.98;
+      const tiltT = formed ? clamp((progress - 0.55) / 0.35) : 0;
+      const depth = 1 - clamp((progress - 0.9) / 0.1);
+
+      shards.forEach((shard, i) => {
+        const el = shardsRef.current[i];
+        if (el) applyShard(el, shard, build, shardFade);
+      });
+      if (solid.current) solid.current.style.opacity = fuse.toFixed(3);
+
+      brandMark()?.classList.add("is-home");
+
+      const el = wrap.current;
+      const plane = tilt.current;
+      if (el && plane) {
+        const vw = window.innerWidth;
+        const narrow = vw < 980;
+        const startW = narrow ? Math.min(210, vw * 0.46) : Math.min(380, vw * 0.3);
+        const pitch = 10 * tiltT;
+        const yaw = 16 * tiltT;
+        el.style.position = "fixed";
+        el.style.top = narrow ? "6.2rem" : "18vh";
+        el.style.width = `${startW}px`;
+        el.style.right = "auto";
+        el.style.zIndex = "2";
+        el.style.transform = narrow ? "translateX(-50%)" : "none";
+        if (narrow) {
+          el.style.left = "50%";
+        } else {
+          const inset = Math.max(24, (vw - 1180) / 2 + 12);
+          el.style.left = `${Math.max(inset, vw - inset - startW)}px`;
         }
+        const box = el.getBoundingClientRect();
+        const midY = box.top + box.height * 0.45;
+        const light =
+          (backdropIsLight(box.left + box.width * 0.3, midY) ? 1 : 0) +
+          (backdropIsLight(box.left + box.width * 0.6, midY) ? 1 : 0) +
+          (backdropIsLight(box.left + box.width * 0.5, box.top + box.height * 0.7) ? 1 : 0);
+        const onLight = light / 3;
+        el.style.opacity = (depth * (1 - onLight * 0.88)).toFixed(3);
+        el.classList.toggle("is-on-light", onLight > 0.5);
+        plane.style.transform = formed
+          ? `rotateX(${pitch.toFixed(2)}deg) rotateY(${yaw.toFixed(2)}deg)`
+          : "none";
       }
 
-      if (frame % 6 === 0) overDark = isDarkBehind();
-      frame += 1;
-      // Target opacity: 0 over light sections; peak-while-building then a faint
-      // watermark over dark sections. Lerp to avoid flicker at section edges.
-      let target = 0;
-      if (overDark) {
-        const fade = clamp((window.scrollY / vh - 0.72) / 0.5);
-        target = PEAK - fade * (PEAK - WATERMARK);
-      }
-      cur += (target - cur) * 0.18;
-      if (canvas.current) canvas.current.style.opacity = cur.toFixed(3);
+      const hint = document.querySelector<HTMLElement>(".scroll-hint");
+      if (hint) hint.classList.toggle("is-away", window.scrollY > 48);
+
       raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (!isHome) brandMark()?.classList.add("is-home");
+    };
+  }, [shards, isHome]);
+
+  if (!isHome) return null;
 
   return (
     <div className={`emblem-build ${className ?? ""}`} ref={wrap}>
-      <svg className="emblem-canvas" viewBox={EMBLEM_VIEWBOX} fill="none" aria-hidden="true" ref={canvas}>
-        {EMBLEM_BLOCKS.map((d, i) => (
-          <path
-            key={i}
+      <div className="emblem-tilt" ref={tilt}>
+      <svg
+        className="emblem-canvas"
+        viewBox={EMBLEM_VIEWBOX}
+        width={EMBLEM_WIDTH}
+        height={EMBLEM_HEIGHT}
+        fill="none"
+        aria-hidden="true"
+        overflow="visible"
+        ref={canvas}
+      >
+        {shards.map((shard, i) => (
+          <polygon
+            key={`${shard.x}-${shard.y}-${i}`}
             ref={(el) => {
-              blocks.current[i] = el;
+              shardsRef.current[i] = el;
             }}
-            d={d}
+            points={shard.points}
             fill="currentColor"
-            fillRule="evenodd"
             style={{ opacity: 0 }}
           />
         ))}
+        <g className="emblem-solid" ref={solid} style={{ opacity: 0 }} transform="scale(3.3318181818)">
+          <path d={EMBLEM_MARK_PATH} fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
+        </g>
       </svg>
-      <div className="emblem-stepper" aria-hidden="true" ref={stepper}>
-        <span className="emblem-stepper-eyebrow">From idea to done</span>
-        <div className="emblem-stepper-track">
-          <span className="emblem-stepper-fill" ref={fill} />
-        </div>
-        <div className="emblem-stepper-steps">
-          {BUILD_STAGES.map((label, i) => (
-            <span
-              key={label}
-              className="emblem-step"
-              ref={(el) => {
-                steps.current[i] = el;
-              }}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
       </div>
     </div>
   );

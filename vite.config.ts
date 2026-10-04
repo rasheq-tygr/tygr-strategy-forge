@@ -107,6 +107,7 @@ async function tidyCalReal(
       method,
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(8000),
     });
     const text = await res.text();
     let data: Record<string, unknown> = {};
@@ -216,6 +217,10 @@ function hostingerDevApi(mode: string): Plugin {
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0] || "";
         const query = new URLSearchParams(req.url?.split("?")[1] || "");
+
+        if (url === "/api/google.php") {
+          return json(res, 200, { ok: true, google_client_id: google.clientId });
+        }
 
         if (url === "/api/tidycal.php") {
           const configuredType = tidycal.bookingTypeId;
