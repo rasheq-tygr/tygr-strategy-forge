@@ -29,7 +29,7 @@ export function InsightGrid({ limit, heading = true }: { limit?: number; heading
         {feature ? (
           <Link to={`/insights/${feature.slug}`} className="insight-feature">
             <div className="insight-feature-media">
-              <img src={feature.image} alt="" />
+              <img src={feature.image} alt="" style={feature.imagePosition ? { objectPosition: feature.imagePosition } : undefined} />
             </div>
             <div>
               <div className="meta-row">

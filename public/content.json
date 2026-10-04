@@ -215,8 +215,9 @@
         "date": "2026-02-01",
         "author": "Rasheq Rahman",
         "tags": ["Launch", "Studio"],
-        "image": "/insights/launch/portrait.jpg",
-        "imageAlt": "Rasheq at the launch, in an orange shirt and black vest.",
+        "image": "/insights/launch/standing.jpg",
+        "imageAlt": "Rasheq standing with a guest beside the launch cake.",
+        "imagePosition": "center top",
         "imageCredit": "TYGR Ventures",
         "gallery": [
           {
@@ -225,24 +226,19 @@
             "frame": "lead"
           },
           {
-            "src": "/insights/launch/laugh.jpg",
-            "alt": "Rasheq laughing with two guests.",
+            "src": "/insights/launch/mural.jpg",
+            "alt": "Two guests in front of the mural.",
             "frame": "stack"
           },
           {
-            "src": "/insights/launch/mural.jpg",
-            "alt": "Two guests in front of the mural.",
+            "src": "/insights/launch/coffee.jpg",
+            "alt": "Two guests talking over coffee.",
             "frame": "stack"
           },
           {
             "src": "/insights/launch/cake.jpg",
             "alt": "Sheet cake iced From Idea to Done!, signed Rasheq, with the TYGR Ventures mark.",
             "frame": "band"
-          },
-          {
-            "src": "/insights/launch/coffee.jpg",
-            "alt": "Two guests talking over coffee.",
-            "frame": "solo"
           }
         ]
       },

@@ -48,6 +48,7 @@ export type InsightItem = {
   tags: string[];
   image: string;
   imageAlt?: string;
+  imagePosition?: string;
   imageCredit: string;
   gallery?: InsightPhoto[];
 };
