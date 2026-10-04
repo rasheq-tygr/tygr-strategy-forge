@@ -124,7 +124,7 @@ Create a free app at [unsplash.com/developers](https://unsplash.com/developers) 
 
 ## Booking CTA
 
-The contact section books through `/api/tidycal.php` (server-side TidyCal token). Set `TIDYCAL_TOKEN` and `TIDYCAL_BOOKING_TYPE_ID` in `.env` / `api/config.php`. **Book a call** buttons fall back to the hosted TidyCal page (`contact.tidycalPath`) or `mailto:`.
+**Book a call** opens the hosted TidyCal page (`contact.tidycalPath`) or falls back to `mailto:`.
 
 ## Design notes
 
