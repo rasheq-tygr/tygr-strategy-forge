@@ -153,6 +153,10 @@ export function TigerEmblemBuild({ className }: { className?: string }) {
       const hint = document.querySelector<HTMLElement>(".scroll-hint");
       if (hint) hint.classList.toggle("is-away", window.scrollY > 48);
 
+      // The pointer grid is the field the shards cross. It is gone once they fuse into the mark.
+      const grid = hero?.querySelector<HTMLElement>(".hero-layers");
+      if (grid) grid.style.opacity = (1 - clamp(build / 0.42)).toFixed(3);
+
       raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);

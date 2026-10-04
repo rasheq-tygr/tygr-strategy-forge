@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { EditChrome } from "./components/EditChrome";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
@@ -18,12 +19,33 @@ import { InsightsPage } from "./pages/InsightsPage";
 import { WorkDetailPage } from "./pages/WorkDetailPage";
 import { WorkPage } from "./pages/WorkPage";
 
+function RouteScroll() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: ScrollBehavior = reduce ? "auto" : "smooth";
+    const id = hash.startsWith("#") && !hash.includes("=") ? decodeURIComponent(hash.slice(1)) : "";
+    const target = id ? document.getElementById(id) : null;
+
+    if (target) {
+      target.scrollIntoView({ behavior, block: "start" });
+      return;
+    }
+    if (!hash) window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, hash]);
+
+  return null;
+}
+
 function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="site-shell">
       <TigerEmblemBuild className="page-emblem" />
       <Header />
-      <main>{children}</main>
+      <main id="content" tabIndex={-1}>
+        {children}
+      </main>
       <Footer />
       <EditChrome />
     </div>
@@ -34,6 +56,7 @@ export function App() {
   return (
     <SiteProvider>
       <BrowserRouter>
+        <RouteScroll />
         <Routes>
           <Route
             path="/"

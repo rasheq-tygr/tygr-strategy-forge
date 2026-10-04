@@ -6,6 +6,7 @@ import { Reveal } from "./Reveal";
 export function InsightGrid({ limit, heading = true }: { limit?: number; heading?: boolean }) {
   const { content } = useSite();
   const items = limit ? content.insights.items.slice(0, limit) : content.insights.items;
+  const [feature, ...rest] = items;
 
   return (
     <section className="section cool" id="insights">
@@ -25,27 +26,46 @@ export function InsightGrid({ limit, heading = true }: { limit?: number; heading
             </div>
           </Reveal>
         ) : null}
-        <div className="insight-grid">
-          {items.map((item, i) => (
-            <Reveal key={item.id}>
-              <Link to={`/insights/${item.slug}`} className="card lift-border">
-                <div className="media">
-                  <img src={item.image} alt={item.title} />
-                </div>
-                <div className="meta-row">
-                  <Editable path={`insights.items.${i}.date`} />
-                  <Editable path={`insights.items.${i}.author`} />
-                </div>
-                <h3>
-                  <Editable path={`insights.items.${i}.title`} />
-                </h3>
-                <p>
-                  <Editable path={`insights.items.${i}.excerpt`} multiline />
-                </p>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
+        {feature ? (
+          <Link to={`/insights/${feature.slug}`} className="insight-feature">
+            <div className="insight-feature-media">
+              <img src={feature.image} alt="" />
+            </div>
+            <div>
+              <div className="meta-row">
+                <Editable path="insights.items.0.date" />
+                <Editable path="insights.items.0.author" />
+              </div>
+              <h3>
+                <Editable path="insights.items.0.title" />
+              </h3>
+              <p>
+                <Editable path="insights.items.0.excerpt" multiline />
+              </p>
+            </div>
+          </Link>
+        ) : null}
+        {rest.length ? (
+          <div className="insight-list">
+            {rest.map((item, index) => {
+              const i = index + 1;
+              return (
+                <Link key={item.id} to={`/insights/${item.slug}`} className="insight-row">
+                  <span className="meta-row">
+                    <Editable path={`insights.items.${i}.date`} />
+                    <Editable path={`insights.items.${i}.author`} />
+                  </span>
+                  <h3>
+                    <Editable path={`insights.items.${i}.title`} />
+                  </h3>
+                  <p>
+                    <Editable path={`insights.items.${i}.excerpt`} multiline />
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
         {limit ? (
           <p style={{ marginTop: "1.6rem" }}>
             <Link className="arrow-link" to="/insights">
