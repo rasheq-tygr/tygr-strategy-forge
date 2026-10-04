@@ -1,8 +1,7 @@
 import { useSite } from "../context/SiteContext";
-import { bookingHref } from "../lib/api";
+import { BookingCta } from "./BookingCta";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
-import { TidyCalScheduler } from "./TidyCalScheduler";
 
 export function ContactBlock() {
   const { content } = useSite();
@@ -24,6 +23,9 @@ export function ContactBlock() {
               <p>
                 <Editable path="founder.blurb" multiline />
               </p>
+              <p>
+                <BookingCta className="btn btn-primary" path="contact.cta" />
+              </p>
             </div>
             <div className="contact-meta">
               <p className="eyebrow">
@@ -40,16 +42,6 @@ export function ContactBlock() {
               </a>
             </div>
           </div>
-        </Reveal>
-        <Reveal>
-          <TidyCalScheduler
-            bookingTypeId={content.contact.tidycalBookingTypeId}
-            path={content.contact.tidycalPath}
-            className="contact-tidycal"
-          />
-          <a className="tc-fallback" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
-            <Editable path="contact.cta" /> →
-          </a>
         </Reveal>
       </div>
     </section>

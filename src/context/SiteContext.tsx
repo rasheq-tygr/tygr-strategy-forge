@@ -36,7 +36,6 @@ type SiteContextValue = {
   replace: (next: SiteContent) => void;
   editorEmail: string;
   unlock: (password: string) => Promise<boolean>;
-  unlockWithGoogle: (token: string) => Promise<boolean>;
   lock: () => void;
   save: () => Promise<void>;
 };
@@ -135,17 +134,6 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     return ok;
   }, []);
 
-  const unlockWithGoogle = useCallback(async (token: string) => {
-    const ok = await verifyGoogleToken(token);
-    if (ok) {
-      storeGoogleToken(token);
-      setUnlocked(true);
-      setEditorEmail(decodeIdToken(token)?.email ?? "");
-      setError("");
-    }
-    return ok;
-  }, []);
-
   const lock = useCallback(() => {
     clearCredentials();
     setUnlocked(false);
@@ -179,11 +167,10 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       replace,
       editorEmail,
       unlock,
-      unlockWithGoogle,
       lock,
       save,
     }),
-    [content, unlocked, editorEmail, dirty, status, error, get, set, replace, unlock, unlockWithGoogle, lock, save],
+    [content, unlocked, editorEmail, dirty, status, error, get, set, replace, unlock, lock, save],
   );
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;

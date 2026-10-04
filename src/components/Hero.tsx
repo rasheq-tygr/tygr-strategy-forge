@@ -1,11 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useSite } from "../context/SiteContext";
-import { bookingHref } from "../lib/api";
+import { BookingCta } from "./BookingCta";
 import { Editable } from "./Editable";
 import { LogoTicker } from "./LogoTicker";
 
 export function Hero() {
-  const { content } = useSite();
   const root = useRef<HTMLElement>(null);
   const layers = useRef<HTMLDivElement>(null);
   const target = useRef({ x: 0, y: 0 });
@@ -62,9 +60,7 @@ export function Hero() {
             <Editable path="hero.body" multiline />
           </p>
           <div className="hero-actions">
-            <a className="btn btn-primary" href={bookingHref(content.contact)} target="_blank" rel="noreferrer">
-              <Editable path="hero.primaryCta" />
-            </a>
+            <BookingCta className="btn btn-primary" path="hero.primaryCta" />
             <a className="btn btn-ghost" href="#ecosystem">
               <Editable path="hero.secondaryCta" />
             </a>

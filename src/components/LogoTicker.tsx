@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 import { Editable } from "./Editable";
 
 type Props = {
@@ -38,10 +39,11 @@ export function LogoTicker({ source = "partners", variant = "light" }: Props) {
               </span>
             );
             const key = `${item.name}-${copy}-${idx}`;
-            return item.href ? (
+            const href = safeHref(item.href);
+            return href ? (
               <a
                 key={key}
-                href={item.href}
+                href={href}
                 target="_blank"
                 rel="noreferrer"
                 aria-hidden={hidden || undefined}

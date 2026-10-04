@@ -4,7 +4,7 @@ import { Editable } from "../../components/Editable";
 import { GoogleSignIn } from "../../components/GoogleSignIn";
 import { googleClientId, resolveGoogleClientId } from "../../lib/google";
 
-export function AdminLogin({ onUnlocked }: { onUnlocked: () => void }) {
+export function AdminLogin({ onUnlocked }: { onUnlocked?: () => void } = {}) {
   const { unlock, content, error: siteError } = useSite();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +28,7 @@ export function AdminLogin({ onUnlocked }: { onUnlocked: () => void }) {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const ok = await unlock(password);
-    if (ok) onUnlocked();
+    if (ok) onUnlocked?.();
     else setError("Invalid password");
   };
 
@@ -44,14 +44,10 @@ export function AdminLogin({ onUnlocked }: { onUnlocked: () => void }) {
 
       {!googleChecked && !hasGoogle ? <p className="google-signin-pending">Checking Google sign-in…</p> : null}
 
-      {hasGoogle ? (
-        <>
-          <GoogleSignIn clientId={clientId} onError={setError} />
-          {shownError ? <p style={{ color: "#b45309" }}>{shownError}</p> : null}
-        </>
-      ) : null}
+      {hasGoogle ? <GoogleSignIn clientId={clientId} onError={setError} /> : null}
 
       <form onSubmit={(e) => void onSubmit(e)}>
+        {hasGoogle ? <p className="login-or">or use the editor password</p> : null}
         <label>
           <span className="sr-only">{content.admin.passwordLabel}</span>
           <input
@@ -62,7 +58,7 @@ export function AdminLogin({ onUnlocked }: { onUnlocked: () => void }) {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {!hasGoogle && shownError ? <p style={{ color: "#b45309" }}>{shownError}</p> : null}
+        {shownError ? <p style={{ color: "#b45309" }}>{shownError}</p> : null}
         <button className="btn btn-primary" type="submit">
           {content.admin.submit}
         </button>
