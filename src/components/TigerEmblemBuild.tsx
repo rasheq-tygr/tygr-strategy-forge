@@ -17,7 +17,7 @@ function brandMark() {
 }
 
 function footerMark() {
-  return document.querySelector<SVGElement>(".footer-mark");
+  return document.querySelector<SVGElement>(".footer-mark, .footer .brand svg");
 }
 
 function backdropIsLight(x: number, y: number) {
