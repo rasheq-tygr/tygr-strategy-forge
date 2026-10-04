@@ -122,11 +122,12 @@ export function tidycalUrl(path?: string) {
 
 /**
  * Resolve the "Book a call" destination. Priority: explicit bookingUrl override,
- * then the TidyCal hosted page, then a build-time fallback, then email.
+ * then the in-site contact scheduler (TidyCal embed/API), then a build-time
+ * fallback, then email. The hosted TidyCal URL is only used as a last-resort
+ * fallback inside the scheduler (see `tidycalUrl`).
  */
 export function bookingHref(contact: BookingContact) {
   if (contact.bookingUrl) return contact.bookingUrl;
-  const tidycal = tidycalUrl(contact.tidycalPath);
-  if (tidycal) return tidycal;
+  if (contact.tidycalPath) return "/contact";
   return (import.meta.env.VITE_BOOKING_URL as string) || `mailto:${contact.email}`;
 }
