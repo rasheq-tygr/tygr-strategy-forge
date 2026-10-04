@@ -1250,6 +1250,35 @@ h3,
   white-space: pre-wrap;
 }
 
+.article-cover {
+  width: 100%;
+  margin: 0 0 1.6rem;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+.article-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  width: min(72rem, calc(100vw - 3rem));
+  margin: 2rem auto 0;
+  transform: translateX(-50%);
+  margin-left: 50%;
+}
+
+.article-gallery img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+@media (max-width: 700px) {
+  .article-gallery {
+    grid-template-columns: 1fr;
+  }
+}
+
 .admin {
   min-height: 100vh;
   background: var(--tygr-cream);

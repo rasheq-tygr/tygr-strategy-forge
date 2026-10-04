@@ -35,10 +35,17 @@ export function InsightDetailPage() {
         </div>
       </section>
       <article className="article">
-        {item.image ? <img src={item.image} alt={item.title} style={{ marginBottom: "1.5rem" }} /> : null}
+        {item.image ? <img className="article-cover" src={item.image} alt={item.imageAlt ?? ""} /> : null}
         <p>
           <Editable path={`insights.items.${index}.body`} multiline />
         </p>
+        {item.gallery?.length ? (
+          <div className="article-gallery">
+            {item.gallery.map((photo) => (
+              <img key={photo.src} src={photo.src} alt={photo.alt} />
+            ))}
+          </div>
+        ) : null}
         <p>
           <Link className="arrow-link" to="/insights">
             All insights →
