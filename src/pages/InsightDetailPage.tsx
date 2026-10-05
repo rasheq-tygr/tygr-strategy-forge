@@ -150,10 +150,12 @@ export function InsightDetailPage() {
                 style={hero.position ? { objectPosition: hero.position } : undefined}
               />
             </button>
-            <p className="article-caption">
-              {hero.caption ?? hero.alt}
-              {item.imageCredit ? <span>{item.imageCredit}</span> : null}
-            </p>
+            {hero.caption || hero.alt ? (
+              <p className="article-caption">
+                {hero.caption || hero.alt}
+                {item.imageCredit ? <span>{item.imageCredit}</span> : null}
+              </p>
+            ) : null}
             {thumbs.length > 1 ? (
               <div className="article-thumbs">
                 {thumbs.map((photo, i) => (
