@@ -264,6 +264,21 @@
         "imageCredit": "TYGR Ventures",
         "gallery": [
           {
+            "src": "/insights/launch/room.jpg",
+            "alt": "The launch room, with guests at the tables.",
+            "frame": "wide"
+          },
+          {
+            "src": "/insights/launch/mingling.jpg",
+            "alt": "Guests mingling by the mural and the tree.",
+            "frame": "wide"
+          },
+          {
+            "src": "/insights/launch/gathering.jpg",
+            "alt": "Guests gathered by the mural.",
+            "frame": "wide"
+          },
+          {
             "src": "/insights/launch/friends.jpg",
             "alt": "Two guests smiling under the lanterns.",
             "frame": "lead"
@@ -274,8 +289,8 @@
             "frame": "stack"
           },
           {
-            "src": "/insights/launch/floor.jpg",
-            "alt": "A guest laughing under the tree.",
+            "src": "/insights/launch/coffee.jpg",
+            "alt": "Two guests talking over coffee.",
             "frame": "stack"
           },
           {
@@ -286,27 +301,12 @@
           {
             "src": "/insights/launch/celebrate.jpg",
             "alt": "Guests at the cake table with gifts and plates.",
-            "frame": "lead"
-          },
-          {
-            "src": "/insights/launch/coffee.jpg",
-            "alt": "Two guests talking over coffee.",
-            "frame": "stack"
+            "frame": "wide"
           },
           {
             "src": "/insights/launch/circle.jpg",
             "alt": "Guests talking together in the room.",
-            "frame": "stack"
-          },
-          {
-            "src": "/insights/launch/room.jpg",
-            "alt": "The launch room, with guests at the tables.",
-            "frame": "solo"
-          },
-          {
-            "src": "/insights/launch/gathering.jpg",
-            "alt": "Guests gathered by the mural.",
-            "frame": "solo"
+            "frame": "wide"
           }
         ]
       },

@@ -34,7 +34,7 @@ export type WorkItem = {
 export type InsightPhoto = {
   src: string;
   alt: string;
-  frame?: "lead" | "stack" | "band" | "solo" | "tile";
+  frame?: "lead" | "stack" | "band" | "solo" | "tile" | "wide";
 };
 
 export type InsightItem = {

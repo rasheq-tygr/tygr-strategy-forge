@@ -1301,6 +1301,10 @@ h3,
   grid-column: span 12;
 }
 
+.article-shot-wide {
+  grid-column: span 12;
+}
+
 .article-shot-tile {
   grid-column: span 3;
 }
@@ -1308,6 +1312,11 @@ h3,
 .article-shot-band img {
   aspect-ratio: 2.4 / 1;
   object-position: center 30%;
+}
+
+.article-shot-wide img {
+  aspect-ratio: 16 / 9;
+  object-position: center 42%;
 }
 
 .article-shot-solo {
@@ -1355,7 +1364,8 @@ h3,
   }
 
   .article-shot-lead,
-  .article-shot-band {
+  .article-shot-band,
+  .article-shot-wide {
     grid-column: 1 / -1;
     grid-row: auto;
   }
