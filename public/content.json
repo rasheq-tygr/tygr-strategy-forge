@@ -266,47 +266,57 @@
           {
             "src": "/insights/launch/room.jpg",
             "alt": "The launch room, with guests at the tables.",
-            "frame": "wide"
-          },
-          {
-            "src": "/insights/launch/mingling.jpg",
-            "alt": "Guests mingling by the mural and the tree.",
-            "frame": "wide"
-          },
-          {
-            "src": "/insights/launch/gathering.jpg",
-            "alt": "Guests gathered by the mural.",
-            "frame": "wide"
-          },
-          {
-            "src": "/insights/launch/friends.jpg",
-            "alt": "Two guests smiling under the lanterns.",
-            "frame": "lead"
-          },
-          {
-            "src": "/insights/launch/mural.jpg",
-            "alt": "Two guests in front of the mural.",
-            "frame": "stack"
-          },
-          {
-            "src": "/insights/launch/coffee.jpg",
-            "alt": "Two guests talking over coffee.",
-            "frame": "stack"
+            "caption": "The room on launch night.",
+            "after": 0,
+            "layout": "wide"
           },
           {
             "src": "/insights/launch/cake.jpg",
             "alt": "Sheet cake iced From Idea to Done!, signed Rasheq, with the TYGR Ventures mark.",
-            "frame": "band"
+            "caption": "The cake: From Idea to Done!",
+            "after": 1,
+            "layout": "band"
           },
           {
             "src": "/insights/launch/celebrate.jpg",
             "alt": "Guests at the cake table with gifts and plates.",
-            "frame": "wide"
+            "caption": "Cutting the cake.",
+            "after": 1,
+            "layout": "wide"
+          },
+          {
+            "src": "/insights/launch/mingling.jpg",
+            "alt": "Guests mingling by the mural and the tree.",
+            "caption": "Every node in the same room.",
+            "after": 2,
+            "layout": "wide"
+          },
+          {
+            "src": "/insights/launch/friends.jpg",
+            "alt": "Two guests smiling under the lanterns.",
+            "caption": "Guests under the lanterns.",
+            "after": 3,
+            "layout": "inline"
+          },
+          {
+            "src": "/insights/launch/gathering.jpg",
+            "alt": "Guests gathered by the mural.",
+            "caption": "Conversation by the mural."
+          },
+          {
+            "src": "/insights/launch/mural.jpg",
+            "alt": "Two guests in front of the mural.",
+            "caption": "Two guests by the mural."
+          },
+          {
+            "src": "/insights/launch/coffee.jpg",
+            "alt": "Two guests talking over coffee.",
+            "caption": "A conversation over coffee."
           },
           {
             "src": "/insights/launch/circle.jpg",
             "alt": "Guests talking together in the room.",
-            "frame": "wide"
+            "caption": "The circle in the room."
           }
         ]
       },

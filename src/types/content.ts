@@ -34,6 +34,9 @@ export type WorkItem = {
 export type InsightPhoto = {
   src: string;
   alt: string;
+  caption?: string;
+  after?: number;
+  layout?: "inline" | "wide" | "band";
   frame?: "lead" | "stack" | "band" | "solo" | "tile" | "wide";
 };
 
