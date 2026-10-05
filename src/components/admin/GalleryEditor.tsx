@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { MediaPicker } from "../MediaPicker";
 import type { InsightPhoto } from "../../types/content";
 import { SelectField, TextField } from "./Field";
@@ -9,6 +10,9 @@ const emptyPhoto = (): InsightPhoto => ({
   layout: "wide",
 });
 
+let nextRowId = 0;
+const makeRowId = () => `gallery-row-${++nextRowId}`;
+
 type Props = {
   photos: InsightPhoto[];
   paragraphCount: number;
@@ -16,6 +20,16 @@ type Props = {
 };
 
 export function GalleryEditor({ photos, paragraphCount, onChange }: Props) {
+  const rowIds = useRef<string[]>([]);
+  if (rowIds.current.length < photos.length) {
+    rowIds.current = [
+      ...rowIds.current,
+      ...Array.from({ length: photos.length - rowIds.current.length }, makeRowId),
+    ];
+  } else if (rowIds.current.length > photos.length) {
+    rowIds.current = rowIds.current.slice(0, photos.length);
+  }
+
   const update = (index: number, patch: Partial<InsightPhoto>) => {
     onChange(photos.map((photo, i) => (i === index ? { ...photo, ...patch } : photo)));
   };
@@ -25,7 +39,20 @@ export function GalleryEditor({ photos, paragraphCount, onChange }: Props) {
     const target = index + delta;
     if (target < 0 || target >= next.length) return;
     [next[index], next[target]] = [next[target], next[index]];
+    const ids = [...rowIds.current];
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    rowIds.current = ids;
     onChange(next);
+  };
+
+  const remove = (index: number) => {
+    rowIds.current = rowIds.current.filter((_, i) => i !== index);
+    onChange(photos.filter((_, i) => i !== index));
+  };
+
+  const addImage = () => {
+    rowIds.current = [...rowIds.current, makeRowId()];
+    onChange([...photos, emptyPhoto()]);
   };
 
   const afterOptions = [
@@ -35,8 +62,6 @@ export function GalleryEditor({ photos, paragraphCount, onChange }: Props) {
       label: `After paragraph ${i + 1}`,
     })),
   ];
-
-  const addImage = () => onChange([...photos, emptyPhoto()]);
 
   return (
     <div className="editor-gallery">
@@ -62,7 +87,7 @@ export function GalleryEditor({ photos, paragraphCount, onChange }: Props) {
         <p className="editor-empty">No gallery yet. Add a gallery, then add photos one by one.</p>
       ) : null}
       {photos.map((photo, index) => (
-        <div className="editor-gallery-item" key={`${photo.src || "new"}-${index}`}>
+        <div className="editor-gallery-item" key={rowIds.current[index]}>
           <div className="editor-section-head">
             <strong>Image {index + 1}</strong>
             <div className="editor-inline-actions">
@@ -72,7 +97,7 @@ export function GalleryEditor({ photos, paragraphCount, onChange }: Props) {
               <button type="button" disabled={index === photos.length - 1} onClick={() => move(index, 1)}>
                 Down
               </button>
-              <button type="button" onClick={() => onChange(photos.filter((_, i) => i !== index))}>
+              <button type="button" onClick={() => remove(index)}>
                 Remove
               </button>
             </div>
@@ -106,7 +131,7 @@ export function GalleryEditor({ photos, paragraphCount, onChange }: Props) {
           />
           <SelectField
             label="Layout"
-            value={photo.layout ?? "inline"}
+            value={photo.layout ?? "wide"}
             onChange={(layout) => update(index, { layout: layout as InsightPhoto["layout"] })}
             options={[
               { value: "inline", label: "Inline (article width)" },

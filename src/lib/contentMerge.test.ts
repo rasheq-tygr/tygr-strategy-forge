@@ -50,6 +50,32 @@ describe("contentMerge", () => {
     assert.equal(next.image, "/brand/launch-cover.png");
   });
 
+  it("keeps an intentionally cleared gallery when the host has a real cover", () => {
+    const host = baseInsight({
+      gallery: [],
+      image: "/uploads/custom-cover.jpg",
+      imageAlt: "Custom cover",
+    });
+    const shipped = baseInsight({
+      gallery: [{ src: "/insights/launch/room.jpg", alt: "Room" }],
+      image: "/insights/launch/standing.jpg",
+    });
+    const next = fillInsightMedia(host, shipped);
+    assert.deepEqual(next.gallery, []);
+    assert.equal(next.image, "/uploads/custom-cover.jpg");
+  });
+
+  it("restores a shipped gallery when the host gallery field is missing", () => {
+    const host = baseInsight();
+    delete (host as { gallery?: InsightItem["gallery"] }).gallery;
+    const shipped = baseInsight({
+      gallery: [{ src: "/insights/launch/room.jpg", alt: "Room" }],
+      image: "/insights/launch/standing.jpg",
+    });
+    const next = fillInsightMedia(host, shipped);
+    assert.equal(next.gallery?.[0].src, "/insights/launch/room.jpg");
+  });
+
   it("merges matching insight items on the site content object", () => {
     const remote = shell(baseInsight());
     const fallback = shell(

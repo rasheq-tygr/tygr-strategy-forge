@@ -1,6 +1,12 @@
+import { useEffect, useState } from "react";
+
 function splitBody(body: string) {
-  const parts = body.split(/\n\n+/).map((part) => part.trim());
-  return parts.length ? parts : [""];
+  if (!body) return [""];
+  return body.split(/\n\n+/);
+}
+
+function joinBody(parts: string[]) {
+  return parts.length ? parts.join("\n\n") : "";
 }
 
 type Props = {
@@ -9,15 +15,16 @@ type Props = {
 };
 
 export function ParagraphEditor({ value, onChange }: Props) {
-  const paragraphs = splitBody(value);
+  const [paragraphs, setParagraphs] = useState(() => splitBody(value));
+
+  useEffect(() => {
+    setParagraphs(splitBody(value));
+  }, [value]);
 
   const commit = (next: string[]) => {
-    onChange(
-      next
-        .map((part) => part.trim())
-        .filter((part, _index, all) => part || all.length === 1)
-        .join("\n\n"),
-    );
+    const safe = next.length ? next : [""];
+    setParagraphs(safe);
+    onChange(joinBody(safe));
   };
 
   return (

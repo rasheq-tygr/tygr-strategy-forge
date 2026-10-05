@@ -1,6 +1,10 @@
 import type { InsightItem, SiteContent } from "../types/content";
 
-/** Fill in gallery/cover media from the shipped fallback when the host CMS copy is empty. */
+function isBrandOrEmptyCover(image: string | undefined) {
+  return !image || image.startsWith("/brand/");
+}
+
+/** Fill in gallery/cover media from the shipped fallback when the host CMS copy looks stale. */
 export function mergeInsightMedia(remote: SiteContent, fallback: SiteContent): SiteContent {
   const fallbackItems = fallback.insights?.items ?? [];
   const items = (remote.insights?.items ?? []).map((item) => {
@@ -18,11 +22,17 @@ export function mergeInsightMedia(remote: SiteContent, fallback: SiteContent): S
 }
 
 export function fillInsightMedia(item: InsightItem, shipped: InsightItem): InsightItem {
-  const remoteGallery = item.gallery ?? [];
   const shippedGallery = shipped.gallery ?? [];
-  if (remoteGallery.length > 0 || shippedGallery.length === 0) return item;
+  if (shippedGallery.length === 0) return item;
 
-  const brandCover = !item.image || item.image.startsWith("/brand/");
+  const galleryMissing = item.gallery == null;
+  const galleryEmptyAndStaleCover =
+    Array.isArray(item.gallery) && item.gallery.length === 0 && isBrandOrEmptyCover(item.image);
+
+  // Respect an explicit empty gallery when the host already has a real cover photo.
+  if (!galleryMissing && !galleryEmptyAndStaleCover) return item;
+
+  const brandCover = isBrandOrEmptyCover(item.image);
   return {
     ...item,
     gallery: shippedGallery,
