@@ -1453,29 +1453,172 @@ h3,
   cursor: pointer;
 }
 
+.editor-page-head {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+
+.editor-page-head .lede {
+  margin: 0.4rem 0 0;
+  max-width: 36rem;
+}
+
 .editor-list {
   display: grid;
-  gap: 1rem;
+  gap: 1.4rem;
 }
 
 .editor-card {
   background: #fff;
   border: var(--hairline-light);
-  padding: 1.1rem;
+  padding: 1.25rem;
   display: grid;
-  gap: 0.55rem;
+  gap: 1.2rem;
+}
+
+.editor-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+}
+
+.editor-card h3 {
+  margin: 0 0 0.7rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.editor-section {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.2rem;
+  border-top: var(--hairline-light);
+}
+
+.editor-section:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.editor-section-head {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.editor-inline-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.editor-inline-actions button,
+.editor-section-head > button {
+  border: var(--hairline-light);
+  background: #fff;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor-inline-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.editor-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.editor-field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.editor-field-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(18, 21, 28, 0.62);
+}
+
+.editor-field-hint,
+.editor-empty {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(18, 21, 28, 0.62);
+}
+
+.editor-error {
+  margin: 0;
+  color: #b45309;
+  font-size: 0.85rem;
 }
 
 .editor-card input,
-.editor-card textarea {
+.editor-card textarea,
+.editor-card select {
   width: 100%;
   border: var(--hairline-light);
   padding: 0.55rem 0.65rem;
   background: var(--tygr-cream-light);
+  font: inherit;
 }
 
 .editor-card textarea {
   min-height: 7rem;
+}
+
+.editor-paragraphs,
+.editor-gallery {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.editor-paragraph,
+.editor-gallery-item {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.85rem;
+  border: var(--hairline-light);
+  background: var(--tygr-cream-light);
+}
+
+.editor-media {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.editor-media-preview {
+  max-height: 160px;
+  width: auto;
+  object-fit: cover;
+  background: var(--tygr-navy);
+}
+
+.editor-media-search {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+@media (max-width: 700px) {
+  .editor-grid-2,
+  .editor-media-search {
+    grid-template-columns: 1fr;
+  }
 }
 
 .media-grid {

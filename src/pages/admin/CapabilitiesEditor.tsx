@@ -1,3 +1,4 @@
+import { AreaField, TextField } from "../../components/admin/Field";
 import { useSite } from "../../context/SiteContext";
 import type { CapabilityItem } from "../../types/content";
 
@@ -19,21 +20,51 @@ export function CapabilitiesEditor() {
 
   return (
     <div>
-      <h1 className="display-lg">Capabilities editor</h1>
-      <p>
-        <button className="btn btn-primary" type="button" onClick={() => replace({ ...content, capabilities: { ...content.capabilities, items: [...items, emptyCap()] } })}>
+      <div className="editor-page-head">
+        <div>
+          <h1 className="display-lg">Capabilities editor</h1>
+          <p className="lede">Number, title, and the short description for each square.</p>
+        </div>
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={() =>
+            replace({
+              ...content,
+              capabilities: { ...content.capabilities, items: [...items, emptyCap()] },
+            })
+          }
+        >
           Add capability
         </button>
-      </p>
+      </div>
       <div className="editor-list">
         {items.map((item, i) => (
           <article className="editor-card" key={item.id}>
-            <input value={item.number} onChange={(e) => update(i, { number: e.target.value })} />
-            <input value={item.title} onChange={(e) => update(i, { title: e.target.value })} />
-            <textarea value={item.body} onChange={(e) => update(i, { body: e.target.value })} />
-            <button type="button" onClick={() => replace({ ...content, capabilities: { ...content.capabilities, items: items.filter((_, n) => n !== i) } })}>
-              Remove
-            </button>
+            <div className="editor-section-head">
+              <h2>{item.title || "Untitled capability"}</h2>
+              <button
+                type="button"
+                onClick={() =>
+                  replace({
+                    ...content,
+                    capabilities: {
+                      ...content.capabilities,
+                      items: items.filter((_, n) => n !== i),
+                    },
+                  })
+                }
+              >
+                Remove
+              </button>
+            </div>
+            <div className="editor-section">
+              <div className="editor-grid-2">
+                <TextField label="Number" value={item.number} onChange={(number) => update(i, { number })} />
+                <TextField label="Title" value={item.title} onChange={(title) => update(i, { title })} />
+              </div>
+              <AreaField label="Description" value={item.body} onChange={(body) => update(i, { body })} />
+            </div>
           </article>
         ))}
       </div>
