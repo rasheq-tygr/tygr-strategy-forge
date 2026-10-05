@@ -18,9 +18,12 @@ import {
   verifyGoogleToken,
   verifyPassword,
 } from "../lib/api";
+import { mergeInsightMedia } from "../lib/contentMerge";
 import { consumeGoogleRedirect, decodeIdToken } from "../lib/google";
 import { getByPath, setByPath } from "../lib/paths";
 import { isSiteContent, type SiteContent } from "../types/content";
+
+const shippedContent = fallback as SiteContent;
 
 type Status = "idle" | "saving" | "saved" | "error";
 
@@ -44,7 +47,7 @@ type SiteContextValue = {
 const SiteContext = createContext<SiteContextValue | null>(null);
 
 export function SiteProvider({ children }: { children: ReactNode }) {
-  const [content, setContent] = useState<SiteContent>(fallback as SiteContent);
+  const [content, setContent] = useState<SiteContent>(shippedContent);
   const [unlocked, setUnlocked] = useState(false);
   const [editorEmail, setEditorEmail] = useState("");
   const [dirty, setDirty] = useState(false);
@@ -56,7 +59,9 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     fetch("/content.json", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!cancelled && isSiteContent(data)) setContent(data);
+        if (!cancelled && isSiteContent(data)) {
+          setContent(mergeInsightMedia(data, shippedContent));
+        }
       })
       .catch(() => undefined);
     return () => {

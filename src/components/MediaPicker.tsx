@@ -5,9 +5,10 @@ import { searchUnsplash, type UnsplashPhoto } from "../lib/unsplash";
 type Props = {
   value: string;
   onChange: (url: string, credit?: string) => void;
+  label?: string;
 };
 
-export function MediaPicker({ value, onChange }: Props) {
+export function MediaPicker({ value, onChange, label = "Image" }: Props) {
   const [query, setQuery] = useState("");
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
   const [busy, setBusy] = useState("");
@@ -40,37 +41,36 @@ export function MediaPicker({ value, onChange }: Props) {
   };
 
   return (
-    <div>
-      {value ? <img src={value} alt="" style={{ maxHeight: 120, marginBottom: 8 }} /> : null}
-      <input
-        placeholder="Image URL"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+    <div className="editor-media">
+      <p className="editor-field-label">{label}</p>
+      <p className="editor-field-hint">Upload a file, paste a URL, or pull from Unsplash.</p>
+      {value ? <img className="editor-media-preview" src={value} alt="" /> : null}
+      <label className="editor-field">
+        <span className="editor-field-label">Image URL</span>
+        <input value={value} onChange={(event) => onChange(event.target.value)} />
+      </label>
+      <label className="editor-field">
+        <span className="editor-field-label">Upload file</span>
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
           onChange={(e) => void onUpload(e.target.files?.[0])}
         />
-        <input
-          placeholder="Search Unsplash"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button type="button" onClick={() => void onSearch()} disabled={busy === "search"}>
-          {busy === "search" ? "Searching…" : "Pull from Unsplash"}
+      </label>
+      <div className="editor-media-search">
+        <label className="editor-field">
+          <span className="editor-field-label">Search Unsplash</span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} />
+        </label>
+        <button type="button" className="btn btn-ghost" onClick={() => void onSearch()} disabled={busy === "search"}>
+          {busy === "search" ? "Searching…" : busy === "upload" ? "Uploading…" : "Pull from Unsplash"}
         </button>
       </div>
-      {error ? <p style={{ color: "#b45309" }}>{error}</p> : null}
+      {error ? <p className="editor-error">{error}</p> : null}
       {photos.length ? (
-        <div className="media-grid" style={{ marginTop: 10 }}>
+        <div className="media-grid">
           {photos.map((p) => (
-            <button
-              type="button"
-              key={p.id}
-              onClick={() => onChange(p.regular, `${p.credit} / Unsplash`)}
-            >
+            <button type="button" key={p.id} onClick={() => onChange(p.regular, `${p.credit} / Unsplash`)}>
               <img src={p.thumb} alt={p.alt} />
             </button>
           ))}
