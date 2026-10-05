@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "TYGR Ventures — From idea to done, block by block",
-    "description": "TYGR Ventures takes ideas from concept to completion — plan, build, and deliver. Strategy consulting for Fortune 500s, startups, and government agencies."
+    "title": "TYGR Ventures \u2014 From idea to done, block by block",
+    "description": "TYGR Ventures takes ideas from concept to completion \u2014 plan, build, and deliver. Strategy consulting for Fortune 500s, startups, and government agencies."
   },
   "brand": {
     "name": "TYGR Ventures",
@@ -10,40 +10,61 @@
   },
   "nav": {
     "links": [
-      { "label": "Ecosystem", "href": "/#ecosystem" },
-      { "label": "Capabilities", "href": "/#capabilities" },
-      { "label": "Work", "href": "/work" },
-      { "label": "Insights", "href": "/insights" }
+      {
+        "label": "Ecosystem",
+        "href": "/#ecosystem"
+      },
+      {
+        "label": "Capabilities",
+        "href": "/#capabilities"
+      },
+      {
+        "label": "Work",
+        "href": "/work"
+      },
+      {
+        "label": "Insights",
+        "href": "/insights"
+      }
     ],
     "cta": "Book a call"
   },
   "hero": {
-    "eyebrow": "Strategy · Technology · Delivery",
-    "titleLead": "From idea to done —",
+    "eyebrow": "Strategy \u00b7 Technology \u00b7 Delivery",
+    "titleLead": "From idea to done \u2014",
     "titleAccent": "block by block.",
-    "body": "TYGR Ventures takes ideas from concept to completion — plan, build, and deliver. A studio, not a brochure: we design the operating system around a venture, then ship until the system holds.",
+    "body": "TYGR Ventures takes ideas from concept to completion \u2014 plan, build, and deliver. A studio, not a brochure: we design the operating system around a venture, then ship until the system holds.",
     "primaryCta": "Book a call",
     "secondaryCta": "See the ecosystem"
   },
   "stats": {
     "items": [
-      { "value": "1 hub", "label": "TYGR Ventures at the center" },
-      { "value": "6 orbits", "label": "Labs, academy, products, partners" },
-      { "value": "3 notes", "label": "Strategy, technology, delivery" }
+      {
+        "value": "1 hub",
+        "label": "TYGR Ventures at the center"
+      },
+      {
+        "value": "6 orbits",
+        "label": "Labs, academy, products, partners"
+      },
+      {
+        "value": "3 notes",
+        "label": "Strategy, technology, delivery"
+      }
     ]
   },
   "ecosystem": {
     "eyebrow": "The orbit",
     "title": "One hub. A living ecosystem.",
-    "body": "Most firms sell a slide. We run a system. Ventures, labs, academies, and delivery partners orbit the same center of gravity — so strategy has somewhere to land.",
+    "body": "Most firms sell a slide. We run a system. Ventures, labs, academies, and delivery partners orbit the same center of gravity \u2014 so strategy has somewhere to land.",
     "hubLabel": "TYGR Ventures",
     "hubBody": "The studio at the center. Venture design, capital of attention, and the operating cadence that keeps every node honest.",
     "nodes": [
       {
         "id": "tygrlabs",
         "name": "TygrLabs",
-        "role": "Client · tech arm",
-        "summary": "RideCentric's back-office technology arm and a TYGR client — we work alongside them to turn product ideas into systems that ship.",
+        "role": "Client \u00b7 tech arm",
+        "summary": "RideCentric's back-office technology arm and a TYGR client \u2014 we work alongside them to turn product ideas into systems that ship.",
         "url": ""
       },
       {
@@ -57,7 +78,7 @@
         "id": "ridecentric",
         "name": "RideCentric",
         "role": "Product venture",
-        "summary": "A product company in the orbit whose back-office technology is built and run by its tech arm, TygrLabs — proof the studio works with operating businesses, not just advisory decks.",
+        "summary": "A product company in the orbit whose back-office technology is built and run by its tech arm, TygrLabs \u2014 proof the studio works with operating businesses, not just advisory decks.",
         "url": ""
       },
       {
@@ -77,8 +98,8 @@
       {
         "id": "wikiidea",
         "name": "WikiIdea",
-        "role": "Lab · in development",
-        "summary": "A collaborative platform for capturing, developing, and connecting ideas — turning raw concepts into actionable plans. Seeking partners and early adopters.",
+        "role": "Lab \u00b7 in development",
+        "summary": "A collaborative platform for capturing, developing, and connecting ideas \u2014 turning raw concepts into actionable plans. Seeking partners and early adopters.",
         "url": "https://wikiidea.org"
       }
     ]
@@ -92,7 +113,7 @@
         "id": "strategy",
         "number": "01",
         "title": "Venture strategy",
-        "body": "Positioning, operating models, and the few decisions that actually compound. Written so a team can execute on Monday — not admire on Friday."
+        "body": "Positioning, operating models, and the few decisions that actually compound. Written so a team can execute on Monday \u2014 not admire on Friday."
       },
       {
         "id": "technology",
@@ -110,7 +131,7 @@
         "id": "ecosystems",
         "number": "04",
         "title": "Ecosystem design",
-        "body": "Map the nodes, the incentives, and the handoffs. Then stand up the orbit — ventures, labs, and partners that make each other more valuable."
+        "body": "Map the nodes, the incentives, and the handoffs. Then stand up the orbit \u2014 ventures, labs, and partners that make each other more valuable."
       }
     ]
   },
@@ -126,10 +147,13 @@
         "client": "Job Search Command Center",
         "title": "One desk for a search that used to live in tabs",
         "summary": "A search scatters across boards, inboxes, and half-written notes. The command center holds roles, follow-ups, and the narrative in one operating picture.",
-        "body": "A job search fails the same way a venture does: the work is real, and the system around it is not. Listings sit in one tab, contacts in another, and the story of the candidate in a document nobody opens on Monday.\n\nJob Search Command Center is the desk. Sources come in. Each role has a state, a next move, and a place in the pipeline. The narrative — what this person actually does — stays attached to the search instead of being rewritten from scratch for every posting.\n\nThe point is cadence, not another tracker. A search can be staffed: what is live, what is going cold, and what has to happen before the week is over.",
+        "body": "A job search fails the same way a venture does: the work is real, and the system around it is not. Listings sit in one tab, contacts in another, and the story of the candidate in a document nobody opens on Monday.\n\nJob Search Command Center is the desk. Sources come in. Each role has a state, a next move, and a place in the pipeline. The narrative \u2014 what this person actually does \u2014 stays attached to the search instead of being rewritten from scratch for every posting.\n\nThe point is cadence, not another tracker. A search can be staffed: what is live, what is going cold, and what has to happen before the week is over.",
         "outcome": "One operating picture for roles, follow-ups, and the candidate narrative, so the search can be run instead of reassembled.",
         "year": "2026",
-        "tags": ["Product", "Operating system"],
+        "tags": [
+          "Product",
+          "Operating system"
+        ],
         "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -139,10 +163,13 @@
         "client": "Mac News",
         "title": "A morning briefing, not a pile of feeds",
         "summary": "Newsletters, posts, and links do not become a briefing on their own. Mac News pulls a chosen set of sources onto one desk so the morning starts from a system.",
-        "body": "Most reading setups are a pile: an inbox of newsletters, a social feed, and a row of bookmarks that all claim to be the morning. Nothing in that pile knows what was already read, or what is worth the first ten minutes.\n\nMac News is a desk on the machine. The sources are chosen. They land in one reading surface, in an order a person can finish. The briefing is the product — not another stream that grows while you look at it.\n\nIt stays close to the reader. The point is a system you can open, finish, and leave, not a feed that has to be managed.",
+        "body": "Most reading setups are a pile: an inbox of newsletters, a social feed, and a row of bookmarks that all claim to be the morning. Nothing in that pile knows what was already read, or what is worth the first ten minutes.\n\nMac News is a desk on the machine. The sources are chosen. They land in one reading surface, in an order a person can finish. The briefing is the product \u2014 not another stream that grows while you look at it.\n\nIt stays close to the reader. The point is a system you can open, finish, and leave, not a feed that has to be managed.",
         "outcome": "A single morning briefing assembled from chosen sources, with a start and a stop.",
         "year": "2026",
-        "tags": ["Product", "Editorial"],
+        "tags": [
+          "Product",
+          "Editorial"
+        ],
         "image": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -152,10 +179,13 @@
         "client": "AI Index",
         "title": "A map of the field, not a pile of claims",
         "summary": "Models, vendors, and announcements arrive faster than a team can compare them. AI Index is the map: what exists, how it differs, and what is worth a next conversation.",
-        "body": "An AI landscape goes stale the week it is written down. A slide of logos is not a decision. A thread of announcements is not a comparison.\n\nAI Index holds the field as an index a team can use. Entries stay comparable: what the thing is, where it sits, and how it relates to the nodes already in the system. New claims get a place in the map instead of a new document.\n\nThe studio use is practical. When a venture needs a build path, the index is where the options already live — not a research project that starts over each time the question comes up.",
+        "body": "An AI landscape goes stale the week it is written down. A slide of logos is not a decision. A thread of announcements is not a comparison.\n\nAI Index holds the field as an index a team can use. Entries stay comparable: what the thing is, where it sits, and how it relates to the nodes already in the system. New claims get a place in the map instead of a new document.\n\nThe studio use is practical. When a venture needs a build path, the index is where the options already live \u2014 not a research project that starts over each time the question comes up.",
         "outcome": "A living index of the field, so a team can choose a next step without rebuilding the landscape from scratch.",
         "year": "2026",
-        "tags": ["Product", "Strategy"],
+        "tags": [
+          "Product",
+          "Strategy"
+        ],
         "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -164,11 +194,15 @@
         "slug": "global-coaching-federation",
         "client": "Global coaching federation",
         "title": "Operating system for a credentialing body",
-        "summary": "A worldwide coaching credentialing organization needed its digital, education, and membership motions to behave like one system — not three departments.",
+        "summary": "A worldwide coaching credentialing organization needed its digital, education, and membership motions to behave like one system \u2014 not three departments.",
         "body": "We treated the organization as an ecosystem: credentialing, education, and member experience as orbiting nodes with a shared operating cadence. The work was strategy that could be staffed, plus the delivery path to make it real. Client name withheld pending clearance.",
         "outcome": "A single narrative and build sequence across digital experience, education, and membership operations.",
         "year": "2024",
-        "tags": ["Strategy", "Delivery", "Enablement"],
+        "tags": [
+          "Strategy",
+          "Delivery",
+          "Enablement"
+        ],
         "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -177,11 +211,14 @@
         "slug": "equifinality-solutions",
         "client": "Equifinality Solutions",
         "title": "Partnered delivery, one operating picture",
-        "summary": "A strategy partnership with Equifinality Solutions — aligning advisory work to systems that can actually be implemented.",
-        "body": "Equifinality Solutions and TYGR met at the seam between diagnosis and build. We paired their advisory depth with TYGR’s studio cadence so recommendations arrived with an owner, a sequence, and a path into software and enablement.",
+        "summary": "A strategy partnership with Equifinality Solutions \u2014 aligning advisory work to systems that can actually be implemented.",
+        "body": "Equifinality Solutions and TYGR met at the seam between diagnosis and build. We paired their advisory depth with TYGR\u2019s studio cadence so recommendations arrived with an owner, a sequence, and a path into software and enablement.",
         "outcome": "Shared delivery language and a repeatable handoff from insight to shipped system.",
         "year": "2025",
-        "tags": ["Partnership", "Strategy"],
+        "tags": [
+          "Partnership",
+          "Strategy"
+        ],
         "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -190,11 +227,14 @@
         "slug": "clybor-consulting",
         "client": "Clybor Consulting",
         "title": "Consulting that lands in the orbit",
-        "summary": "Work with Clybor Consulting on the messy middle — where a client has a point of view and still needs a system around it.",
+        "summary": "Work with Clybor Consulting on the messy middle \u2014 where a client has a point of view and still needs a system around it.",
         "body": "Clybor Consulting brings operator judgment. TYGR brings the studio: product, partners, and the academy motion when the constraint is capability, not slides. Together the engagement stays human and still ships.",
         "outcome": "A partner model that keeps advisory work connected to build and enablement.",
         "year": "2025",
-        "tags": ["Partnership", "Delivery"],
+        "tags": [
+          "Partnership",
+          "Delivery"
+        ],
         "image": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       }
@@ -211,10 +251,13 @@
         "slug": "tygr-ventures-launch",
         "title": "TYGR Ventures is live.",
         "excerpt": "We threw a launch party and turned the lights on the orbit. Here are the faces from the room, the cake, and where the studio goes from here.",
-        "body": "TYGR Ventures is officially live — and we launched it the way we intend to work: in a room full of the people who make the system real.\n\nFebruary 1, the cake said the whole company in one line: From Idea to Done! Under it, a note of thanks to the clients, partners, friends, and family for inspiring us to build products and services that improve the world.\n\nThe idea was never a brochure. It was an ecosystem with a hub. TYGR Ventures sits at the center; TygrLabs turns ideas into systems; Punch makes engineering a partner instead of an afterthought; Rebl and RideCentric keep us accountable to real products; Casper Academy / BrainWrk trains people into the work. On launch night, for the first time, every node was in the same room.\n\nThank you to the founders, operators, and partners who came out. Some of you have trusted us with the messy middle of your business; some of you are about to. Either way, you are the reason this studio exists — the brand is the founder, and the founder stays close to the work.\n\nThe promise is simple and it is the whole company: from idea to done. Not a slide. Not a phase two. A system you can staff on Monday.\n\nWhat's next: we're opening a small number of venture-design engagements this quarter, continuing to build inside TygrLabs, and bringing the academy loop to more teams. If you were in the room — or wish you had been — book a call and bring the real constraint.",
+        "body": "TYGR Ventures is officially live \u2014 and we launched it the way we intend to work: in a room full of the people who make the system real.\n\nFebruary 1, the cake said the whole company in one line: From Idea to Done! Under it, a note of thanks to the clients, partners, friends, and family for inspiring us to build products and services that improve the world.\n\nThe idea was never a brochure. It was an ecosystem with a hub. TYGR Ventures sits at the center; TygrLabs turns ideas into systems; Punch makes engineering a partner instead of an afterthought; Rebl and RideCentric keep us accountable to real products; Casper Academy / BrainWrk trains people into the work. On launch night, for the first time, every node was in the same room.\n\nThank you to the founders, operators, and partners who came out. Some of you have trusted us with the messy middle of your business; some of you are about to. Either way, you are the reason this studio exists \u2014 the brand is the founder, and the founder stays close to the work.\n\nThe promise is simple and it is the whole company: from idea to done. Not a slide. Not a phase two. A system you can staff on Monday.\n\nWhat's next: we're opening a small number of venture-design engagements this quarter, continuing to build inside TygrLabs, and bringing the academy loop to more teams. If you were in the room \u2014 or wish you had been \u2014 book a call and bring the real constraint.",
         "date": "2026-02-01",
         "author": "Rasheq Rahman",
-        "tags": ["Launch", "Studio"],
+        "tags": [
+          "Launch",
+          "Studio"
+        ],
         "image": "/insights/launch/standing.jpg",
         "imageAlt": "Rasheq standing with a guest beside the launch cake.",
         "imagePosition": "center top",
@@ -231,8 +274,8 @@
             "frame": "stack"
           },
           {
-            "src": "/insights/launch/window.jpg",
-            "alt": "Two guests laughing by the window.",
+            "src": "/insights/launch/floor.jpg",
+            "alt": "A guest laughing under the tree.",
             "frame": "stack"
           },
           {
@@ -241,39 +284,29 @@
             "frame": "band"
           },
           {
-            "src": "/insights/launch/circle.jpg",
-            "alt": "Guests talking together, including a woman in a red hijab.",
+            "src": "/insights/launch/celebrate.jpg",
+            "alt": "Guests at the cake table with gifts and plates.",
             "frame": "lead"
-          },
-          {
-            "src": "/insights/launch/shawl.jpg",
-            "alt": "Three guests in conversation, one in a pink shawl.",
-            "frame": "stack"
-          },
-          {
-            "src": "/insights/launch/plates.jpg",
-            "alt": "Two guests with plates of cake.",
-            "frame": "stack"
-          },
-          {
-            "src": "/insights/launch/table.jpg",
-            "alt": "Guests talking over food.",
-            "frame": "tile"
           },
           {
             "src": "/insights/launch/coffee.jpg",
             "alt": "Two guests talking over coffee.",
-            "frame": "tile"
+            "frame": "stack"
+          },
+          {
+            "src": "/insights/launch/circle.jpg",
+            "alt": "Guests talking together in the room.",
+            "frame": "stack"
+          },
+          {
+            "src": "/insights/launch/room.jpg",
+            "alt": "The launch room, with guests at the tables.",
+            "frame": "solo"
           },
           {
             "src": "/insights/launch/gathering.jpg",
             "alt": "Guests gathered by the mural.",
-            "frame": "tile"
-          },
-          {
-            "src": "/insights/launch/tree.jpg",
-            "alt": "Guests talking under the tree.",
-            "frame": "tile"
+            "frame": "solo"
           }
         ]
       },
@@ -281,11 +314,14 @@
         "id": "ecosystems-not-brochures",
         "slug": "ecosystems-not-brochures",
         "title": "Stop selling the brochure. Build the orbit.",
-        "excerpt": "A website is not a strategy. An ecosystem is a set of nodes that make each other more valuable — and a hub that refuses to let them drift.",
+        "excerpt": "A website is not a strategy. An ecosystem is a set of nodes that make each other more valuable \u2014 and a hub that refuses to let them drift.",
         "body": "Most professional firms still ship a brochure and call it a brand. The brochure describes services as a list. An ecosystem describes gravity.\n\nTYGR Ventures sits at the center because someone has to hold the cadence. TygrLabs exists so ideas have a place to become systems. Casper Academy / BrainWrk exists so people can be trained into the work. RideCentric and Rebl exist so the studio is accountable to real products. Punch exists so software engineering is a partner, not a vendor afterthought.\n\nIf a node cannot explain how it makes another node stronger, it is decoration. Cut it or reconnect it.",
         "date": "2026-03-12",
         "author": "Rasheq Rahman",
-        "tags": ["Ecosystem", "Strategy"],
+        "tags": [
+          "Ecosystem",
+          "Strategy"
+        ],
         "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -294,10 +330,13 @@
         "slug": "strategy-that-ships",
         "title": "Strategy that can survive a Monday.",
         "excerpt": "If the recommendation cannot be staffed, sequenced, and shipped, it is still a wish. We write for operators.",
-        "body": "The test is rude and useful: can a sharp operator take the strategy into a Monday standup without translating it first?\n\nThat is why TYGR keeps delivery in the same room as strategy. Punch and TygrLabs are not ‘phase two.’ They are how we find out whether the model is true. Casper Academy / BrainWrk is how we find out whether humans can actually run it.\n\nActionable strategy is not louder strategy. It is strategy with a surface area — product, cadence, partners — where it can fail in public and get better.",
+        "body": "The test is rude and useful: can a sharp operator take the strategy into a Monday standup without translating it first?\n\nThat is why TYGR keeps delivery in the same room as strategy. Punch and TygrLabs are not \u2018phase two.\u2019 They are how we find out whether the model is true. Casper Academy / BrainWrk is how we find out whether humans can actually run it.\n\nActionable strategy is not louder strategy. It is strategy with a surface area \u2014 product, cadence, partners \u2014 where it can fail in public and get better.",
         "date": "2026-05-02",
         "author": "Rasheq Rahman",
-        "tags": ["Delivery", "Operating models"],
+        "tags": [
+          "Delivery",
+          "Operating models"
+        ],
         "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       },
@@ -306,10 +345,13 @@
         "slug": "academy-to-product-loop",
         "title": "The academy-to-product loop",
         "excerpt": "Enablement that never touches a product is theater. Product that never teaches the operator is abandoned software.",
-        "body": "Casper Academy / BrainWrk is in the orbit for a reason. Ventures fail in the gap between the system we built and the people asked to live in it.\n\nThe loop is simple: ship a thin system, teach the motion, watch where operators stall, then change the product — not the slide. Repeat until the system holds without the founder in the room.\n\nThat is the personal part of this brand. I will not sell a transformation I would not sit in.",
+        "body": "Casper Academy / BrainWrk is in the orbit for a reason. Ventures fail in the gap between the system we built and the people asked to live in it.\n\nThe loop is simple: ship a thin system, teach the motion, watch where operators stall, then change the product \u2014 not the slide. Repeat until the system holds without the founder in the room.\n\nThat is the personal part of this brand. I will not sell a transformation I would not sit in.",
         "date": "2026-07-18",
         "author": "Rasheq Rahman",
-        "tags": ["Academy", "Product"],
+        "tags": [
+          "Academy",
+          "Product"
+        ],
         "image": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1600&q=80",
         "imageCredit": "Unsplash"
       }
@@ -319,26 +361,74 @@
     "eyebrow": "In orbit",
     "title": "Partners and nodes",
     "items": [
-      { "name": "TygrLabs", "href": "https://tygrlabs.co" },
-      { "name": "Casper Academy", "href": "https://casper.academy" },
-      { "name": "BrainWrk", "href": "https://brainwrk.ai" },
-      { "name": "RideCentric", "href": "https://ridecentric.com" },
-      { "name": "Rebl", "href": "" },
-      { "name": "Punch", "href": "https://punch.cool" },
-      { "name": "Equifinality Solutions", "href": "https://equifinalitysolutions.com" },
-      { "name": "Clybor Consulting", "href": "https://clyborconsulting.com" }
+      {
+        "name": "TygrLabs",
+        "href": "https://tygrlabs.co"
+      },
+      {
+        "name": "Casper Academy",
+        "href": "https://casper.academy"
+      },
+      {
+        "name": "BrainWrk",
+        "href": "https://brainwrk.ai"
+      },
+      {
+        "name": "RideCentric",
+        "href": "https://ridecentric.com"
+      },
+      {
+        "name": "Rebl",
+        "href": ""
+      },
+      {
+        "name": "Punch",
+        "href": "https://punch.cool"
+      },
+      {
+        "name": "Equifinality Solutions",
+        "href": "https://equifinalitysolutions.com"
+      },
+      {
+        "name": "Clybor Consulting",
+        "href": "https://clyborconsulting.com"
+      }
     ]
   },
   "proof": {
     "eyebrow": "Rooms we have sat in",
     "title": "Institutions",
     "items": [
-      { "name": "Goldman Sachs", "href": "", "logo": "/logos/goldman-sachs.svg" },
-      { "name": "Yale University", "href": "", "logo": "/logos/yale.png" },
-      { "name": "IBM", "href": "", "logo": "/logos/ibm.png" },
-      { "name": "Defense Innovation Unit", "href": "", "logo": "/logos/diu.png" },
-      { "name": "Leidos", "href": "", "logo": "/logos/leidos.png" },
-      { "name": "IEEE", "href": "", "logo": "/logos/ieee.svg" }
+      {
+        "name": "Goldman Sachs",
+        "href": "",
+        "logo": "/logos/goldman-sachs.svg"
+      },
+      {
+        "name": "Yale University",
+        "href": "",
+        "logo": "/logos/yale.png"
+      },
+      {
+        "name": "IBM",
+        "href": "",
+        "logo": "/logos/ibm.png"
+      },
+      {
+        "name": "Defense Innovation Unit",
+        "href": "",
+        "logo": "/logos/diu.png"
+      },
+      {
+        "name": "Leidos",
+        "href": "",
+        "logo": "/logos/leidos.png"
+      },
+      {
+        "name": "IEEE",
+        "href": "",
+        "logo": "/logos/ieee.svg"
+      }
     ]
   },
   "testimonials": {
@@ -364,7 +454,7 @@
         "name": "Jennifer Park",
         "role": "Director of Strategy",
         "company": "Global Dynamics",
-        "quote": "The best strategic partner we've worked with. They don't just advise — they roll up their sleeves and deliver."
+        "quote": "The best strategic partner we've worked with. They don't just advise \u2014 they roll up their sleeves and deliver."
       }
     ]
   },
@@ -384,11 +474,11 @@
   "founder": {
     "name": "Rasheq Rahman",
     "role": "Founder",
-    "blurb": "The brand is the founder. I stay close to the work — strategy, systems, and the people who have to run them."
+    "blurb": "The brand is the founder. I stay close to the work \u2014 strategy, systems, and the people who have to run them."
   },
   "footer": {
     "blurb": "A studio for actionable strategy and shipped systems. Washington, DC and wherever the orbit needs us.",
-    "copyright": "© TYGR Ventures",
+    "copyright": "\u00a9 TYGR Ventures",
     "editHint": "Editor login"
   },
   "social": {
@@ -402,7 +492,7 @@
     "passwordLabel": "Edit password",
     "submit": "Enter editor",
     "save": "Save to host",
-    "saving": "Saving…",
+    "saving": "Saving\u2026",
     "saved": "Saved",
     "unsaved": "Unsaved changes"
   }
