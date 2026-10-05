@@ -31,6 +31,15 @@ export type WorkItem = {
   imageCredit: string;
 };
 
+export type InsightPhoto = {
+  src: string;
+  alt: string;
+  caption?: string;
+  after?: number;
+  layout?: "inline" | "wide" | "band";
+  frame?: "lead" | "stack" | "band" | "solo" | "tile" | "wide";
+};
+
 export type InsightItem = {
   id: string;
   slug: string;
@@ -41,7 +50,10 @@ export type InsightItem = {
   author: string;
   tags: string[];
   image: string;
+  imageAlt?: string;
+  imagePosition?: string;
   imageCredit: string;
+  gallery?: InsightPhoto[];
 };
 
 export type PartnerItem = { name: string; href: string; logo?: string };
