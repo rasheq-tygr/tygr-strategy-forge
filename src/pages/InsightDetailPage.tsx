@@ -122,8 +122,25 @@ export function InsightDetailPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="wrap">
+      <section className={hero ? "page-hero is-photo" : "page-hero"}>
+        {hero ? (
+          <>
+            <button
+              type="button"
+              className="page-hero-media"
+              onClick={() => setOpen(hero)}
+              aria-label={hero.alt ? `View ${hero.alt}` : "View cover photo"}
+            >
+              <img
+                src={hero.src}
+                alt=""
+                style={hero.position ? { objectPosition: hero.position } : undefined}
+              />
+            </button>
+            <div className="page-hero-veil" aria-hidden />
+          </>
+        ) : null}
+        <div className="wrap page-hero-copy">
           <p className="eyebrow">
             <Editable path={`insights.items.${index}.date`} />
           </p>
@@ -136,42 +153,31 @@ export function InsightDetailPage() {
           <p className="article-byline">
             By <Editable path={`insights.items.${index}.author`} />
           </p>
+          {hero?.caption || hero?.alt ? (
+            <p className="page-hero-caption">
+              {hero.caption || hero.alt}
+              {item.imageCredit ? <span>{item.imageCredit}</span> : null}
+            </p>
+          ) : null}
+          {thumbs.length > 1 ? (
+            <div className="article-thumbs is-on-hero">
+              {thumbs.map((photo, i) => (
+                <button
+                  key={photo.src}
+                  type="button"
+                  className={`article-thumb${i === active ? " is-on" : ""}`}
+                  aria-label={photo.alt || `Photo ${i + 1}`}
+                  aria-pressed={i === active}
+                  onClick={() => setActive(i)}
+                >
+                  <img src={photo.src} alt="" />
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       </section>
       <article className="article">
-        {hero ? (
-          <div className="article-stage">
-            <button type="button" className="article-hero" onClick={() => setOpen(hero)}>
-              <img
-                src={hero.src}
-                alt={hero.alt}
-                style={hero.position ? { objectPosition: hero.position } : undefined}
-              />
-            </button>
-            {hero.caption || hero.alt ? (
-              <p className="article-caption">
-                {hero.caption || hero.alt}
-                {item.imageCredit ? <span>{item.imageCredit}</span> : null}
-              </p>
-            ) : null}
-            {thumbs.length > 1 ? (
-              <div className="article-thumbs">
-                {thumbs.map((photo, i) => (
-                  <button
-                    key={photo.src}
-                    type="button"
-                    className={`article-thumb${i === active ? " is-on" : ""}`}
-                    aria-label={photo.alt || `Photo ${i + 1}`}
-                    aria-pressed={i === active}
-                    onClick={() => setActive(i)}
-                  >
-                    <img src={photo.src} alt="" />
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
         {blocks.map((block, i) => (
           <div key={i} className="article-block">
             <RichText source={block} className="article-rich article-graf" />
