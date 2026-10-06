@@ -6,9 +6,10 @@ type Props = {
   value: string;
   onChange: (url: string, credit?: string) => void;
   label?: string;
+  compact?: boolean;
 };
 
-export function MediaPicker({ value, onChange, label = "Image" }: Props) {
+export function MediaPicker({ value, onChange, label = "Image", compact = false }: Props) {
   const [query, setQuery] = useState("");
   const [photos, setPhotos] = useState<UnsplashPhoto[]>([]);
   const [busy, setBusy] = useState("");
@@ -41,22 +42,28 @@ export function MediaPicker({ value, onChange, label = "Image" }: Props) {
   };
 
   return (
-    <div className="editor-media">
-      <p className="editor-field-label">{label}</p>
-      <p className="editor-field-hint">Upload a file, paste a URL, or pull from Unsplash.</p>
-      {value ? <img className="editor-media-preview" src={value} alt="" /> : null}
-      <label className="editor-field">
-        <span className="editor-field-label">Image URL</span>
-        <input value={value} onChange={(event) => onChange(event.target.value)} />
-      </label>
-      <label className="editor-field">
-        <span className="editor-field-label">Upload file</span>
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-          onChange={(e) => void onUpload(e.target.files?.[0])}
-        />
-      </label>
+    <div className={`editor-media${compact ? " is-compact" : ""}`}>
+      <div className="editor-media-head">
+        <div>
+          <p className="editor-field-label">{label}</p>
+          <p className="editor-field-hint">Upload, paste a URL, or pull from Unsplash.</p>
+        </div>
+        {value ? <img className="editor-media-preview" src={value} alt="" /> : null}
+      </div>
+      <div className={compact ? "editor-grid-2" : undefined}>
+        <label className="editor-field">
+          <span className="editor-field-label">Image URL</span>
+          <input value={value} onChange={(event) => onChange(event.target.value)} />
+        </label>
+        <label className="editor-field">
+          <span className="editor-field-label">Upload file</span>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+            onChange={(e) => void onUpload(e.target.files?.[0])}
+          />
+        </label>
+      </div>
       <div className="editor-media-search">
         <label className="editor-field">
           <span className="editor-field-label">Search Unsplash</span>
