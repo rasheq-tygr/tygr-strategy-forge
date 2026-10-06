@@ -40,7 +40,10 @@ export function RichBodyEditor({ value, onChange, showBlockHint = false }: Props
   return (
     <div className="editor-rich-body">
       <div className="editor-section-head">
-        <h3>Body</h3>
+        <p className="editor-field-hint">
+          Markdown and HTML
+          {showBlockHint ? ` · ${countBodyBlocks(value)} gallery block(s)` : ""}
+        </p>
         <div className="editor-inline-actions">
           <button
             type="button"
@@ -58,10 +61,6 @@ export function RichBodyEditor({ value, onChange, showBlockHint = false }: Props
           </button>
         </div>
       </div>
-      <p className="editor-field-hint">
-        Markdown and HTML. Separate blocks with a blank line
-        {showBlockHint ? ` — gallery placement uses those ${countBodyBlocks(value)} block(s).` : "."}
-      </p>
 
       {mode === "write" ? (
         <>
@@ -99,17 +98,20 @@ export function RichBodyEditor({ value, onChange, showBlockHint = false }: Props
             />
           </label>
           {showBlockHint && blocks.length ? (
-            <ol className="editor-rich-blocks">
-              {blocks.map((block, index) => (
-                <li key={index}>
-                  <strong>Block {index + 1}</strong>
-                  <span>
-                    {block.replace(/\s+/g, " ").slice(0, 80)}
-                    {block.length > 80 ? "…" : ""}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <details className="editor-rich-blocks-details">
+              <summary>Block outline ({blocks.length})</summary>
+              <ol className="editor-rich-blocks">
+                {blocks.map((block, index) => (
+                  <li key={index}>
+                    <strong>Block {index + 1}</strong>
+                    <span>
+                      {block.replace(/\s+/g, " ").slice(0, 80)}
+                      {block.length > 80 ? "…" : ""}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </details>
           ) : null}
         </>
       ) : (
