@@ -6,32 +6,33 @@ import { Reveal } from "./Reveal";
 export function Capabilities({ limit, heading = true }: { limit?: number; heading?: boolean }) {
   const { content } = useSite();
   const items = limit ? content.capabilities.items.slice(0, limit) : content.capabilities.items;
+  const dense = items.length > 4;
 
   return (
     <section className="section cream" id="capabilities">
       <div className="wrap">
         {heading ? (
-        <Reveal>
-          <div className="section-head">
-            <p className="eyebrow">
-              <Editable path="capabilities.eyebrow" />
-            </p>
-            <h2 className="display-lg">
-              <Editable path="capabilities.title" />
-            </h2>
-            <p>
-              <Editable path="capabilities.body" multiline />
-            </p>
-          </div>
-        </Reveal>
+          <Reveal>
+            <div className="section-head">
+              <p className="eyebrow">
+                <Editable path="capabilities.eyebrow" />
+              </p>
+              <h2 className="display-lg">
+                <Editable path="capabilities.title" />
+              </h2>
+              <p>
+                <Editable path="capabilities.body" multiline />
+              </p>
+            </div>
+          </Reveal>
         ) : null}
-        <div className="cap-list">
+        <div className={`cap-index${dense ? " is-dense" : ""}`}>
           {items.map((item, i) => (
-            <Reveal key={item.id} className={`cap-row cap-tone-${i % 4}`}>
+            <Reveal key={item.id} className={`cap-item cap-tone-${i % 4}`}>
               <p className="cap-number">
                 <Editable path={`capabilities.items.${i}.number`} />
               </p>
-              <div>
+              <div className="cap-copy">
                 <h3>
                   <Editable path={`capabilities.items.${i}.title`} />
                 </h3>
