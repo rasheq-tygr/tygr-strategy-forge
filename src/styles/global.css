@@ -552,12 +552,44 @@ h3,
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 1;
   min-width: 0;
   min-height: 0;
-  padding: 1rem 0.95rem 0.9rem;
+  padding: 1.15rem 1.05rem 1rem;
   border: 0;
   transition: transform 160ms ease;
+}
+
+/* Four topics: classic 2×2 equal squares. */
+.cap-mosaic.is-four .cap-tile {
+  aspect-ratio: 1;
+  padding: 1.25rem 1.15rem 1.1rem;
+}
+
+.cap-mosaic.is-four .cap-tile h3 {
+  font-size: 1.35rem;
+}
+
+.cap-mosaic.is-four .cap-tile .cap-copy p {
+  -webkit-line-clamp: 4;
+  font-size: 0.92rem;
+}
+
+/* More topics: still squares, but smaller via wider grids. */
+.cap-mosaic.is-six .cap-tile,
+.cap-mosaic.is-many .cap-tile {
+  padding: 0.95rem 0.9rem 0.85rem;
+}
+
+.cap-mosaic.is-six .cap-tile h3,
+.cap-mosaic.is-many .cap-tile h3 {
+  font-size: 1.1rem;
+}
+
+.cap-mosaic.is-six .cap-tile .cap-copy p,
+.cap-mosaic.is-many .cap-tile .cap-copy p {
+  -webkit-line-clamp: 3;
+  font-size: 0.85rem;
 }
 
 .cap-tile:hover,
