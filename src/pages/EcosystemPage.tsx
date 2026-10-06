@@ -1,11 +1,11 @@
-import { Capabilities } from "../components/Capabilities";
+import { EcosystemOrbit } from "../components/EcosystemOrbit";
 import { Editable } from "../components/Editable";
 import { PageHero } from "../components/PageHero";
 import { useSite } from "../context/SiteContext";
 
-export function CapabilitiesPage() {
+export function EcosystemPage() {
   const { content } = useSite();
-  const hero = content.capabilities;
+  const hero = content.ecosystem;
 
   return (
     <>
@@ -16,16 +16,16 @@ export function CapabilitiesPage() {
         imageCredit={hero.imageCredit}
       >
         <p className="eyebrow">
-          <Editable path="capabilities.eyebrow" />
+          <Editable path="ecosystem.eyebrow" />
         </p>
         <h1 className="display-lg">
-          <Editable path="capabilities.title" />
+          <Editable path="ecosystem.title" />
         </h1>
         <p className="lede">
-          <Editable path="capabilities.body" multiline />
+          <Editable path="ecosystem.body" multiline />
         </p>
       </PageHero>
-      <Capabilities heading={false} />
+      <EcosystemOrbit heading={false} />
     </>
   );
 }

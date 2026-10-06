@@ -11,8 +11,10 @@ import { AdminLayout } from "./pages/admin/AdminLayout";
 import { BlogEditor } from "./pages/admin/BlogEditor";
 import { CapabilitiesEditor } from "./pages/admin/CapabilitiesEditor";
 import { CaseStudyEditor } from "./pages/admin/CaseStudyEditor";
+import { EcosystemEditor } from "./pages/admin/EcosystemEditor";
 import { CapabilitiesPage } from "./pages/CapabilitiesPage";
 import { ContactPage } from "./pages/ContactPage";
+import { EcosystemPage } from "./pages/EcosystemPage";
 import { HomePage } from "./pages/HomePage";
 import { InsightDetailPage } from "./pages/InsightDetailPage";
 import { InsightsPage } from "./pages/InsightsPage";
@@ -99,6 +101,14 @@ export function App() {
             }
           />
           <Route
+            path="/ecosystem"
+            element={
+              <PublicLayout>
+                <EcosystemPage />
+              </PublicLayout>
+            }
+          />
+          <Route
             path="/capabilities"
             element={
               <PublicLayout>
@@ -119,6 +129,7 @@ export function App() {
             <Route path="insights" element={<BlogEditor />} />
             <Route path="work" element={<CaseStudyEditor />} />
             <Route path="capabilities" element={<CapabilitiesEditor />} />
+            <Route path="ecosystem" element={<EcosystemEditor />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

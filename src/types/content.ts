@@ -2,6 +2,20 @@ export type NavLink = { label: string; href: string };
 
 export type StatItem = { value: string; label: string };
 
+export type SectionHero = {
+  image?: string;
+  imageAlt?: string;
+  imageCredit?: string;
+  imagePosition?: string;
+};
+
+export type EcosystemApp = {
+  id: string;
+  name: string;
+  role: string;
+  url: string;
+};
+
 export type EcosystemNode = {
   id: string;
   name: string;
@@ -28,7 +42,10 @@ export type WorkItem = {
   year: string;
   tags: string[];
   image: string;
+  imageAlt?: string;
+  imagePosition?: string;
   imageCredit: string;
+  url?: string;
 };
 
 export type InsightPhoto = {
@@ -79,21 +96,24 @@ export type SiteContent = {
     secondaryCta: string;
   };
   stats: { items: StatItem[] };
-  ecosystem: {
+  ecosystem: SectionHero & {
     eyebrow: string;
     title: string;
     body: string;
     hubLabel: string;
     hubBody: string;
     nodes: EcosystemNode[];
+    appsEyebrow?: string;
+    appsTitle?: string;
+    apps?: EcosystemApp[];
   };
-  capabilities: {
+  capabilities: SectionHero & {
     eyebrow: string;
     title: string;
     body: string;
     items: CapabilityItem[];
   };
-  work: {
+  work: SectionHero & {
     eyebrow: string;
     title: string;
     body: string;

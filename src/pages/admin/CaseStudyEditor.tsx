@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Accordion } from "../../components/admin/Accordion";
 import { AreaField, TextField } from "../../components/admin/Field";
 import { RichBodyEditor } from "../../components/admin/RichBodyEditor";
+import { SectionHeroFields } from "../../components/admin/SectionHeroFields";
 import { Tabs } from "../../components/admin/Tabs";
 import { MediaPicker } from "../../components/MediaPicker";
 import { useSite } from "../../context/SiteContext";
@@ -22,13 +23,17 @@ const emptyStudy = (): WorkItem => ({
   year: String(new Date().getFullYear()),
   tags: [],
   image: "",
+  imageAlt: "",
+  imagePosition: "",
   imageCredit: "",
+  url: "",
 });
 
 export function CaseStudyEditor() {
   const { content, replace, markClean } = useSite();
   const items = content.work.items;
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
+  const [heroOpen, setHeroOpen] = useState(false);
   const [sectionByItem, setSectionByItem] = useState<Record<string, string>>({});
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(() => new Set());
   const [newIds, setNewIds] = useState<Set<string>>(() => new Set());
@@ -83,7 +88,7 @@ export function CaseStudyEditor() {
       <div className="editor-page-head">
         <div>
           <h1 className="display-lg">Case studies editor</h1>
-          <p className="lede">Save each study on its own accordion when you are done editing it.</p>
+          <p className="lede">Save each study on its own accordion when you are done editing it. The work page hero photo uses Save in the admin bar.</p>
         </div>
         <button
           className="btn btn-primary"
@@ -100,6 +105,22 @@ export function CaseStudyEditor() {
         </button>
       </div>
       <div className="editor-list">
+        <Accordion
+          title="Page hero"
+          subtitle={content.work.image ? "photo set" : "no photo"}
+          open={heroOpen}
+          onToggle={() => setHeroOpen((value) => !value)}
+        >
+          <SectionHeroFields
+            value={content.work}
+            onChange={(patch) =>
+              replace({
+                ...content,
+                work: { ...content.work, ...patch },
+              })
+            }
+          />
+        </Accordion>
         {items.map((item, i) => {
           const section = sectionByItem[item.id] ?? "details";
           const isDirty = dirtyIds.has(item.id) || newIds.has(item.id);
@@ -173,6 +194,13 @@ export function CaseStudyEditor() {
                             value={item.slug}
                             onChange={(slug) => update(i, { slug: slugify(slug) })}
                           />
+                          <TextField
+                            label="Live URL"
+                            value={item.url ?? ""}
+                            onChange={(url) => update(i, { url })}
+                            hint="Optional public app or product URL."
+                            placeholder="https://"
+                          />
                         </div>
                         <TextField
                           label="Tags"
@@ -210,11 +238,25 @@ export function CaseStudyEditor() {
                             update(i, { image: url, imageCredit: credit || item.imageCredit })
                           }
                         />
-                        <TextField
-                          label="Image credit"
-                          value={item.imageCredit}
-                          onChange={(imageCredit) => update(i, { imageCredit })}
-                        />
+                        <div className="editor-grid-2">
+                          <TextField
+                            label="Image alt text"
+                            value={item.imageAlt ?? ""}
+                            onChange={(imageAlt) => update(i, { imageAlt })}
+                          />
+                          <TextField
+                            label="Image credit"
+                            value={item.imageCredit}
+                            onChange={(imageCredit) => update(i, { imageCredit })}
+                          />
+                          <TextField
+                            label="Object position"
+                            value={item.imagePosition ?? ""}
+                            onChange={(imagePosition) => update(i, { imagePosition })}
+                            hint='Optional, e.g. "center top".'
+                            placeholder="center top"
+                          />
+                        </div>
                       </div>
                     ),
                   },

@@ -12,7 +12,7 @@ export function WorkGrid({ limit, heading = true }: { limit?: number; heading?: 
   const current = items[activeIndex];
 
   return (
-    <section className="section cream" id="work">
+    <section className={`section cream${heading ? "" : " is-flush"}`} id="work">
       <div className="wrap">
         {heading ? (
           <Reveal>

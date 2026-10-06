@@ -7,8 +7,8 @@ export function AdminHome() {
     <div>
       <h1 className="display-lg">Editors</h1>
       <p className="lede">
-        Dedicated editors for blog posts, case studies, and capabilities. Public pages stay
-        inline-editable once unlocked. Password matches <code>EDIT_PASSWORD</code>.
+        Dedicated editors for blog posts, case studies, capabilities, and the ecosystem page.
+        Public pages stay inline-editable once unlocked. Password matches <code>EDIT_PASSWORD</code>.
       </p>
       <div className="cap-grid" style={{ marginTop: "1.5rem" }}>
         <Link className="card lift-border" to="/admin/insights">
@@ -22,6 +22,10 @@ export function AdminHome() {
         <Link className="card lift-border" to="/admin/capabilities">
           <h3>Capabilities</h3>
           <p>{content.capabilities.items.length} items</p>
+        </Link>
+        <Link className="card lift-border" to="/admin/ecosystem">
+          <h3>Ecosystem</h3>
+          <p>{content.ecosystem.apps?.length ?? 0} studio apps</p>
         </Link>
       </div>
     </div>

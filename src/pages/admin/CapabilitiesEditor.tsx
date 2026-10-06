@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Accordion } from "../../components/admin/Accordion";
 import { AreaField, TextField } from "../../components/admin/Field";
+import { SectionHeroFields } from "../../components/admin/SectionHeroFields";
 import { useSite } from "../../context/SiteContext";
 import { deleteCollectionItem, saveCollectionItem } from "../../lib/api";
 import type { CapabilityItem } from "../../types/content";
@@ -18,6 +19,7 @@ export function CapabilitiesEditor() {
   const { content, replace, markClean } = useSite();
   const items = content.capabilities.items;
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
+  const [heroOpen, setHeroOpen] = useState(false);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(() => new Set());
   const [newIds, setNewIds] = useState<Set<string>>(() => new Set());
   const [statusById, setStatusById] = useState<Record<string, ItemStatus>>({});
@@ -71,7 +73,7 @@ export function CapabilitiesEditor() {
       <div className="editor-page-head">
         <div>
           <h1 className="display-lg">Capabilities editor</h1>
-          <p className="lede">Save each capability from its accordion when you are ready.</p>
+          <p className="lede">Save each capability from its accordion when you are ready. The page hero photo uses Save in the admin bar.</p>
         </div>
         <button
           className="btn btn-primary"
@@ -91,6 +93,22 @@ export function CapabilitiesEditor() {
         </button>
       </div>
       <div className="editor-list">
+        <Accordion
+          title="Page hero"
+          subtitle={content.capabilities.image ? "photo set" : "no photo"}
+          open={heroOpen}
+          onToggle={() => setHeroOpen((value) => !value)}
+        >
+          <SectionHeroFields
+            value={content.capabilities}
+            onChange={(patch) =>
+              replace({
+                ...content,
+                capabilities: { ...content.capabilities, ...patch },
+              })
+            }
+          />
+        </Accordion>
         {items.map((item, i) => {
           const isDirty = dirtyIds.has(item.id) || newIds.has(item.id);
           const status = statusById[item.id] ?? "idle";
