@@ -26,4 +26,10 @@ describe("richText", () => {
     assert.doesNotMatch(html, /onclick/i);
     assert.match(html, /Hi/);
   });
+
+  it("strips javascript and data URLs from links", () => {
+    const html = renderRichHtml('[x](javascript:alert(1)) [y](data:text/html,hi)');
+    assert.doesNotMatch(html, /javascript:/i);
+    assert.doesNotMatch(html, /data:/i);
+  });
 });

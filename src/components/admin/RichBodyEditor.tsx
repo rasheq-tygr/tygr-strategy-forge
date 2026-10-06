@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { countBodyBlocks, renderRichHtml, splitBodyBlocks } from "../../lib/richText";
+import { countBodyBlocks, renderRichBlocksHtml, splitBodyBlocks } from "../../lib/richText";
 
 type Props = {
   value: string;
@@ -21,7 +21,7 @@ export function RichBodyEditor({ value, onChange, showBlockHint = false }: Props
   const [mode, setMode] = useState<Mode>("write");
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const blocks = useMemo(() => splitBodyBlocks(value), [value]);
-  const previewHtml = useMemo(() => renderRichHtml(value), [value]);
+  const previewHtml = useMemo(() => renderRichBlocksHtml(value), [value]);
 
   const insertAtCursor = (before: string, after = "") => {
     const textarea = areaRef.current;
