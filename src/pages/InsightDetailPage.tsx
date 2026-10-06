@@ -163,12 +163,12 @@ export function InsightDetailPage() {
       </section>
       <article className="article">
         {thumbs.length > 1 ? (
-          <div className="article-thumbs" role="tablist" aria-label="Gallery">
+          <div className="article-picker" role="tablist" aria-label="Gallery">
             {thumbs.map((photo, i) => (
               <button
                 key={photo.src}
                 type="button"
-                className={`article-thumb${i === active ? " is-on" : ""}`}
+                className={`article-pick${i === active ? " is-on" : ""}`}
                 aria-label={photo.alt || `Photo ${i + 1}`}
                 aria-pressed={i === active}
                 onClick={() => setActive(i)}

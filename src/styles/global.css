@@ -1572,19 +1572,21 @@ button.page-hero-media {
   color: rgba(18, 21, 28, 0.45);
 }
 
-.article-thumbs {
+.article-picker {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.4rem;
-  margin: 0 auto 1.8rem;
-  max-width: 100%;
+  gap: 0.5rem;
+  margin: 0 auto 2rem;
+  width: 100%;
+  max-width: 32rem;
   overflow: hidden;
+  overflow-x: clip;
 }
 
-.article-thumb {
-  flex: 0 0 4.6rem;
-  width: 4.6rem;
+.article-pick {
+  flex: 0 0 5rem;
+  width: 5rem;
   min-width: 0;
   padding: 0;
   border: 2px solid transparent;
@@ -1592,20 +1594,21 @@ button.page-hero-media {
   cursor: pointer;
 }
 
-.article-thumb img {
+.article-pick img {
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 1;
   object-fit: cover;
   opacity: 0.72;
 }
 
-.article-thumb.is-on {
+.article-pick.is-on {
   border-color: var(--tygr-orange);
 }
 
-.article-thumb.is-on img,
-.article-thumb:hover img {
+.article-pick.is-on img,
+.article-pick:hover img,
+.article-pick:focus-visible img {
   opacity: 1;
 }
 
