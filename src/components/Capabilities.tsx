@@ -43,12 +43,12 @@ export function Capabilities({ limit, heading = true }: { limit?: number; headin
                 className={`cap-tile cap-tone-${i % 4}${item.image ? " has-media" : ""}${editMode ? " is-editing" : ""}`}
               >
                 {item.image ? (
-                  <div className="cap-tile-media" aria-hidden>
-                    <img src={item.image} alt="" style={objectStyle} />
+                  <div className="cap-tile-media" {...(item.imageAlt ? {} : { "aria-hidden": true })}>
+                    <img src={item.image} alt={item.imageAlt || ""} style={objectStyle} />
                   </div>
                 ) : null}
                 {editMode ? (
-                  <div className="cap-tile-controls">
+                  <div className="cap-tile-controls" role="group" aria-label={`Edit ${item.title || "capability"}`}>
                     <InlineImageControl
                       path={`capabilities.items.${i}.image`}
                       creditPath={`capabilities.items.${i}.imageCredit`}

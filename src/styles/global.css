@@ -608,23 +608,6 @@ h3,
   z-index: 2;
 }
 
-.cap-tile.has-media,
-.cap-tile.has-media.cap-tone-0,
-.cap-tile.has-media.cap-tone-1,
-.cap-tile.has-media.cap-tone-2,
-.cap-tile.has-media.cap-tone-3 {
-  color: var(--tygr-cream);
-  background: var(--tygr-navy);
-}
-
-.cap-tile.has-media .cap-number {
-  color: var(--tygr-orange);
-}
-
-.cap-tile.has-media .cap-copy p {
-  color: rgba(245, 243, 239, 0.86);
-}
-
 .cap-tile-controls {
   display: flex;
   flex-wrap: wrap;
@@ -778,6 +761,36 @@ h3,
   font-size: 1.1rem;
 }
 
+.cap-mosaic.is-six .cap-tile h3.type-size-s,
+.cap-mosaic.is-many .cap-tile h3.type-size-s {
+  font-size: 1rem;
+}
+
+.cap-mosaic.is-six .cap-tile h3.type-size-m,
+.cap-mosaic.is-many .cap-tile h3.type-size-m {
+  font-size: 1.14rem;
+}
+
+.cap-mosaic.is-six .cap-tile h3.type-size-l,
+.cap-mosaic.is-many .cap-tile h3.type-size-l {
+  font-size: 1.3rem;
+}
+
+.cap-mosaic.is-six .cap-tile .cap-copy p.type-size-s,
+.cap-mosaic.is-many .cap-tile .cap-copy p.type-size-s {
+  font-size: 0.88rem;
+}
+
+.cap-mosaic.is-six .cap-tile .cap-copy p.type-size-m,
+.cap-mosaic.is-many .cap-tile .cap-copy p.type-size-m {
+  font-size: 0.95rem;
+}
+
+.cap-mosaic.is-six .cap-tile .cap-copy p.type-size-l,
+.cap-mosaic.is-many .cap-tile .cap-copy p.type-size-l {
+  font-size: 1.05rem;
+}
+
 .cap-tone-0 {
   background: var(--tygr-navy);
   color: var(--tygr-cream);
@@ -814,6 +827,30 @@ h3,
 
 .cap-tone-3 .cap-copy p {
   color: rgba(245, 243, 239, 0.78);
+}
+
+/* Photo tiles: cream type over the gradient, after tone rules so contrast wins. */
+.cap-tile.has-media,
+.cap-tile.has-media.cap-tone-0,
+.cap-tile.has-media.cap-tone-1,
+.cap-tile.has-media.cap-tone-2,
+.cap-tile.has-media.cap-tone-3 {
+  color: var(--tygr-cream);
+  background: var(--tygr-navy);
+}
+
+.cap-tile.has-media .cap-number,
+.cap-tile.has-media.cap-tone-1 .cap-number,
+.cap-tile.has-media.cap-tone-2 .cap-number {
+  color: var(--tygr-orange);
+}
+
+.cap-tile.has-media .cap-copy p,
+.cap-tile.has-media.cap-tone-0 .cap-copy p,
+.cap-tile.has-media.cap-tone-1 .cap-copy p,
+.cap-tile.has-media.cap-tone-2 .cap-copy p,
+.cap-tile.has-media.cap-tone-3 .cap-copy p {
+  color: rgba(245, 243, 239, 0.86);
 }
 
 .dark .cap-number {
@@ -1525,6 +1562,7 @@ h3,
 }
 
 .inline-image-control-file {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 1.85rem;
@@ -1536,12 +1574,9 @@ h3,
   cursor: pointer;
 }
 
-.inline-image-control-file input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  overflow: hidden;
+.inline-image-control-file:focus-within {
+  outline: 2px solid var(--tygr-cream);
+  outline-offset: 2px;
 }
 
 .inline-image-control-url {

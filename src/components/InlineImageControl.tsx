@@ -17,7 +17,7 @@ export function InlineImageControl({ path, creditPath, label = "Image" }: Props)
 
   const value = get(path);
 
-  const onUpload = async (file: File | undefined) => {
+  const onUpload = async (file: File | undefined, input: HTMLInputElement) => {
     if (!file) return;
     setBusy(true);
     setError("");
@@ -28,21 +28,23 @@ export function InlineImageControl({ path, creditPath, label = "Image" }: Props)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
+      input.value = "";
       setBusy(false);
     }
   };
 
   return (
-    <div className="inline-image-control">
+    <div className="inline-image-control" aria-busy={busy || undefined}>
       <span className="inline-image-control-label">{label}</span>
       {value ? <img src={value} alt="" /> : null}
       <label className="inline-image-control-file">
         <span>{busy ? "Uploading…" : value ? "Replace" : "Add photo"}</span>
         <input
+          className="sr-only"
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
           disabled={busy}
-          onChange={(event) => void onUpload(event.target.files?.[0])}
+          onChange={(event) => void onUpload(event.target.files?.[0], event.target)}
         />
       </label>
       <input
@@ -64,7 +66,11 @@ export function InlineImageControl({ path, creditPath, label = "Image" }: Props)
           Clear
         </button>
       ) : null}
-      {error ? <span className="inline-image-control-error">{error}</span> : null}
+      {error ? (
+        <span className="inline-image-control-error" role="alert">
+          {error}
+        </span>
+      ) : null}
     </div>
   );
 }
