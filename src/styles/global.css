@@ -552,10 +552,10 @@ h3,
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 3 / 2;
   min-width: 0;
   min-height: 0;
-  padding: 1.1rem 1.05rem 1rem;
+  padding: 1rem 0.95rem 0.9rem;
   border: 0;
   transition: transform 160ms ease;
 }
@@ -570,8 +570,8 @@ h3,
 }
 
 .cap-tile h3 {
-  margin: 0.3rem 0 0.45rem;
-  font-size: 1.28rem;
+  margin: 0.25rem 0 0.4rem;
+  font-size: 1.2rem;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -582,10 +582,10 @@ h3,
 .cap-tile .cap-copy p {
   margin: 0;
   max-width: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
