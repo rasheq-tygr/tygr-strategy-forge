@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { Editable } from "../components/Editable";
+import { RichText } from "../components/RichText";
 import { useSite } from "../context/SiteContext";
 
 export function WorkDetailPage() {
@@ -36,9 +37,7 @@ export function WorkDetailPage() {
       </section>
       <article className="article">
         {item.image ? <img src={item.image} alt={item.title} style={{ marginBottom: "1.5rem" }} /> : null}
-        <p>
-          <Editable path={`work.items.${index}.body`} multiline />
-        </p>
+        <RichText source={item.body} />
         <p>
           <strong>Outcome. </strong>
           <Editable path={`work.items.${index}.outcome`} multiline />

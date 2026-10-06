@@ -1,8 +1,9 @@
 import { GalleryEditor } from "../../components/admin/GalleryEditor";
 import { AreaField, TextField } from "../../components/admin/Field";
-import { ParagraphEditor } from "../../components/admin/ParagraphEditor";
+import { RichBodyEditor } from "../../components/admin/RichBodyEditor";
 import { MediaPicker } from "../../components/MediaPicker";
 import { useSite } from "../../context/SiteContext";
+import { countBodyBlocks } from "../../lib/richText";
 import { slugify } from "../../lib/paths";
 import type { InsightItem } from "../../types/content";
 
@@ -20,10 +21,6 @@ const emptyPost = (): InsightItem => ({
   imageCredit: "",
   gallery: [],
 });
-
-function paragraphCount(body: string) {
-  return body.split(/\n\n+/).map((part) => part.trim()).filter(Boolean).length || 1;
-}
 
 export function BlogEditor() {
   const { content, replace } = useSite();
@@ -123,13 +120,17 @@ export function BlogEditor() {
             </div>
 
             <div className="editor-section">
-              <ParagraphEditor value={item.body} onChange={(body) => update(i, { body })} />
+              <RichBodyEditor
+                value={item.body}
+                onChange={(body) => update(i, { body })}
+                showBlockHint
+              />
             </div>
 
             <div className="editor-section">
               <GalleryEditor
                 photos={item.gallery ?? []}
-                paragraphCount={paragraphCount(item.body)}
+                paragraphCount={countBodyBlocks(item.body)}
                 onChange={(gallery) => update(i, { gallery })}
               />
             </div>
