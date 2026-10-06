@@ -1,3 +1,7 @@
+import type { TextSize } from "../lib/textSize";
+
+export type { TextSize };
+
 export type NavLink = { label: string; href: string };
 
 export type StatItem = { value: string; label: string };
@@ -37,7 +41,9 @@ export type WorkItem = {
   client: string;
   title: string;
   summary: string;
+  summarySize?: TextSize;
   body: string;
+  bodySize?: TextSize;
   outcome: string;
   year: string;
   tags: string[];
@@ -62,7 +68,9 @@ export type InsightItem = {
   slug: string;
   title: string;
   excerpt: string;
+  excerptSize?: TextSize;
   body: string;
+  bodySize?: TextSize;
   date: string;
   author: string;
   tags: string[];

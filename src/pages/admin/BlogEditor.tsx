@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { Accordion } from "../../components/admin/Accordion";
 import { GalleryEditor } from "../../components/admin/GalleryEditor";
-import { AreaField, TextField } from "../../components/admin/Field";
+import { AreaField, SelectField, TextField } from "../../components/admin/Field";
 import { RichBodyEditor } from "../../components/admin/RichBodyEditor";
 import { Tabs } from "../../components/admin/Tabs";
 import { useSite } from "../../context/SiteContext";
 import { deleteCollectionItem, saveCollectionItem } from "../../lib/api";
 import { countBodyBlocks } from "../../lib/richText";
 import { slugify } from "../../lib/paths";
+import { normalizeTextSize, type TextSize } from "../../lib/textSize";
 import type { InsightItem } from "../../types/content";
+
+const SIZE_OPTIONS = [
+  { value: "s", label: "Small" },
+  { value: "m", label: "Medium" },
+  { value: "l", label: "Large" },
+];
 
 type ItemStatus = "idle" | "saving" | "saved" | "error";
 
@@ -229,6 +236,22 @@ export function BlogEditor() {
                           value={item.excerpt}
                           onChange={(excerpt) => update(i, { excerpt })}
                         />
+                        <div className="editor-grid-2">
+                          <SelectField
+                            label="Subtitle size"
+                            value={normalizeTextSize(item.excerptSize)}
+                            onChange={(excerptSize) => update(i, { excerptSize: excerptSize as TextSize })}
+                            options={SIZE_OPTIONS}
+                            hint="Also editable inline on the public page when unlocked."
+                          />
+                          <SelectField
+                            label="Body size"
+                            value={normalizeTextSize(item.bodySize)}
+                            onChange={(bodySize) => update(i, { bodySize: bodySize as TextSize })}
+                            options={SIZE_OPTIONS}
+                            hint="Also editable inline on the public page when unlocked."
+                          />
+                        </div>
                       </div>
                     ),
                   },

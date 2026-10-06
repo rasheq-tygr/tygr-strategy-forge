@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Editable } from "../components/Editable";
 import { RichText } from "../components/RichText";
+import { TypeSizeControl } from "../components/TypeSizeControl";
 import { useSite } from "../context/SiteContext";
 import { splitBodyBlocks } from "../lib/richText";
+import { typeSizeClass } from "../lib/textSize";
 import type { InsightPhoto } from "../types/content";
 
 type StagePhoto = {
@@ -147,9 +149,12 @@ export function InsightDetailPage() {
           <h1 className="display-lg">
             <Editable path={`insights.items.${index}.title`} />
           </h1>
-          <p className="lede">
-            <Editable path={`insights.items.${index}.excerpt`} multiline />
-          </p>
+          <div className="type-size-field">
+            <TypeSizeControl path={`insights.items.${index}.excerptSize`} label="Subtitle size" />
+            <p className={typeSizeClass(item.excerptSize, "lede")}>
+              <Editable path={`insights.items.${index}.excerpt`} multiline />
+            </p>
+          </div>
           <p className="article-byline">
             By <Editable path={`insights.items.${index}.author`} />
           </p>
@@ -179,14 +184,19 @@ export function InsightDetailPage() {
               ))}
             </div>
           ) : null}
-          {blocks.map((block, i) => (
-            <div key={i} className="article-block">
-              <RichText source={block} className="article-rich article-graf" />
-              {embeds.get(i)?.map((photo) => (
-                <ArticleFigure key={photo.src} photo={photo} onOpen={() => setOpen(photo)} />
+          <div className="type-size-field">
+            <TypeSizeControl path={`insights.items.${index}.bodySize`} label="Body size" />
+            <div className={typeSizeClass(item.bodySize, "article-copy")}>
+              {blocks.map((block, i) => (
+                <div key={i} className="article-block">
+                  <RichText source={block} className="article-rich article-graf" />
+                  {embeds.get(i)?.map((photo) => (
+                    <ArticleFigure key={photo.src} photo={photo} onOpen={() => setOpen(photo)} />
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
+          </div>
           <p>
             <Link className="arrow-link" to="/insights">
               All insights →
