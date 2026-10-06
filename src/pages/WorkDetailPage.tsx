@@ -40,25 +40,27 @@ export function WorkDetailPage() {
           <Editable path={`work.items.${index}.summary`} multiline />
         </p>
       </PageHero>
-      <article className="article">
-        <RichText source={item.body} />
-        <p>
-          <strong>Outcome. </strong>
-          <Editable path={`work.items.${index}.outcome`} multiline />
-        </p>
-        {safeHref(item.url) ? (
+      <div className="wrap">
+        <article className="article">
+          <RichText source={item.body} />
           <p>
-            <a className="arrow-link" href={safeHref(item.url)} target="_blank" rel="noreferrer">
-              Open live app →
-            </a>
+            <strong>Outcome. </strong>
+            <Editable path={`work.items.${index}.outcome`} multiline />
           </p>
-        ) : null}
-        <p>
-          <Link className="arrow-link" to="/work">
-            All work →
-          </Link>
-        </p>
-      </article>
+          {safeHref(item.url) ? (
+            <p>
+              <a className="arrow-link" href={safeHref(item.url)} target="_blank" rel="noreferrer">
+                Open live app →
+              </a>
+            </p>
+          ) : null}
+          <p>
+            <Link className="arrow-link" to="/work">
+              All work →
+            </Link>
+          </p>
+        </article>
+      </div>
     </>
   );
 }
