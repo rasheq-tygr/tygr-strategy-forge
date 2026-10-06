@@ -563,6 +563,7 @@ h3,
 }
 
 .cap-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -571,7 +572,75 @@ h3,
   min-height: 0;
   padding: 1.15rem 1.05rem 1rem;
   border: 0;
+  overflow: hidden;
   transition: transform 160ms ease;
+}
+
+.cap-tile-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cap-tile-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cap-tile.has-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 15, 26, 0.35) 0%,
+    rgba(10, 15, 26, 0.55) 42%,
+    rgba(10, 15, 26, 0.88) 100%
+  );
+}
+
+.cap-tile > :not(.cap-tile-media) {
+  position: relative;
+  z-index: 2;
+}
+
+.cap-tile.has-media,
+.cap-tile.has-media.cap-tone-0,
+.cap-tile.has-media.cap-tone-1,
+.cap-tile.has-media.cap-tone-2,
+.cap-tile.has-media.cap-tone-3 {
+  color: var(--tygr-cream);
+  background: var(--tygr-navy);
+}
+
+.cap-tile.has-media .cap-number {
+  color: var(--tygr-orange);
+}
+
+.cap-tile.has-media .cap-copy p {
+  color: rgba(245, 243, 239, 0.86);
+}
+
+.cap-tile-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.55rem;
+}
+
+.cap-tile.is-editing {
+  overflow: visible;
+  z-index: 3;
+}
+
+.cap-tile.is-editing .cap-copy p {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 /* Four topics: four equal colored squares. */
@@ -581,12 +650,12 @@ h3,
 }
 
 .cap-mosaic.is-four .cap-tile h3 {
-  font-size: 1.12rem;
+  font-size: 1.22rem;
 }
 
 .cap-mosaic.is-four .cap-tile .cap-copy p {
-  -webkit-line-clamp: 4;
-  font-size: 0.84rem;
+  -webkit-line-clamp: 5;
+  font-size: 1rem;
 }
 
 /* More topics: still squares, but smaller via wider grids. */
@@ -597,13 +666,13 @@ h3,
 
 .cap-mosaic.is-six .cap-tile h3,
 .cap-mosaic.is-many .cap-tile h3 {
-  font-size: 1.1rem;
+  font-size: 1.14rem;
 }
 
 .cap-mosaic.is-six .cap-tile .cap-copy p,
 .cap-mosaic.is-many .cap-tile .cap-copy p {
-  -webkit-line-clamp: 3;
-  font-size: 0.85rem;
+  -webkit-line-clamp: 4;
+  font-size: 0.95rem;
 }
 
 .cap-tile:hover,
@@ -613,11 +682,13 @@ h3,
 
 .cap-copy {
   min-width: 0;
+  width: 100%;
+  flex: 1 1 auto;
 }
 
 .cap-tile h3 {
-  margin: 0.25rem 0 0.4rem;
-  font-size: 1.2rem;
+  margin: 0.25rem 0 0.45rem;
+  font-size: 1.28rem;
   font-weight: 500;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -628,10 +699,11 @@ h3,
 .cap-tile .cap-copy p {
   margin: 0;
   max-width: none;
-  font-size: 0.88rem;
-  line-height: 1.4;
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.45;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -641,9 +713,69 @@ h3,
   font-style: italic;
   font-weight: 500;
   color: var(--tygr-orange);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   margin: 0;
   line-height: 1;
+}
+
+.cap-number.type-size-s {
+  font-size: 1rem;
+}
+
+.cap-number.type-size-m {
+  font-size: 1.2rem;
+}
+
+.cap-number.type-size-l {
+  font-size: 1.45rem;
+}
+
+.cap-tile h3.type-size-s {
+  font-size: 1.05rem;
+}
+
+.cap-tile h3.type-size-m {
+  font-size: 1.28rem;
+}
+
+.cap-tile h3.type-size-l {
+  font-size: 1.48rem;
+}
+
+.cap-tile .cap-copy p.type-size-s {
+  font-size: 0.9rem;
+}
+
+.cap-tile .cap-copy p.type-size-m {
+  font-size: 1rem;
+}
+
+.cap-tile .cap-copy p.type-size-l {
+  font-size: 1.12rem;
+}
+
+.cap-mosaic.is-four .cap-tile h3.type-size-s {
+  font-size: 1.05rem;
+}
+
+.cap-mosaic.is-four .cap-tile h3.type-size-m {
+  font-size: 1.22rem;
+}
+
+.cap-mosaic.is-four .cap-tile h3.type-size-l {
+  font-size: 1.4rem;
+}
+
+.cap-mosaic.is-four .cap-tile .cap-copy p.type-size-s {
+  font-size: 0.9rem;
+}
+
+.cap-mosaic.is-four .cap-tile .cap-copy p.type-size-m {
+  font-size: 1rem;
+}
+
+.cap-mosaic.is-four .cap-tile .cap-copy p.type-size-l {
+  font-size: 1.1rem;
 }
 
 .cap-tone-0 {
@@ -721,12 +853,12 @@ h3,
   }
 
   .cap-tile h3 {
-    font-size: 1.2rem;
+    font-size: 1.28rem;
   }
 
   .cap-tile .cap-copy p {
-    -webkit-line-clamp: 5;
-    font-size: 0.9rem;
+    -webkit-line-clamp: 6;
+    font-size: 1.02rem;
   }
 }
 
@@ -1363,6 +1495,82 @@ h3,
   outline: 1px dashed rgba(235, 132, 0, 0.55);
   outline-offset: 3px;
   cursor: text;
+}
+
+.inline-image-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem;
+  border: 1px solid rgba(235, 132, 0, 0.45);
+  background: rgba(10, 15, 26, 0.78);
+  color: var(--tygr-cream);
+  max-width: 100%;
+}
+
+.inline-image-control img {
+  width: 2.4rem;
+  height: 2.4rem;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.inline-image-control-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.inline-image-control-file {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.85rem;
+  padding: 0 0.55rem;
+  background: var(--tygr-orange);
+  color: var(--tygr-navy);
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.inline-image-control-file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.inline-image-control-url {
+  flex: 1 1 8rem;
+  min-width: 0;
+  min-height: 1.85rem;
+  padding: 0 0.45rem;
+  border: 1px solid rgba(245, 243, 239, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  color: inherit;
+  font-size: 0.72rem;
+}
+
+.inline-image-control-clear {
+  min-height: 1.85rem;
+  padding: 0 0.45rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.inline-image-control-error {
+  flex: 1 1 100%;
+  font-size: 0.72rem;
+  color: #ffb4a8;
 }
 
 .type-size-field {

@@ -31,8 +31,15 @@ export type EcosystemNode = {
 export type CapabilityItem = {
   id: string;
   number: string;
+  numberSize?: TextSize;
   title: string;
+  titleSize?: TextSize;
   body: string;
+  bodySize?: TextSize;
+  image?: string;
+  imageAlt?: string;
+  imageCredit?: string;
+  imagePosition?: string;
 };
 
 export type WorkItem = {
