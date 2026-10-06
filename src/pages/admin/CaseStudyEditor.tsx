@@ -5,8 +5,11 @@ import { RichBodyEditor } from "../../components/admin/RichBodyEditor";
 import { Tabs } from "../../components/admin/Tabs";
 import { MediaPicker } from "../../components/MediaPicker";
 import { useSite } from "../../context/SiteContext";
+import { deleteCollectionItem, saveCollectionItem } from "../../lib/api";
 import { slugify } from "../../lib/paths";
 import type { WorkItem } from "../../types/content";
+
+type ItemStatus = "idle" | "saving" | "saved" | "error";
 
 const emptyStudy = (): WorkItem => ({
   id: `work-${Date.now()}`,
@@ -23,14 +26,56 @@ const emptyStudy = (): WorkItem => ({
 });
 
 export function CaseStudyEditor() {
-  const { content, replace } = useSite();
+  const { content, replace, markClean } = useSite();
   const items = content.work.items;
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
   const [sectionByItem, setSectionByItem] = useState<Record<string, string>>({});
+  const [dirtyIds, setDirtyIds] = useState<Set<string>>(() => new Set());
+  const [newIds, setNewIds] = useState<Set<string>>(() => new Set());
+  const [statusById, setStatusById] = useState<Record<string, ItemStatus>>({});
+  const [errorById, setErrorById] = useState<Record<string, string>>({});
+
+  const markDirty = (id: string) => {
+    setDirtyIds((prev) => new Set(prev).add(id));
+    setStatusById((prev) => ({ ...prev, [id]: "idle" }));
+  };
+
+  const clearDirty = (id: string) => {
+    setDirtyIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      if (next.size === 0) markClean();
+      return next;
+    });
+  };
 
   const update = (index: number, patch: Partial<WorkItem>) => {
-    const next = items.map((item, i) => (i === index ? { ...item, ...patch } : item));
+    const item = items[index];
+    const next = items.map((entry, i) => (i === index ? { ...entry, ...patch } : entry));
+    markDirty(item.id);
     replace({ ...content, work: { ...content.work, items: next } });
+  };
+
+  const saveItem = async (id: string) => {
+    const item = content.work.items.find((entry) => entry.id === id);
+    if (!item) return;
+    setStatusById((prev) => ({ ...prev, [id]: "saving" }));
+    try {
+      await saveCollectionItem("work", item);
+      setNewIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      clearDirty(id);
+      setStatusById((prev) => ({ ...prev, [id]: "saved" }));
+    } catch (err) {
+      setStatusById((prev) => ({ ...prev, [id]: "error" }));
+      setErrorById((prev) => ({
+        ...prev,
+        [id]: err instanceof Error ? err.message : "Save failed",
+      }));
+    }
   };
 
   return (
@@ -38,7 +83,7 @@ export function CaseStudyEditor() {
       <div className="editor-page-head">
         <div>
           <h1 className="display-lg">Case studies editor</h1>
-          <p className="lede">Accordion studies with Details, Body, and Image tabs.</p>
+          <p className="lede">Save each study on its own accordion when you are done editing it.</p>
         </div>
         <button
           className="btn btn-primary"
@@ -47,6 +92,8 @@ export function CaseStudyEditor() {
             const study = emptyStudy();
             replace({ ...content, work: { ...content.work, items: [study, ...items] } });
             setOpenId(study.id);
+            setNewIds((prev) => new Set(prev).add(study.id));
+            markDirty(study.id);
           }}
         >
           New case study
@@ -55,27 +102,55 @@ export function CaseStudyEditor() {
       <div className="editor-list">
         {items.map((item, i) => {
           const section = sectionByItem[item.id] ?? "details";
+          const isDirty = dirtyIds.has(item.id) || newIds.has(item.id);
+          const status = statusById[item.id] ?? "idle";
           return (
             <Accordion
               key={item.id}
               title={item.title || "Untitled case study"}
-              subtitle={`${item.client} · ${item.year}`}
+              subtitle={`${item.client} · ${item.year}${isDirty ? " · unsaved" : status === "saved" ? " · saved" : ""}`}
               open={openId === item.id}
               onToggle={() => setOpenId((current) => (current === item.id ? null : item.id))}
               actions={
-                <button
-                  type="button"
-                  onClick={() =>
-                    replace({
-                      ...content,
-                      work: { ...content.work, items: items.filter((_, n) => n !== i) },
-                    })
-                  }
-                >
-                  Remove
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className={isDirty ? "btn btn-primary" : "btn btn-ghost"}
+                    disabled={status === "saving" || (!isDirty && status !== "error")}
+                    onClick={() => void saveItem(item.id)}
+                  >
+                    {status === "saving" ? "Saving…" : status === "saved" && !isDirty ? "Saved" : "Save study"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void (async () => {
+                        if (!window.confirm(`Remove “${item.title || "Untitled case study"}”?`)) return;
+                        if (!newIds.has(item.id)) {
+                          try {
+                            await deleteCollectionItem("work", item.id);
+                          } catch (err) {
+                            setErrorById((prev) => ({
+                              ...prev,
+                              [item.id]: err instanceof Error ? err.message : "Delete failed",
+                            }));
+                            return;
+                          }
+                        }
+                        replace({
+                          ...content,
+                          work: { ...content.work, items: items.filter((_, n) => n !== i) },
+                        });
+                        clearDirty(item.id);
+                      })();
+                    }}
+                  >
+                    Remove
+                  </button>
+                </>
               }
             >
+              {errorById[item.id] ? <p className="editor-error">{errorById[item.id]}</p> : null}
               <Tabs
                 activeId={section}
                 onChange={(id) => setSectionByItem((prev) => ({ ...prev, [item.id]: id }))}

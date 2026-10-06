@@ -42,7 +42,13 @@ export function AdminLayout() {
           <Link to="/admin/work">Case studies</Link>
           <Link to="/admin/capabilities">Capabilities</Link>
           <button type="button" onClick={() => void save()}>
-            {status === "saving" ? content.admin.saving : dirty ? content.admin.unsaved : content.admin.save}
+            {status === "saving"
+              ? content.admin.saving
+              : dirty
+                ? content.admin.unsaved
+                : status === "saved"
+                  ? content.admin.saved
+                  : content.admin.save}
           </button>
           <button type="button" onClick={lock}>
             Lock

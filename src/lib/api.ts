@@ -1,3 +1,4 @@
+import type { ContentCollection } from "./contentItems";
 import { safeHref, tidycalHostedPath } from "./security";
 
 const PASS_KEY = "tygr.edit.password";
@@ -80,6 +81,40 @@ export async function saveContent(content: unknown, password = getStoredPassword
   if (!res.ok) {
     const data = (await res.json().catch(() => ({}))) as { error?: string };
     throw new Error(data.error || "Save failed");
+  }
+}
+
+/** Persist one insight / case study / capability into host content.json. */
+export async function saveCollectionItem(
+  collection: ContentCollection,
+  item: unknown,
+  password = getStoredPassword(),
+) {
+  const res = await fetch("/api/save.php", {
+    method: "POST",
+    headers: { ...authHeaders(password), "Content-Type": "application/json" },
+    body: JSON.stringify({ collection, item }),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Save failed");
+  }
+}
+
+/** Remove one insight / case study / capability from host content.json. */
+export async function deleteCollectionItem(
+  collection: ContentCollection,
+  deleteId: string,
+  password = getStoredPassword(),
+) {
+  const res = await fetch("/api/save.php", {
+    method: "POST",
+    headers: { ...authHeaders(password), "Content-Type": "application/json" },
+    body: JSON.stringify({ collection, deleteId }),
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Delete failed");
   }
 }
 
