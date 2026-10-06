@@ -1,9 +1,14 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
+import {
+  deleteCollectionItem,
+  isContentCollection,
+  upsertCollectionItem,
+} from "./src/lib/contentItems";
 import {
   BOOK_RATE_MAX,
   BOOK_RATE_WINDOW_MS,
@@ -350,7 +355,31 @@ function hostingerDevApi(mode: string): Plugin {
           if (!(await authorize(req))) return json(res, 401, { ok: false, error: "Not authorized" });
           try {
             const raw = await readJsonBody(req);
-            const parsed = JSON.parse(raw) as { content?: unknown };
+            const parsed = JSON.parse(raw) as {
+              content?: unknown;
+              collection?: unknown;
+              item?: unknown;
+              deleteId?: unknown;
+            };
+
+            if (isContentCollection(parsed.collection)) {
+              const existing = JSON.parse(await readFile(contentFile, "utf8")) as Record<string, unknown>;
+              let next: Record<string, unknown>;
+              if (typeof parsed.deleteId === "string") {
+                next = deleteCollectionItem(existing, parsed.collection, parsed.deleteId);
+              } else if (parsed.item && typeof parsed.item === "object") {
+                next = upsertCollectionItem(existing, parsed.collection, parsed.item as { id?: unknown });
+              } else {
+                return json(res, 400, { ok: false, error: "Expected item object" });
+              }
+              const serialized = `${JSON.stringify(next, null, 2)}\n`;
+              if (Buffer.byteLength(serialized, "utf8") > MAX_CONTENT_BYTES) {
+                return json(res, 413, { ok: false, error: "Payload too large" });
+              }
+              await writeFile(contentFile, serialized, "utf8");
+              return json(res, 200, { ok: true, collection: parsed.collection });
+            }
+
             const content = parsed.content ?? parsed;
             const serialized = `${JSON.stringify(content, null, 2)}\n`;
             if (Buffer.byteLength(serialized, "utf8") > MAX_CONTENT_BYTES) {
@@ -362,7 +391,7 @@ function hostingerDevApi(mode: string): Plugin {
             if (err instanceof Error && err.message === "payload too large") {
               return json(res, 413, { ok: false, error: "Payload too large" });
             }
-            return json(res, 400, { ok: false, error: "Invalid JSON" });
+            return json(res, 400, { ok: false, error: err instanceof Error ? err.message : "Invalid JSON" });
           }
         }
         if (req.method === "POST" && url === "/api/upload.php") {
