@@ -291,6 +291,130 @@ function tygr_content_path(): string
     return dirname(__DIR__) . '/content.json';
 }
 
+function tygr_read_content(): array
+{
+    $path = tygr_content_path();
+    if (!is_file($path)) {
+        return [];
+    }
+    $decoded = json_decode((string) file_get_contents($path), true);
+    return is_array($decoded) ? $decoded : [];
+}
+
+function tygr_write_content(array $content): void
+{
+    $json = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if ($json === false) {
+        tygr_json_out(400, ['ok' => false, 'error' => 'Could not encode JSON']);
+    }
+    if (strlen($json) > 512000) {
+        tygr_json_out(413, ['ok' => false, 'error' => 'Payload too large']);
+    }
+    $path = tygr_content_path();
+    if (file_put_contents($path, $json . "\n", LOCK_EX) === false) {
+        tygr_json_out(500, ['ok' => false, 'error' => 'Could not write content.json']);
+    }
+}
+
+/**
+ * Atomically read, mutate, and write content.json under an exclusive lock.
+ * $mutator receives the current content array and must return the next array.
+ */
+function tygr_mutate_content(callable $mutator): array
+{
+    $path = tygr_content_path();
+    $handle = @fopen($path, 'c+');
+    if ($handle === false) {
+        tygr_json_out(500, ['ok' => false, 'error' => 'Could not open content.json']);
+    }
+    try {
+        if (!flock($handle, LOCK_EX)) {
+            tygr_json_out(500, ['ok' => false, 'error' => 'Could not lock content.json']);
+        }
+        rewind($handle);
+        $raw = stream_get_contents($handle);
+        $content = is_string($raw) && $raw !== '' ? json_decode($raw, true) : [];
+        if (!is_array($content) || $content === []) {
+            tygr_json_out(500, ['ok' => false, 'error' => 'content.json missing or invalid']);
+        }
+        $next = $mutator($content);
+        if (!is_array($next)) {
+            tygr_json_out(500, ['ok' => false, 'error' => 'Content mutation failed']);
+        }
+        $json = json_encode($next, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            tygr_json_out(400, ['ok' => false, 'error' => 'Could not encode JSON']);
+        }
+        if (strlen($json) > 512000) {
+            tygr_json_out(413, ['ok' => false, 'error' => 'Payload too large']);
+        }
+        $payload = $json . "\n";
+        rewind($handle);
+        if (!ftruncate($handle, 0) || fwrite($handle, $payload) === false) {
+            tygr_json_out(500, ['ok' => false, 'error' => 'Could not write content.json']);
+        }
+        fflush($handle);
+        return $next;
+    } finally {
+        flock($handle, LOCK_UN);
+        fclose($handle);
+    }
+}
+
+/** @return 'insights'|'work'|'capabilities'|null */
+function tygr_collection_name(mixed $value): ?string
+{
+    if (!is_string($value)) {
+        return null;
+    }
+    return in_array($value, ['insights', 'work', 'capabilities'], true) ? $value : null;
+}
+
+function tygr_upsert_collection_item(array $content, string $collection, array $item): array
+{
+    $id = trim((string) ($item['id'] ?? ''));
+    if ($id === '') {
+        tygr_json_out(400, ['ok' => false, 'error' => 'Item id is required']);
+    }
+    $item['id'] = $id;
+    $section = is_array($content[$collection] ?? null) ? $content[$collection] : [];
+    $items = is_array($section['items'] ?? null) ? array_values($section['items']) : [];
+    $found = false;
+    foreach ($items as $index => $entry) {
+        if (is_array($entry) && trim((string) ($entry['id'] ?? '')) === $id) {
+            $items[$index] = $item;
+            $found = true;
+            break;
+        }
+    }
+    if (!$found) {
+        if ($collection === 'capabilities') {
+            $items[] = $item;
+        } else {
+            array_unshift($items, $item);
+        }
+    }
+    $section['items'] = $items;
+    $content[$collection] = $section;
+    return $content;
+}
+
+function tygr_delete_collection_item(array $content, string $collection, string $deleteId): array
+{
+    $id = trim($deleteId);
+    if ($id === '') {
+        tygr_json_out(400, ['ok' => false, 'error' => 'deleteId is required']);
+    }
+    $section = is_array($content[$collection] ?? null) ? $content[$collection] : [];
+    $items = is_array($section['items'] ?? null) ? array_values($section['items']) : [];
+    $section['items'] = array_values(array_filter(
+        $items,
+        static fn ($entry) => !(is_array($entry) && (string) ($entry['id'] ?? '') === $id)
+    ));
+    $content[$collection] = $section;
+    return $content;
+}
+
 function tygr_digit_id(string $value): ?string
 {
     return preg_match('/^\d+$/', $value) === 1 ? $value : null;

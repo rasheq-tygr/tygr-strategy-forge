@@ -36,7 +36,8 @@ type SiteContextValue = {
   error: string;
   get: (path: string) => string;
   set: (path: string, value: unknown) => void;
-  replace: (next: SiteContent) => void;
+  replace: (next: SiteContent, options?: { markDirty?: boolean }) => void;
+  markClean: () => void;
   editorEmail: string;
   unlock: (password: string) => Promise<boolean>;
   signInWithGoogle: (token: string) => Promise<boolean>;
@@ -123,10 +124,16 @@ export function SiteProvider({ children }: { children: ReactNode }) {
     setStatus("idle");
   }, []);
 
-  const replace = useCallback((next: SiteContent) => {
+  const replace = useCallback((next: SiteContent, options?: { markDirty?: boolean }) => {
     setContent(next);
+    if (options?.markDirty === false) return;
     setDirty(true);
     setStatus("idle");
+  }, []);
+
+  const markClean = useCallback(() => {
+    setDirty(false);
+    setStatus("saved");
   }, []);
 
   const unlock = useCallback(async (password: string) => {
@@ -184,13 +191,29 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       get,
       set,
       replace,
+      markClean,
       editorEmail,
       unlock,
       signInWithGoogle,
       lock,
       save,
     }),
-    [content, unlocked, editorEmail, dirty, status, error, get, set, replace, unlock, signInWithGoogle, lock, save],
+    [
+      content,
+      unlocked,
+      editorEmail,
+      dirty,
+      status,
+      error,
+      get,
+      set,
+      replace,
+      markClean,
+      unlock,
+      signInWithGoogle,
+      lock,
+      save,
+    ],
   );
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;
