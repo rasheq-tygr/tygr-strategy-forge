@@ -1698,8 +1698,9 @@ button.page-hero-media {
     transform: none;
   }
 
-  .article-thumb {
-    flex-basis: 4.6rem;
+  .article-pick {
+    flex-basis: 4.4rem;
+    width: 4.4rem;
   }
 }
 
