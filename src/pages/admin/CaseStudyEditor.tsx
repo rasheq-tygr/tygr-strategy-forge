@@ -1,5 +1,5 @@
 import { AreaField, TextField } from "../../components/admin/Field";
-import { ParagraphEditor } from "../../components/admin/ParagraphEditor";
+import { RichBodyEditor } from "../../components/admin/RichBodyEditor";
 import { MediaPicker } from "../../components/MediaPicker";
 import { useSite } from "../../context/SiteContext";
 import { slugify } from "../../lib/paths";
@@ -105,7 +105,7 @@ export function CaseStudyEditor() {
             </div>
 
             <div className="editor-section">
-              <ParagraphEditor value={item.body} onChange={(body) => update(i, { body })} />
+              <RichBodyEditor value={item.body} onChange={(body) => update(i, { body })} />
             </div>
           </article>
         ))}

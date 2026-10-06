@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Editable } from "../components/Editable";
+import { RichText } from "../components/RichText";
 import { useSite } from "../context/SiteContext";
+import { splitBodyBlocks } from "../lib/richText";
 import type { InsightPhoto } from "../types/content";
 
 type StagePhoto = {
@@ -11,10 +13,6 @@ type StagePhoto = {
   layout?: InsightPhoto["layout"];
   position?: string;
 };
-
-function paragraphs(body: string) {
-  return body.split(/\n\n+/).map((part) => part.trim()).filter(Boolean);
-}
 
 function Lightbox({
   photo,
@@ -73,7 +71,7 @@ function ArticleFigure({
 
 export function InsightDetailPage() {
   const { slug } = useParams();
-  const { content, editMode } = useSite();
+  const { content } = useSite();
   const index = content.insights.items.findIndex((item) => item.slug === slug);
   const item = content.insights.items[index];
   const gallery = item?.gallery ?? [];
@@ -113,7 +111,7 @@ export function InsightDetailPage() {
   }
 
   const hero = thumbs[active] ?? thumbs[0];
-  const grafs = paragraphs(item.body);
+  const blocks = splitBodyBlocks(item.body);
   const embeds = new Map<number, InsightPhoto[]>();
   for (const photo of gallery) {
     if (photo.after == null) continue;
@@ -174,20 +172,14 @@ export function InsightDetailPage() {
             ) : null}
           </div>
         ) : null}
-        {gallery.length && !editMode ? (
-          grafs.map((graf, i) => (
-            <div key={i}>
-              <p className="article-graf">{graf}</p>
-              {embeds.get(i)?.map((photo) => (
-                <ArticleFigure key={photo.src} photo={photo} onOpen={() => setOpen(photo)} />
-              ))}
-            </div>
-          ))
-        ) : (
-          <p className="article-body">
-            <Editable path={`insights.items.${index}.body`} multiline />
-          </p>
-        )}
+        {blocks.map((block, i) => (
+          <div key={i} className="article-block">
+            <RichText source={block} className="article-rich article-graf" />
+            {embeds.get(i)?.map((photo) => (
+              <ArticleFigure key={photo.src} photo={photo} onOpen={() => setOpen(photo)} />
+            ))}
+          </div>
+        ))}
         <p>
           <Link className="arrow-link" to="/insights">
             All insights →
