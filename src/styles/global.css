@@ -168,6 +168,10 @@ h3,
   font-size: 1.05rem;
 }
 
+.page-hero-copy .lede {
+  max-width: none;
+}
+
 .display-xl {
   font-size: clamp(3.2rem, 7vw, 6rem);
   margin: 0;
@@ -1450,7 +1454,8 @@ button.page-hero-media {
 }
 
 .article {
-  max-width: 40rem;
+  max-width: none;
+  width: 100%;
   margin: 0;
   padding: 3rem 0 6rem;
 }
