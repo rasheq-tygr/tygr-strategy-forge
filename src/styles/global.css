@@ -530,58 +530,64 @@ h3,
   grid-template-columns: repeat(3, 1fr);
 }
 
-/* Compact numbered index — scales from 4 to 8+ without giant squares. */
-.cap-index {
+/* Colored tiles, sized to stay compact as the set grows. */
+.cap-mosaic {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  border-top: var(--hairline-light);
+  gap: 0.75rem;
 }
 
-.cap-index.is-dense {
+.cap-mosaic.is-four {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 2.5rem;
 }
 
-.cap-item {
-  display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr);
-  gap: 0.85rem 1.1rem;
-  align-items: start;
-  padding: 1.05rem 0 1.05rem 0.85rem;
-  border-bottom: var(--hairline-light);
-  border-left: 3px solid transparent;
-  background: transparent;
-  color: var(--tygr-ink);
-  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+.cap-mosaic.is-six {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.cap-item:hover,
-.cap-item:focus-within {
-  background: rgba(18, 21, 28, 0.03);
-  transform: translateX(2px);
+.cap-mosaic.is-many {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cap-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  aspect-ratio: 5 / 4;
+  min-width: 0;
+  min-height: 0;
+  padding: 1.1rem 1.05rem 1rem;
+  border: 0;
+  transition: transform 160ms ease;
+}
+
+.cap-tile:hover,
+.cap-tile:focus-within {
+  transform: translateY(-2px);
 }
 
 .cap-copy {
   min-width: 0;
 }
 
-.cap-item h3 {
-  margin: 0 0 0.35rem;
+.cap-tile h3 {
+  margin: 0.3rem 0 0.45rem;
   font-size: 1.28rem;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   text-wrap: wrap;
   overflow-wrap: break-word;
 }
 
-.cap-item .cap-copy p {
+.cap-tile .cap-copy p {
   margin: 0;
-  max-width: 36rem;
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: rgba(18, 21, 28, 0.72);
+  max-width: none;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cap-number {
@@ -589,66 +595,85 @@ h3,
   font-style: italic;
   font-weight: 500;
   color: var(--tygr-orange);
-  font-size: 1.2rem;
-  margin: 0.1rem 0 0;
+  font-size: 1.15rem;
+  margin: 0;
   line-height: 1;
 }
 
 .cap-tone-0 {
-  border-left-color: var(--tygr-navy);
+  background: var(--tygr-navy);
+  color: var(--tygr-cream);
 }
 
-.cap-tone-0 .cap-number {
-  color: var(--tygr-navy);
+.cap-tone-0 .cap-copy p {
+  color: rgba(245, 243, 239, 0.78);
 }
 
 .cap-tone-1 {
-  border-left-color: var(--tygr-orange);
+  background: var(--tygr-orange);
+  color: var(--tygr-navy);
 }
 
+.cap-tone-1 .cap-copy p,
 .cap-tone-1 .cap-number {
-  color: var(--tygr-orange);
+  color: rgba(10, 15, 26, 0.82);
 }
 
 .cap-tone-2 {
-  border-left-color: #c4a574;
+  background: #e7d3b4;
+  color: var(--tygr-ink);
 }
 
+.cap-tone-2 .cap-copy p,
 .cap-tone-2 .cap-number {
-  color: #9a7b45;
+  color: rgba(18, 21, 28, 0.82);
 }
 
 .cap-tone-3 {
-  border-left-color: #1c3348;
+  background: #1c3348;
+  color: var(--tygr-cream);
 }
 
-.cap-tone-3 .cap-number {
-  color: #1c3348;
+.cap-tone-3 .cap-copy p {
+  color: rgba(245, 243, 239, 0.78);
 }
 
 .dark .cap-number {
   color: var(--tygr-orange);
 }
 
+@media (max-width: 960px) {
+  .cap-mosaic.is-many {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 800px) {
-  .cap-index.is-dense {
-    grid-template-columns: 1fr;
-    column-gap: 0;
+  .cap-mosaic.is-six,
+  .cap-mosaic.is-many {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 700px) {
-  .cap-item {
-    grid-template-columns: 2.25rem minmax(0, 1fr);
-    gap: 0.65rem 0.85rem;
-    padding: 0.95rem 0 0.95rem 0.7rem;
+  .cap-mosaic.is-four,
+  .cap-mosaic.is-six,
+  .cap-mosaic.is-many {
+    grid-template-columns: 1fr;
   }
 
-  .cap-item h3 {
-    font-size: 1.15rem;
+  .cap-tile {
+    aspect-ratio: auto;
+    min-height: 0;
+    padding: 1rem 0.95rem 0.95rem;
   }
 
-  .cap-item .cap-copy p {
+  .cap-tile h3 {
+    font-size: 1.2rem;
+  }
+
+  .cap-tile .cap-copy p {
+    -webkit-line-clamp: 5;
     font-size: 0.9rem;
   }
 }

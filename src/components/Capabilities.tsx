@@ -3,10 +3,15 @@ import { useSite } from "../context/SiteContext";
 import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
 
+function mosaicClass(count: number) {
+  if (count <= 4) return "is-four";
+  if (count <= 6) return "is-six";
+  return "is-many";
+}
+
 export function Capabilities({ limit, heading = true }: { limit?: number; heading?: boolean }) {
   const { content } = useSite();
   const items = limit ? content.capabilities.items.slice(0, limit) : content.capabilities.items;
-  const dense = items.length > 4;
 
   return (
     <section className="section cream" id="capabilities">
@@ -26,9 +31,9 @@ export function Capabilities({ limit, heading = true }: { limit?: number; headin
             </div>
           </Reveal>
         ) : null}
-        <div className={`cap-index${dense ? " is-dense" : ""}`}>
+        <div className={`cap-mosaic ${mosaicClass(items.length)}`}>
           {items.map((item, i) => (
-            <Reveal key={item.id} className={`cap-item cap-tone-${i % 4}`}>
+            <Reveal key={item.id} className={`cap-tile cap-tone-${i % 4}`}>
               <p className="cap-number">
                 <Editable path={`capabilities.items.${i}.number`} />
               </p>
