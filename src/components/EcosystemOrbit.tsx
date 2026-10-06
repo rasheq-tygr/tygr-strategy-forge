@@ -5,12 +5,19 @@ import { Editable } from "./Editable";
 import { Reveal } from "./Reveal";
 import { TigerMark } from "./TigerMark";
 
-export function EcosystemOrbit() {
+export function EcosystemOrbit({
+  heading = true,
+  apps: showApps = !heading,
+}: {
+  heading?: boolean;
+  apps?: boolean;
+}) {
   const { content } = useSite();
   const stage = useRef<HTMLDivElement>(null);
   const world = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<string>("hub");
   const nodes = content.ecosystem.nodes;
+  const apps = showApps ? (content.ecosystem.apps ?? []) : [];
   const progress = useRef(0);
   const mouse = useRef({ x: 0, y: 0 });
   const links = useRef<(SVGLineElement | null)[]>([]);
@@ -79,8 +86,9 @@ export function EcosystemOrbit() {
   const activeNode = nodes.find((n) => n.id === active);
 
   return (
-    <section className="section dark" id="ecosystem">
+    <section className={`section dark${heading ? "" : " is-flush"}`} id="ecosystem">
       <div className="wrap">
+        {heading ? (
         <Reveal>
           <div className="section-head">
             <p className="eyebrow">
@@ -94,6 +102,7 @@ export function EcosystemOrbit() {
             </p>
           </div>
         </Reveal>
+        ) : null}
         <div className="orbit-stage" ref={stage}>
           <div className="iso-floor" />
           <div className="orbit-ring" style={{ width: "72%", height: "46%" }} />
@@ -155,6 +164,49 @@ export function EcosystemOrbit() {
             </>
           )}
         </div>
+        {apps.length ? (
+          <div className="studio-apps">
+            <div className="studio-apps-head">
+              <p className="eyebrow">
+                <Editable path="ecosystem.appsEyebrow" />
+              </p>
+              <h3>
+                <Editable path="ecosystem.appsTitle" />
+              </h3>
+            </div>
+            <div className="studio-apps-grid">
+              {apps.map((app, i) => {
+                const href = safeHref(app.url);
+                const inner = (
+                  <>
+                    <small>
+                      <Editable path={`ecosystem.apps.${i}.role`} />
+                    </small>
+                    <h3>
+                      <Editable path={`ecosystem.apps.${i}.name`} />
+                    </h3>
+                    {href ? <span className="arrow-link">Open live app →</span> : null}
+                  </>
+                );
+                return href ? (
+                  <a
+                    key={app.id}
+                    className="card lift-border studio-app"
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={app.id} className="card studio-app">
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );

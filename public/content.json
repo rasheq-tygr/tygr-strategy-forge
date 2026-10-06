@@ -12,11 +12,11 @@
     "links": [
       {
         "label": "Ecosystem",
-        "href": "/#ecosystem"
+        "href": "/ecosystem"
       },
       {
         "label": "Capabilities",
-        "href": "/#capabilities"
+        "href": "/capabilities"
       },
       {
         "label": "Work",
@@ -57,6 +57,10 @@
     "eyebrow": "The orbit",
     "title": "One hub. A living ecosystem.",
     "body": "Most firms sell a slide. We run a system. Ventures, labs, academies, and delivery partners orbit the same center of gravity \u2014 so strategy has somewhere to land.",
+    "image": "/insights/launch/gathering.jpg",
+    "imageAlt": "Guests gathered in the launch room.",
+    "imagePosition": "center",
+    "imageCredit": "TYGR Ventures",
     "hubLabel": "TYGR Ventures",
     "hubBody": "The studio at the center. Venture design, capital of attention, and the operating cadence that keeps every node honest.",
     "nodes": [
@@ -65,28 +69,28 @@
         "name": "TygrLabs",
         "role": "Client \u00b7 tech arm",
         "summary": "RideCentric's back-office technology arm and a TYGR client \u2014 we work alongside them to turn product ideas into systems that ship.",
-        "url": ""
+        "url": "https://tygrlabs.co"
       },
       {
         "id": "casper",
         "name": "Casper Academy / BrainWrk",
         "role": "Learning system",
         "summary": "Capability-building for operators and coaches. Curriculum, practice, and the rituals that turn strategy into habit.",
-        "url": ""
+        "url": "https://casper.academy"
       },
       {
         "id": "ridecentric",
         "name": "RideCentric",
         "role": "Product venture",
         "summary": "A product company in the orbit whose back-office technology is built and run by its tech arm, TygrLabs \u2014 proof the studio works with operating businesses, not just advisory decks.",
-        "url": ""
+        "url": "https://ridecentric.com"
       },
       {
         "id": "rebl",
         "name": "Rebl",
         "role": "Product venture",
         "summary": "A second product node in the system. Distinct brand, shared discipline: ship, measure, compound.",
-        "url": ""
+        "url": "https://rebltech.com"
       },
       {
         "id": "punch",
@@ -102,12 +106,116 @@
         "summary": "A collaborative platform for capturing, developing, and connecting ideas \u2014 turning raw concepts into actionable plans. Seeking partners and early adopters.",
         "url": "https://wikiidea.org"
       }
+    ],
+    "appsEyebrow": "Studio apps",
+    "appsTitle": "Live products on here.now.",
+    "apps": [
+      {
+        "id": "mac-news",
+        "name": "Mac News",
+        "role": "Studio product",
+        "url": "https://rosy-atlas-f5jd.here.now/"
+      },
+      {
+        "id": "job-hub",
+        "name": "Job Search Command Center",
+        "role": "Studio product",
+        "url": "https://distant-paddle-4z7w.here.now/"
+      },
+      {
+        "id": "augmentation-index",
+        "name": "Augmentation Index",
+        "role": "Studio product",
+        "url": "https://hearty-tower-3xz4.here.now/"
+      },
+      {
+        "id": "daily-brief",
+        "name": "Daily Brief",
+        "role": "Studio product",
+        "url": "https://placid-dune-hzpe.here.now/"
+      },
+      {
+        "id": "sunday-insights",
+        "name": "SUN Day Insights",
+        "role": "Energy intelligence",
+        "url": "https://karma-charm-y4ny.here.now/"
+      },
+      {
+        "id": "sharepoint-digest",
+        "name": "SharePoint Digest",
+        "role": "Learning",
+        "url": "https://hidden-forge-cysn.here.now/"
+      },
+      {
+        "id": "pmp-visual-learner",
+        "name": "PMP Visual Learner",
+        "role": "Learning",
+        "url": "https://oaken-walrus-ktpr.here.now/"
+      },
+      {
+        "id": "okkhor-bangla",
+        "name": "Okkhor Bangla",
+        "role": "Learning",
+        "url": "https://mystic-slate-mbwm.here.now/"
+      },
+      {
+        "id": "ridecentric-quote",
+        "name": "RideCentric Quote",
+        "role": "RideCentric",
+        "url": "https://unfold-geyser-ejs5.here.now/"
+      },
+      {
+        "id": "procurement-lite",
+        "name": "Procurement LITE",
+        "role": "RideCentric",
+        "url": "https://ancient-drift-w97a.here.now/"
+      },
+      {
+        "id": "bento-crm",
+        "name": "Squared Bento CRM",
+        "role": "RideCentric",
+        "url": "https://flint-aura-c9pt.here.now/"
+      },
+      {
+        "id": "affiliate-crm",
+        "name": "Affiliate CRM",
+        "role": "RideCentric",
+        "url": "https://eager-sparrow-wdtc.here.now/"
+      },
+      {
+        "id": "affiliate-directory",
+        "name": "Affiliate Directory",
+        "role": "RideCentric",
+        "url": "https://sable-larch-btjm.here.now/"
+      },
+      {
+        "id": "madridista-press",
+        "name": "Madridista Match Press",
+        "role": "Madridista",
+        "url": "https://ebony-pepper-49dh.here.now/"
+      },
+      {
+        "id": "kit-lookbook",
+        "name": "Kit Lookbook",
+        "role": "Madridista",
+        "url": "https://ember-flame-dmc8.here.now/"
+      },
+      {
+        "id": "design-directions",
+        "name": "Design Directions",
+        "role": "Madridista",
+        "url": "https://hidden-ferry-bvfq.here.now/"
+      }
     ]
   },
   "capabilities": {
     "eyebrow": "Capabilities",
     "title": "What the system actually does.",
     "body": "Three motions, one studio. We do not separate the strategy conversation from the build, or the build from the people who have to run it.",
+    "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2000&q=80",
+    "imageAlt": "A team gathered around a table working through a plan.",
+    "imagePosition": "center",
+    "imageCredit": "Unsplash",
     "items": [
       {
         "id": "strategy",
@@ -140,6 +248,10 @@
     "title": "Systems we have stood up.",
     "body": "Named partners where we can. Anonymous where the client has not cleared a public mention.",
     "cta": "All work",
+    "image": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=2000&q=80",
+    "imageAlt": "An open studio workspace.",
+    "imagePosition": "center",
+    "imageCredit": "Unsplash",
     "items": [
       {
         "id": "job-search-command-center",
@@ -155,7 +267,8 @@
           "Operating system"
         ],
         "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80",
-        "imageCredit": "Unsplash"
+        "imageCredit": "Unsplash",
+        "url": "https://distant-paddle-4z7w.here.now/"
       },
       {
         "id": "mac-news",
@@ -171,7 +284,8 @@
           "Editorial"
         ],
         "image": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1600&q=80",
-        "imageCredit": "Unsplash"
+        "imageCredit": "Unsplash",
+        "url": "https://rosy-atlas-f5jd.here.now/"
       },
       {
         "id": "ai-index",
@@ -187,7 +301,8 @@
           "Strategy"
         ],
         "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
-        "imageCredit": "Unsplash"
+        "imageCredit": "Unsplash",
+        "url": "https://hearty-tower-3xz4.here.now/"
       },
       {
         "id": "coaching-federation",

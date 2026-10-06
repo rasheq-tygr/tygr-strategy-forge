@@ -18,7 +18,7 @@ import {
   verifyGoogleToken,
   verifyPassword,
 } from "../lib/api";
-import { mergeInsightMedia } from "../lib/contentMerge";
+import { mergeShippedContent } from "../lib/contentMerge";
 import { consumeGoogleRedirect, decodeIdToken } from "../lib/google";
 import { getByPath, setByPath } from "../lib/paths";
 import { isSiteContent, type SiteContent } from "../types/content";
@@ -61,7 +61,7 @@ export function SiteProvider({ children }: { children: ReactNode }) {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!cancelled && isSiteContent(data)) {
-          setContent(mergeInsightMedia(data, shippedContent));
+          setContent(mergeShippedContent(data, shippedContent));
         }
       })
       .catch(() => undefined);

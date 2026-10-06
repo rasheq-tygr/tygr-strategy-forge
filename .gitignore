@@ -4,7 +4,13 @@ dist
 .env.local
 *.log
 .DS_Store
+.herenow/
 public/api/config.php
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/.htaccess
+tsconfig.tsbuildinfo
+src/**/*.tsbuildinfo
 public/uploads/*
 !public/uploads/.gitkeep
 !public/uploads/.htaccess

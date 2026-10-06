@@ -41,6 +41,7 @@ export function AdminLayout() {
           <Link to="/admin/insights">Blog</Link>
           <Link to="/admin/work">Case studies</Link>
           <Link to="/admin/capabilities">Capabilities</Link>
+          <Link to="/admin/ecosystem">Ecosystem</Link>
           <button type="button" onClick={() => void save()}>
             {status === "saving"
               ? content.admin.saving

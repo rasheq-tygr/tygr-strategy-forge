@@ -159,25 +159,25 @@ export function InsightDetailPage() {
               {item.imageCredit ? <span>{item.imageCredit}</span> : null}
             </p>
           ) : null}
-          {thumbs.length > 1 ? (
-            <div className="article-thumbs is-on-hero">
-              {thumbs.map((photo, i) => (
-                <button
-                  key={photo.src}
-                  type="button"
-                  className={`article-thumb${i === active ? " is-on" : ""}`}
-                  aria-label={photo.alt || `Photo ${i + 1}`}
-                  aria-pressed={i === active}
-                  onClick={() => setActive(i)}
-                >
-                  <img src={photo.src} alt="" />
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
       </section>
       <article className="article">
+        {thumbs.length > 1 ? (
+          <div className="article-picker" role="tablist" aria-label="Gallery">
+            {thumbs.map((photo, i) => (
+              <button
+                key={photo.src}
+                type="button"
+                className={`article-pick${i === active ? " is-on" : ""}`}
+                aria-label={photo.alt || `Photo ${i + 1}`}
+                aria-pressed={i === active}
+                onClick={() => setActive(i)}
+              >
+                <img src={photo.src} alt="" />
+              </button>
+            ))}
+          </div>
+        ) : null}
         {blocks.map((block, i) => (
           <div key={i} className="article-block">
             <RichText source={block} className="article-rich article-graf" />

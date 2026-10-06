@@ -1,7 +1,9 @@
 import { Link, useParams } from "react-router-dom";
 import { Editable } from "../components/Editable";
+import { PageHero } from "../components/PageHero";
 import { RichText } from "../components/RichText";
 import { useSite } from "../context/SiteContext";
+import { safeHref } from "../lib/security";
 
 export function WorkDetailPage() {
   const { slug } = useParams();
@@ -22,26 +24,35 @@ export function WorkDetailPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="wrap">
-          <p className="eyebrow">
-            <Editable path={`work.items.${index}.client`} />
-          </p>
-          <h1 className="display-lg">
-            <Editable path={`work.items.${index}.title`} />
-          </h1>
-          <p className="lede">
-            <Editable path={`work.items.${index}.summary`} multiline />
-          </p>
-        </div>
-      </section>
+      <PageHero
+        image={item.image}
+        imageAlt={item.imageAlt}
+        imagePosition={item.imagePosition}
+        imageCredit={item.imageCredit}
+      >
+        <p className="eyebrow">
+          <Editable path={`work.items.${index}.client`} />
+        </p>
+        <h1 className="display-lg">
+          <Editable path={`work.items.${index}.title`} />
+        </h1>
+        <p className="lede">
+          <Editable path={`work.items.${index}.summary`} multiline />
+        </p>
+      </PageHero>
       <article className="article">
-        {item.image ? <img src={item.image} alt={item.title} style={{ marginBottom: "1.5rem" }} /> : null}
         <RichText source={item.body} />
         <p>
           <strong>Outcome. </strong>
           <Editable path={`work.items.${index}.outcome`} multiline />
         </p>
+        {safeHref(item.url) ? (
+          <p>
+            <a className="arrow-link" href={safeHref(item.url)} target="_blank" rel="noreferrer">
+              Open live app →
+            </a>
+          </p>
+        ) : null}
         <p>
           <Link className="arrow-link" to="/work">
             All work →

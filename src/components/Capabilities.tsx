@@ -14,7 +14,7 @@ export function Capabilities({ limit, heading = true }: { limit?: number; headin
   const items = limit ? content.capabilities.items.slice(0, limit) : content.capabilities.items;
 
   return (
-    <section className="section cream" id="capabilities">
+    <section className={`section cream${heading ? "" : " is-flush"}`} id="capabilities">
       <div className="wrap">
         {heading ? (
           <Reveal>
