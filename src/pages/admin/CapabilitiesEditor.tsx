@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Accordion } from "../../components/admin/Accordion";
 import { AreaField, TextField } from "../../components/admin/Field";
 import { useSite } from "../../context/SiteContext";
 import type { CapabilityItem } from "../../types/content";
@@ -12,6 +14,7 @@ const emptyCap = (): CapabilityItem => ({
 export function CapabilitiesEditor() {
   const { content, replace } = useSite();
   const items = content.capabilities.items;
+  const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
 
   const update = (index: number, patch: Partial<CapabilityItem>) => {
     const next = items.map((item, i) => (i === index ? { ...item, ...patch } : item));
@@ -23,26 +26,31 @@ export function CapabilitiesEditor() {
       <div className="editor-page-head">
         <div>
           <h1 className="display-lg">Capabilities editor</h1>
-          <p className="lede">Number, title, and the short description for each square.</p>
+          <p className="lede">One open accordion at a time keeps the page short.</p>
         </div>
         <button
           className="btn btn-primary"
           type="button"
-          onClick={() =>
+          onClick={() => {
+            const cap = emptyCap();
             replace({
               ...content,
-              capabilities: { ...content.capabilities, items: [...items, emptyCap()] },
-            })
-          }
+              capabilities: { ...content.capabilities, items: [...items, cap] },
+            });
+            setOpenId(cap.id);
+          }}
         >
           Add capability
         </button>
       </div>
       <div className="editor-list">
         {items.map((item, i) => (
-          <article className="editor-card" key={item.id}>
-            <div className="editor-section-head">
-              <h2>{item.title || "Untitled capability"}</h2>
+          <Accordion
+            key={item.id}
+            title={`${item.number} · ${item.title || "Untitled capability"}`}
+            open={openId === item.id}
+            onToggle={() => setOpenId((current) => (current === item.id ? null : item.id))}
+            actions={
               <button
                 type="button"
                 onClick={() =>
@@ -57,7 +65,8 @@ export function CapabilitiesEditor() {
               >
                 Remove
               </button>
-            </div>
+            }
+          >
             <div className="editor-section">
               <div className="editor-grid-2">
                 <TextField label="Number" value={item.number} onChange={(number) => update(i, { number })} />
@@ -65,7 +74,7 @@ export function CapabilitiesEditor() {
               </div>
               <AreaField label="Description" value={item.body} onChange={(body) => update(i, { body })} />
             </div>
-          </article>
+          </Accordion>
         ))}
       </div>
     </div>

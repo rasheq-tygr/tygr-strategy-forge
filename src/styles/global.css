@@ -1530,15 +1530,64 @@ h3,
 
 .editor-list {
   display: grid;
-  gap: 1.4rem;
+  gap: 0.7rem;
 }
 
-.editor-card {
+.editor-card,
+.editor-accordion {
   background: #fff;
   border: var(--hairline-light);
-  padding: 1.25rem;
+  padding: 0;
   display: grid;
-  gap: 1.2rem;
+}
+
+.editor-accordion-head {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+}
+
+.editor-accordion-toggle {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  flex: 1;
+  min-width: 12rem;
+}
+
+.editor-accordion-chevron {
+  color: rgba(18, 21, 28, 0.55);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.editor-accordion-titles {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.editor-accordion-titles strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.editor-accordion-subtitle {
+  font-size: 0.8rem;
+  color: rgba(18, 21, 28, 0.62);
+}
+
+.editor-accordion-body {
+  padding: 0 1rem 1rem;
+  border-top: var(--hairline-light);
 }
 
 .editor-card h2 {
@@ -1556,14 +1605,63 @@ h3,
 
 .editor-section {
   display: grid;
-  gap: 0.75rem;
-  padding-top: 0.2rem;
-  border-top: var(--hairline-light);
+  gap: 0.65rem;
+  padding-top: 0.75rem;
 }
 
-.editor-section:first-of-type {
-  border-top: 0;
-  padding-top: 0;
+.editor-tabs {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.editor-tablist {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.editor-tablist-scroll {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.editor-tab {
+  border: var(--hairline-light);
+  background: var(--tygr-cream-light);
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor-tab.is-active {
+  background: var(--tygr-navy);
+  color: #fff;
+  border-color: var(--tygr-navy);
+}
+
+.editor-tab-with-thumb {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.editor-tab-with-thumb img {
+  width: 1.35rem;
+  height: 1.35rem;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.editor-tabpanel,
+.editor-image-panel {
+  display: grid;
+  gap: 0.65rem;
 }
 
 .editor-section-head {
@@ -1629,7 +1727,10 @@ h3,
 
 .editor-card input,
 .editor-card textarea,
-.editor-card select {
+.editor-card select,
+.editor-accordion input,
+.editor-accordion textarea,
+.editor-accordion select {
   width: 100%;
   border: var(--hairline-light);
   padding: 0.55rem 0.65rem;
@@ -1637,15 +1738,16 @@ h3,
   font: inherit;
 }
 
-.editor-card textarea {
-  min-height: 7rem;
+.editor-card textarea,
+.editor-accordion textarea {
+  min-height: 5.5rem;
 }
 
 .editor-paragraphs,
 .editor-rich-body,
 .editor-gallery {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.65rem;
 }
 
 .editor-paragraph,
@@ -1679,24 +1781,36 @@ h3,
 }
 
 .editor-rich-source {
-  min-height: 16rem;
+  min-height: 11rem;
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 0.92rem;
   line-height: 1.5;
 }
 
 .editor-rich-preview {
-  min-height: 12rem;
+  min-height: 10rem;
+  max-height: 22rem;
+  overflow: auto;
   padding: 1rem;
   border: var(--hairline-light);
   background: #fff;
 }
 
-.editor-rich-blocks {
-  margin: 0;
-  padding: 0.75rem 0.75rem 0.75rem 1.6rem;
+.editor-rich-blocks-details {
   border: var(--hairline-light);
   background: var(--tygr-cream-light);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.86rem;
+}
+
+.editor-rich-blocks-details summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.editor-rich-blocks {
+  margin: 0.55rem 0 0;
+  padding: 0 0 0 1.1rem;
   display: grid;
   gap: 0.45rem;
   font-size: 0.86rem;
@@ -1713,7 +1827,14 @@ h3,
 
 .editor-media {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.55rem;
+}
+
+.editor-media-head {
+  display: flex;
+  gap: 0.85rem;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .editor-media-preview {
@@ -1721,6 +1842,14 @@ h3,
   width: auto;
   object-fit: cover;
   background: var(--tygr-navy);
+}
+
+.editor-media.is-compact .editor-media-preview {
+  width: 5.5rem;
+  height: 5.5rem;
+  max-height: none;
+  flex: 0 0 auto;
+  object-fit: cover;
 }
 
 .editor-media-search {
