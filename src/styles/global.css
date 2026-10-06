@@ -1450,8 +1450,8 @@ button.page-hero-media {
 }
 
 .article {
-  max-width: 44rem;
-  margin: 0 auto;
+  max-width: 40rem;
+  margin: 0;
   padding: 3rem 0 6rem;
 }
 
@@ -1577,9 +1577,9 @@ button.page-hero-media {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  margin: 0 auto 2rem;
+  margin: 0 0 2rem;
   width: 100%;
-  max-width: 32rem;
+  max-width: 100%;
   overflow: hidden;
   overflow-x: clip;
 }

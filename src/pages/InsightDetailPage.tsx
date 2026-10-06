@@ -161,37 +161,39 @@ export function InsightDetailPage() {
           ) : null}
         </div>
       </section>
-      <article className="article">
-        {thumbs.length > 1 ? (
-          <div className="article-picker" role="tablist" aria-label="Gallery">
-            {thumbs.map((photo, i) => (
-              <button
-                key={photo.src}
-                type="button"
-                className={`article-pick${i === active ? " is-on" : ""}`}
-                aria-label={photo.alt || `Photo ${i + 1}`}
-                aria-pressed={i === active}
-                onClick={() => setActive(i)}
-              >
-                <img src={photo.src} alt="" />
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {blocks.map((block, i) => (
-          <div key={i} className="article-block">
-            <RichText source={block} className="article-rich article-graf" />
-            {embeds.get(i)?.map((photo) => (
-              <ArticleFigure key={photo.src} photo={photo} onOpen={() => setOpen(photo)} />
-            ))}
-          </div>
-        ))}
-        <p>
-          <Link className="arrow-link" to="/insights">
-            All insights →
-          </Link>
-        </p>
-      </article>
+      <div className="wrap">
+        <article className="article">
+          {thumbs.length > 1 ? (
+            <div className="article-picker" role="tablist" aria-label="Gallery">
+              {thumbs.map((photo, i) => (
+                <button
+                  key={photo.src}
+                  type="button"
+                  className={`article-pick${i === active ? " is-on" : ""}`}
+                  aria-label={photo.alt || `Photo ${i + 1}`}
+                  aria-pressed={i === active}
+                  onClick={() => setActive(i)}
+                >
+                  <img src={photo.src} alt="" />
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {blocks.map((block, i) => (
+            <div key={i} className="article-block">
+              <RichText source={block} className="article-rich article-graf" />
+              {embeds.get(i)?.map((photo) => (
+                <ArticleFigure key={photo.src} photo={photo} onOpen={() => setOpen(photo)} />
+              ))}
+            </div>
+          ))}
+          <p>
+            <Link className="arrow-link" to="/insights">
+              All insights →
+            </Link>
+          </p>
+        </article>
+      </div>
       <Lightbox photo={open} onClose={() => setOpen(null)} />
     </>
   );
