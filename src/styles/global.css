@@ -1052,7 +1052,7 @@ h3,
 
 .sat {
   position: absolute;
-  width: 168px;
+  width: 180px;
   transform: translate(-50%, -50%);
   z-index: 5;
 }
@@ -1065,7 +1065,18 @@ h3,
   border: var(--hairline-dark);
   padding: 0.9rem 1rem;
   cursor: pointer;
+  overflow: visible;
   transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sat strong {
+  display: block;
+  max-width: none;
+  line-height: 1.25;
+  overflow: visible;
+  overflow-wrap: break-word;
+  -webkit-line-clamp: unset;
+  text-overflow: clip;
 }
 
 .sat button:hover,
@@ -1115,9 +1126,14 @@ h3,
 }
 
 .studio-app {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
   text-decoration: none;
   color: inherit;
-  min-height: 8.5rem;
+  min-height: 9.5rem;
+  overflow: visible;
 }
 
 .studio-app small {
@@ -1130,11 +1146,22 @@ h3,
 }
 
 .studio-app h3 {
-  margin: 0.45rem 0 0.9rem;
+  margin: 0;
+  flex: 1 1 auto;
+  max-width: none;
   font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow: visible;
+  overflow-wrap: break-word;
+  text-wrap: wrap;
+  display: block;
+  -webkit-line-clamp: unset;
+  text-overflow: clip;
 }
 
 .studio-app .arrow-link {
+  margin-top: auto;
   font-size: 0.88rem;
 }
 
@@ -2700,6 +2727,10 @@ button.page-hero-media {
     min-height: 520px;
   }
   .sat {
-    width: 132px;
+    width: 148px;
+  }
+
+  .sat strong {
+    font-size: 0.92rem;
   }
 }
