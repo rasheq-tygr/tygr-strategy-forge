@@ -2,8 +2,10 @@ import { Link, useParams } from "react-router-dom";
 import { Editable } from "../components/Editable";
 import { PageHero } from "../components/PageHero";
 import { RichText } from "../components/RichText";
+import { TypeSizeControl } from "../components/TypeSizeControl";
 import { useSite } from "../context/SiteContext";
 import { safeHref } from "../lib/security";
+import { typeSizeClass } from "../lib/textSize";
 
 export function WorkDetailPage() {
   const { slug } = useParams();
@@ -36,29 +38,39 @@ export function WorkDetailPage() {
         <h1 className="display-lg">
           <Editable path={`work.items.${index}.title`} />
         </h1>
-        <p className="lede">
-          <Editable path={`work.items.${index}.summary`} multiline />
-        </p>
-      </PageHero>
-      <article className="article">
-        <RichText source={item.body} />
-        <p>
-          <strong>Outcome. </strong>
-          <Editable path={`work.items.${index}.outcome`} multiline />
-        </p>
-        {safeHref(item.url) ? (
-          <p>
-            <a className="arrow-link" href={safeHref(item.url)} target="_blank" rel="noreferrer">
-              Open live app →
-            </a>
+        <div className="type-size-field">
+          <TypeSizeControl path={`work.items.${index}.summarySize`} label="Subtitle size" />
+          <p className={typeSizeClass(item.summarySize, "lede")}>
+            <Editable path={`work.items.${index}.summary`} multiline />
           </p>
-        ) : null}
-        <p>
-          <Link className="arrow-link" to="/work">
-            All work →
-          </Link>
-        </p>
-      </article>
+        </div>
+      </PageHero>
+      <div className="wrap">
+        <article className="article">
+          <div className="type-size-field">
+            <TypeSizeControl path={`work.items.${index}.bodySize`} label="Body size" />
+            <div className={typeSizeClass(item.bodySize, "article-copy")}>
+              <RichText source={item.body} />
+              <p>
+                <strong>Outcome. </strong>
+                <Editable path={`work.items.${index}.outcome`} multiline />
+              </p>
+            </div>
+          </div>
+          {safeHref(item.url) ? (
+            <p>
+              <a className="arrow-link" href={safeHref(item.url)} target="_blank" rel="noreferrer">
+                Open live app →
+              </a>
+            </p>
+          ) : null}
+          <p>
+            <Link className="arrow-link" to="/work">
+              All work →
+            </Link>
+          </p>
+        </article>
+      </div>
     </>
   );
 }
